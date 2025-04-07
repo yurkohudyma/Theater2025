@@ -5,7 +5,7 @@ public enum TicketStatus {
     PAID ("Сплачено"),
     DECLINED ("Відхилено"),
     CANCELLED ("Скасовано"),
-    COMPLETE ("Завершено");
+    UTILISED ("Використано");
 
     public final String str;
 

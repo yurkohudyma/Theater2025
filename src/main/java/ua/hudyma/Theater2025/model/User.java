@@ -45,7 +45,7 @@ public class User {
         ticket.setUser(this);
     }
 
-    private void removeTicket (Ticket ticket){
+    public void removeTicket (Ticket ticket){
         ticketList.remove(ticket);
         ticket.setUser(null);
     }

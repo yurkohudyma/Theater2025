@@ -9,8 +9,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "tickets")
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -35,13 +34,17 @@ public class Ticket {
     @Column(name = "status")
     TicketStatus ticketStatus;
 
-    @ManyToOne (optional = false)
+    /*@OneToOne(optional = false)
     @JoinColumn(name = "movie_id")
-    private Movie movie;
+    private Movie movie;*/
+
+    public void setUser(User user) {
+        this.user = user; //lombok's setter causes build error java: cannot find symbol : method setUser(ua.hudyma.Theater2025.model.User)
+    }
 
     @JsonBackReference(value = "users_tickets")
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id")
-    private User user;
+    User user;
 
 }
