@@ -6,13 +6,12 @@ import lombok.*;
 import ua.hudyma.Theater2025.constants.UserAccessLevel;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table (name = "users")
-@Data
 @EqualsAndHashCode(of = "id")
-@ToString
 public class User {
 
     @Id
@@ -38,7 +37,55 @@ public class User {
     @JsonManagedReference(value = "users_tickets")
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @Setter(AccessLevel.PRIVATE)
-    private List<Ticket> ticketList;
+    private List<Ticket> ticketList = new ArrayList<>();
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public UserAccessLevel getAccessLevel() {
+        return accessLevel;
+    }
+
+    public void setAccessLevel(UserAccessLevel accessLevel) {
+        this.accessLevel = accessLevel;
+    }
+
+    public LocalDateTime getRegisterDate() {
+        return registerDate;
+    }
+
+    public void setRegisterDate(LocalDateTime registerDate) {
+        this.registerDate = registerDate;
+    }
+
+    public LocalDateTime getUpdateDate() {
+        return updateDate;
+    }
+
+    public void setUpdateDate(LocalDateTime updateDate) {
+        this.updateDate = updateDate;
+    }
 
     public void addTicket (Ticket ticket){
         ticketList.add(ticket);
@@ -50,8 +97,17 @@ public class User {
         ticket.setUser(null);
     }
 
+    public User() {
+    }
 
-
+    public User(Long id, String name, String email, UserAccessLevel accessLevel, LocalDateTime registerDate, LocalDateTime updateDate) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.accessLevel = accessLevel;
+        this.registerDate = registerDate;
+        this.updateDate = updateDate;
+    }
 
     //todo transactions list
 

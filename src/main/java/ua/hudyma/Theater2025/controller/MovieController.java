@@ -1,6 +1,5 @@
 package ua.hudyma.Theater2025.controller;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -10,16 +9,20 @@ import ua.hudyma.Theater2025.repository.MovieRepository;
 
 @Log4j
 @RequestMapping("/movies")
-@RequiredArgsConstructor
 @Controller
 public class MovieController {
-    /*private final MovieRepository movieRepository;
+    public MovieController(MovieRepository movieRepository) {
+        this.movieRepository = movieRepository;
+    }
+
+    private final MovieRepository movieRepository;
 
     @GetMapping("")
     public String getAll (Model model){
         var movieList = movieRepository.findAll();
         model.addAttribute("movieList", movieList);
         return "movies";
-    }*/
+    }
+
 
 }

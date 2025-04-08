@@ -9,13 +9,8 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "movies")
-@Getter
-@Setter
 @EqualsAndHashCode(of = "id")
 public class Movie {
-
-    public Movie() {
-    }
 
     @Id
     @GeneratedValue (strategy = GenerationType.IDENTITY)
@@ -37,25 +32,23 @@ public class Movie {
     @Column(name = "name")
     String name;
 
-   /* @OneToOne(mappedBy = "movie")
-    Ticket ticket;
-
-    @JsonBackReference(value = "halls_movies")
-    @ManyToOne(optional = true)
-    @JoinColumn(name = "movie_id")
-    private Hall hall;*/
+   //@JsonBackReference(value = "tickets_movies")
 
 
 
-    public Movie(Long id, Genre genre, LocalDate premiereStart, LocalDate showEnd, String imdbIndex/*, Ticket ticket, Hall hall*/, String name) {
-        this.id = id;
+
+    // get & set & construct
+
+    public Movie() {
+    }
+
+    public Movie(Genre genre, LocalDate premiereStart, LocalDate showEnd, String imdbIndex, String name/*, Ticket ticket*/) {
         this.genre = genre;
         this.premiereStart = premiereStart;
         this.showEnd = showEnd;
         this.imdbIndex = imdbIndex;
-        /*this.ticket = ticket;
-        this.hall = hall;*/
         this.name = name;
+        /*this.ticket = ticket;*/
     }
 
     public Long getId() {
@@ -105,20 +98,4 @@ public class Movie {
     public void setName(String name) {
         this.name = name;
     }
-
-    /*public Ticket getTicket() {
-        return ticket;
-    }
-
-    public void setTicket(Ticket ticket) {
-        this.ticket = ticket;
-    }*/
-
-    /*public Hall getHall() {
-        return hall;
-    }
-
-    public void setHall(Hall hall) {
-        this.hall = hall;
-    }*/
 }

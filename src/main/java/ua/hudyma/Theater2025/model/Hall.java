@@ -1,5 +1,6 @@
 package ua.hudyma.Theater2025.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -9,10 +10,6 @@ import java.util.List;
 
 @Entity
 @Table(name = "halls")
-@NoArgsConstructor
-@AllArgsConstructor
-@Getter
-@Setter
 @EqualsAndHashCode(of = "id")
 @ToString
 public class Hall {
@@ -27,11 +24,29 @@ public class Hall {
     @Column(name = "name")
     String name;
 
-   /* @JsonManagedReference(value = "halls_movies")
-    @OneToMany(mappedBy = "hall", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @Setter(AccessLevel.PRIVATE)
-    private List<Movie> movieList = new ArrayList<>();
-*/
+    /*@JsonBackReference(value = "tickets_halls")
+    @OneToOne(optional = false)
+    @JoinColumn(name = "hall_id")
+    private Ticket ticket;*/
 
+    //private List<Movie> movieList;
 
+    public Hall() {
+    }
+
+    public Hall(Integer id, Integer capacity, String name/*, Ticket ticket*/) {
+        this.id = id;
+        this.capacity = capacity;
+        this.name = name;
+        /*this.ticket = ticket;*/
+        /*this.movieList = new ArrayList<>();*/
+    }
+
+    /*public void addMovie (Movie movie){
+        movieList.add(movie);
+    }
+
+    public void removeMovie (Movie movie){
+        movieList.remove(movie);
+    }*/
 }
