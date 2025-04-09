@@ -33,6 +33,8 @@
                 <th>Вартість</th>
                 <th>Статус</th>
                 <th>Кінозал</th>
+                <th>Ряд</th>
+                <th>Місце</th>
             </tr>
             </thead>
             <tbody>
@@ -41,9 +43,11 @@
                 <td class="ticket_unit" th:text="${ticket.user.name}"></td>
                 <td class="ticket_unit" th:text="${ticket.purchasedOn}"></td>
                 <td class="ticket_unit" th:text="${ticket.scheduledOn}"></td>
-                <td class="ticket_unit" th:text="'€'+${ticket.value}"></td>
+                <td class="ticket_unit" th:text="'₴'+${ticket.value}"></td>
                 <td class="ticket_unit" th:text="${ticket.ticketStatus.str}"></td>
                 <td class="ticket_unit" th:text="${ticket.hall.name}"></td>
+                <td class="ticket_unit" th:text="${ticket.roww}"></td>
+                <td class="ticket_unit" th:text="${ticket.seat}"></td>
 
                 <!-- <td class="buttons_ticket_unit">
                     <form action="#" th:action="@{'/tickets/'+${ticket.id}}" th:method="delete">

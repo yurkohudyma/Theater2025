@@ -1,12 +1,13 @@
 package ua.hudyma.Theater2025.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import ua.hudyma.Theater2025.constants.TicketStatus;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "tickets")
@@ -23,10 +24,32 @@ public class Ticket {
     Double value;
 
     @Column (name = "purchased_on")
-    LocalDateTime purchasedOn;
+    LocalDate purchasedOn;
 
     @Column(name = "scheduled_on")
-    LocalDateTime scheduledOn;
+    LocalDate scheduledOn;
+
+    @Column(name = "roww")
+    Integer roww;
+
+    @Column(name = "seat")
+    Integer seat;
+
+    public Integer getRoww() {
+        return roww;
+    }
+
+    public void setRoww(Integer row) {
+        this.roww = row;
+    }
+
+    public Integer getSeat() {
+        return seat;
+    }
+
+    public void setSeat(Integer seat) {
+        this.seat = seat;
+    }
 
     public Hall getHall() {
         return hall;
@@ -86,19 +109,19 @@ public class Ticket {
         this.value = value;
     }
 
-    public LocalDateTime getPurchasedOn() {
+    public LocalDate getPurchasedOn() {
         return purchasedOn;
     }
 
-    public void setPurchasedOn(LocalDateTime purchasedOn) {
+    public void setPurchasedOn(LocalDate purchasedOn) {
         this.purchasedOn = purchasedOn;
     }
 
-    public LocalDateTime getScheduledOn() {
+    public LocalDate getScheduledOn() {
         return scheduledOn;
     }
 
-    public void setScheduledOn(LocalDateTime scheduledOn) {
+    public void setScheduledOn(LocalDate scheduledOn) {
         this.scheduledOn = scheduledOn;
     }
 
@@ -120,16 +143,4 @@ public class Ticket {
 
     public Ticket() {
     }
-
-   /* public Ticket(Long id, Double value, LocalDateTime purchasedOn, LocalDateTime scheduledOn, TicketStatus ticketStatus, Movie movie, User user, Hall hall) {
-        this.id = id;
-        this.value = value;
-        this.purchasedOn = purchasedOn;
-        this.scheduledOn = scheduledOn;
-        this.ticketStatus = ticketStatus;
-        this.movie = movie;
-        this.user = user;
-       this.hall = hall;
-    }*/
-
 }

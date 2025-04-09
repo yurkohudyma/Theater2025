@@ -20,8 +20,11 @@ public class Hall {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
 
-    @Column(name = "capacity")
-    Integer capacity;
+    @Column(name = "rowz")
+    Integer rowz;
+
+    @Column(name = "seats")
+    Integer seats;
 
     @Column(name = "name")
     String name;
@@ -37,12 +40,20 @@ public class Hall {
         this.id = id;
     }
 
-    public Integer getCapacity() {
-        return capacity;
+    public Integer getRowz() {
+        return rowz;
     }
 
-    public void setCapacity(Integer capacity) {
-        this.capacity = capacity;
+    public void setRowz(Integer rows) {
+        this.rowz = rows;
+    }
+
+    public Integer getSeats() {
+        return seats;
+    }
+
+    public void setSeats(Integer seats) {
+        this.seats = seats;
     }
 
     public String getName() {
@@ -52,12 +63,6 @@ public class Hall {
     public void setName(String name) {
         this.name = name;
     }
-
-    /*public Hall(Integer id, Integer capacity, String name) {
-        this.id = id;
-        this.capacity = capacity;
-        this.name = name;
-    }*/
 
     @JsonManagedReference(value = "halls_tickets")
     @OneToMany(mappedBy = "hall",

@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import ua.hudyma.Theater2025.constants.UserAccessLevel;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,10 +30,10 @@ public class User {
     UserAccessLevel accessLevel;
 
     @Column(name = "register_date")
-    LocalDateTime registerDate;
+    LocalDate registerDate;
 
     @Column(name = "update_date")
-    LocalDateTime updateDate;
+    LocalDate updateDate;
 
     @JsonManagedReference(value = "users_tickets")
     @OneToMany(mappedBy = "user",
@@ -73,19 +74,19 @@ public class User {
         this.accessLevel = accessLevel;
     }
 
-    public LocalDateTime getRegisterDate() {
+    public LocalDate getRegisterDate() {
         return registerDate;
     }
 
-    public void setRegisterDate(LocalDateTime registerDate) {
+    public void setRegisterDate(LocalDate registerDate) {
         this.registerDate = registerDate;
     }
 
-    public LocalDateTime getUpdateDate() {
+    public LocalDate getUpdateDate() {
         return updateDate;
     }
 
-    public void setUpdateDate(LocalDateTime updateDate) {
+    public void setUpdateDate(LocalDate updateDate) {
         this.updateDate = updateDate;
     }
 

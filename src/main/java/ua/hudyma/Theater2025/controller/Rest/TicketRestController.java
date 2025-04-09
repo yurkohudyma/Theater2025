@@ -12,6 +12,7 @@ import ua.hudyma.Theater2025.repository.MovieRepository;
 import ua.hudyma.Theater2025.repository.TicketRepository;
 import ua.hudyma.Theater2025.repository.UserRepository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -50,8 +51,8 @@ public class TicketRestController {
     @PostMapping("/add")
     @ResponseStatus(HttpStatus.CREATED)
     public void addTicket (@RequestBody Ticket ticket){
-        ticket.setPurchasedOn(LocalDateTime.now());
-        ticket.setScheduledOn(LocalDateTime.now().plusMinutes(30));
+        ticket.setPurchasedOn(LocalDate.now());
+        ticket.setScheduledOn(LocalDate.now().plusDays(1));
         ticket.setTicketStatus(TicketStatus.PAID);
         User user = userRepository.findById(ticket.getUser().getId()).orElseThrow();
         ticket.setUser(user);

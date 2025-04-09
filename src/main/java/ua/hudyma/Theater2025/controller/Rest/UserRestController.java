@@ -6,7 +6,9 @@ import ua.hudyma.Theater2025.constants.UserAccessLevel;
 import ua.hudyma.Theater2025.model.User;
 import ua.hudyma.Theater2025.repository.UserRepository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -28,11 +30,19 @@ public class UserRestController {
     @PostMapping("/add")
     @ResponseStatus(HttpStatus.CREATED)
     public void addUser (@RequestBody User user){
-        user.setRegisterDate(LocalDateTime.now());
+        user.setRegisterDate(LocalDate.now());
         user.setAccessLevel(UserAccessLevel.USER);
         userRepository.save(user);
         System.out.println("...added user "+ user.getName());
     }
+
+    @PostMapping("/addAll")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void addAll (@RequestBody User[] users){
+        Arrays.stream(users).forEach(this::addUser);
+    }
+
+
 
     public UserRestController(UserRepository userRepository) {
         this.userRepository = userRepository;
