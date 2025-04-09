@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8" content="application/json">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=yes, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <link rel="icon" href="/img/favicon.ico" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Arsenal:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+          rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+
+
+    <title>Theater2025 ::: Квиточки</title>
+</head>
+<body>
+<div class="wrapper">
+    <header>
+    </header>
+
+    <!--TICKET LISTING SECTION-->
+
+        <div class="ticket_header">Квиточки</div>
+        <table class="ticket_table" th:unless="${ticketList.isEmpty}">
+
+            <thead>
+            <tr class="ticket_table_legend">
+                <th>№</th>
+                <th>Власник</th>
+                <th>Придбано</th>
+                <th>Сеанс</th>
+                <th>Вартість</th>
+                <th>Статус</th>
+                <th>Кінозал</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="ticket : ${ticketList}">
+                <td class="ticket_unit" th:text="${ticket.id}"></td>
+                <td class="ticket_unit" th:text="${ticket.user.name}"></td>
+                <td class="ticket_unit" th:text="${ticket.purchasedOn}"></td>
+                <td class="ticket_unit" th:text="${ticket.scheduledOn}"></td>
+                <td class="ticket_unit" th:text="'€'+${ticket.value}"></td>
+                <td class="ticket_unit" th:text="${ticket.ticketStatus.str}"></td>
+                <td class="ticket_unit" th:text="${ticket.hall.name}"></td>
+
+                <!-- <td class="buttons_ticket_unit">
+                    <form action="#" th:action="@{'/tickets/'+${ticket.id}}" th:method="delete">
+                        <button type="submit" class="delete_ico_ticketlist">
+                            <img th:src="@{/img/delete-button.png}" th:title="Видалити"/>
+                        </button>
+                    </form>
+                </td>
+                <td class="buttons_ticket_unit">
+                    <a href="edit.html" th:href="@{'/edit/'+${ticket.id}+'/ticket'}">
+                        <img class="edit_ico_ticketlist_in_tickets"
+                             th:src="@{/img/edit-button.png}" th:title="Редагувати"/>
+                    </a>
+                </td>
+                -->
+            </tr>
+            </tbody>
+        </table>
+
+
+</div>
+</body>
+</html>
