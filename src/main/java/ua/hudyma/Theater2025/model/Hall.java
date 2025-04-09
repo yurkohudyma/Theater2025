@@ -1,12 +1,8 @@
 package ua.hudyma.Theater2025.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.*;
-
-import java.util.ArrayList;
-import java.util.List;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Entity
 @Table(name = "halls")
@@ -24,29 +20,36 @@ public class Hall {
     @Column(name = "name")
     String name;
 
-    /*@JsonBackReference(value = "tickets_halls")
-    @OneToOne(optional = false)
-    @JoinColumn(name = "hall_id")
-    private Ticket ticket;*/
-
-    //private List<Movie> movieList;
-
     public Hall() {
     }
 
-    public Hall(Integer id, Integer capacity, String name/*, Ticket ticket*/) {
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public Integer getCapacity() {
+        return capacity;
+    }
+
+    public void setCapacity(Integer capacity) {
+        this.capacity = capacity;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Hall(Integer id, Integer capacity, String name) {
         this.id = id;
         this.capacity = capacity;
         this.name = name;
-        /*this.ticket = ticket;*/
-        /*this.movieList = new ArrayList<>();*/
     }
-
-    /*public void addMovie (Movie movie){
-        movieList.add(movie);
-    }
-
-    public void removeMovie (Movie movie){
-        movieList.remove(movie);
-    }*/
 }

@@ -20,6 +20,11 @@ public class UserRestController {
         return userRepository.findAll();
     }
 
+    @GetMapping("{id}")
+    public User getById (@PathVariable ("id") Long id){
+        return userRepository.findById(id).orElseThrow();
+    }
+
     @PostMapping("/add")
     @ResponseStatus(HttpStatus.CREATED)
     public void addUser (@RequestBody User user){

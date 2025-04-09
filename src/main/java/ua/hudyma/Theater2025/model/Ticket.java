@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Table(name = "tickets")
 @Builder
 @EqualsAndHashCode(of = "id")
-@ToString(exclude = {"user"})
+@ToString(/*exclude = {"user"}*/)
 public class Ticket {
 
     @Id
@@ -27,6 +27,22 @@ public class Ticket {
 
     @Column(name = "scheduled_on")
     LocalDateTime scheduledOn;
+
+    public Hall getHall() {
+        return hall;
+    }
+
+    public void setHall(Hall hall) {
+        this.hall = hall;
+    }
+
+    public Movie getMovie() {
+        return movie;
+    }
+
+    public void setMovie(Movie movie) {
+        this.movie = movie;
+    }
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
@@ -105,7 +121,7 @@ public class Ticket {
     public Ticket() {
     }
 
-    public Ticket(Long id, Double value, LocalDateTime purchasedOn, LocalDateTime scheduledOn, TicketStatus ticketStatus, Movie movie, User user/*, Hall hall*/) {
+    public Ticket(Long id, Double value, LocalDateTime purchasedOn, LocalDateTime scheduledOn, TicketStatus ticketStatus, Movie movie, User user, Hall hall) {
         this.id = id;
         this.value = value;
         this.purchasedOn = purchasedOn;
@@ -113,7 +129,7 @@ public class Ticket {
         this.ticketStatus = ticketStatus;
         this.movie = movie;
         this.user = user;
-       /* this.hall = hall;*/
+       this.hall = hall;
     }
 
 }

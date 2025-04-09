@@ -1,8 +1,7 @@
 package ua.hudyma.Theater2025.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.EqualsAndHashCode;
 import ua.hudyma.Theater2025.constants.Genre;
 
 import java.time.LocalDate;
@@ -32,23 +31,17 @@ public class Movie {
     @Column(name = "name")
     String name;
 
-   //@JsonBackReference(value = "tickets_movies")
-
-
-
-
     // get & set & construct
 
     public Movie() {
     }
 
-    public Movie(Genre genre, LocalDate premiereStart, LocalDate showEnd, String imdbIndex, String name/*, Ticket ticket*/) {
+    public Movie(Genre genre, LocalDate premiereStart, LocalDate showEnd, String imdbIndex, String name) {
         this.genre = genre;
         this.premiereStart = premiereStart;
         this.showEnd = showEnd;
         this.imdbIndex = imdbIndex;
         this.name = name;
-        /*this.ticket = ticket;*/
     }
 
     public Long getId() {
