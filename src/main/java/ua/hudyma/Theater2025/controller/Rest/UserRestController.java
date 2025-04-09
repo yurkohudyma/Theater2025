@@ -31,6 +31,7 @@ public class UserRestController {
         user.setRegisterDate(LocalDateTime.now());
         user.setAccessLevel(UserAccessLevel.USER);
         userRepository.save(user);
+        System.out.println("...added user "+ user.getName());
     }
 
     public UserRestController(UserRepository userRepository) {

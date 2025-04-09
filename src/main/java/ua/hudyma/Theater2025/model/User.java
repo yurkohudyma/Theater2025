@@ -35,9 +35,11 @@ public class User {
     LocalDateTime updateDate;
 
     @JsonManagedReference(value = "users_tickets")
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user",
+               cascade = CascadeType.ALL,
+               fetch = FetchType.EAGER)
     @Setter(AccessLevel.PRIVATE)
-    private List<Ticket> ticketList = new ArrayList<>();
+    private List<Ticket> userTicketList = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -88,26 +90,26 @@ public class User {
     }
 
     public void addTicket (Ticket ticket){
-        ticketList.add(ticket);
+        userTicketList.add(ticket);
         ticket.setUser(this);
     }
 
     public void removeTicket (Ticket ticket){
-        ticketList.remove(ticket);
+        userTicketList.remove(ticket);
         ticket.setUser(null);
     }
 
     public User() {
     }
 
-    public User(Long id, String name, String email, UserAccessLevel accessLevel, LocalDateTime registerDate, LocalDateTime updateDate) {
+    /*public User(Long id, String name, String email, UserAccessLevel accessLevel, LocalDateTime registerDate, LocalDateTime updateDate) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.accessLevel = accessLevel;
         this.registerDate = registerDate;
         this.updateDate = updateDate;
-    }
+    }*/
 
     //todo transactions list
 

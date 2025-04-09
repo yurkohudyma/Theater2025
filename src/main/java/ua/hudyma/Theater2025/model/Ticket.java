@@ -53,13 +53,13 @@ public class Ticket {
     @JoinColumn(name = "user_id")
     private User user;
 
-    //@JsonManagedReference(value = "tickets_halls")
-    @OneToOne(optional = false)
+    @JsonBackReference(value = "halls_tickets")
+    @ManyToOne(optional = false)
     @JoinColumn(name = "hall_id")
     private Hall hall;
 
-    //@JsonManagedReference(value = "tickets_movies")
-    @OneToOne(optional = false)
+    @JsonBackReference(value = "movies_tickets")
+    @ManyToOne(optional = false)
     @JoinColumn(name = "movie_id")
     private Movie movie;
 
@@ -121,7 +121,7 @@ public class Ticket {
     public Ticket() {
     }
 
-    public Ticket(Long id, Double value, LocalDateTime purchasedOn, LocalDateTime scheduledOn, TicketStatus ticketStatus, Movie movie, User user, Hall hall) {
+   /* public Ticket(Long id, Double value, LocalDateTime purchasedOn, LocalDateTime scheduledOn, TicketStatus ticketStatus, Movie movie, User user, Hall hall) {
         this.id = id;
         this.value = value;
         this.purchasedOn = purchasedOn;
@@ -130,6 +130,6 @@ public class Ticket {
         this.movie = movie;
         this.user = user;
        this.hall = hall;
-    }
+    }*/
 
 }

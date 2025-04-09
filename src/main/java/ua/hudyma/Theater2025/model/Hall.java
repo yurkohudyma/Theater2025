@@ -1,8 +1,14 @@
 package ua.hudyma.Theater2025.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
+import lombok.Setter;
 import lombok.ToString;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "halls")
@@ -47,9 +53,32 @@ public class Hall {
         this.name = name;
     }
 
-    public Hall(Integer id, Integer capacity, String name) {
+    /*public Hall(Integer id, Integer capacity, String name) {
         this.id = id;
         this.capacity = capacity;
         this.name = name;
+    }*/
+
+    @JsonManagedReference(value = "halls_tickets")
+    @OneToMany(mappedBy = "hall",
+               cascade = CascadeType.ALL,
+               fetch = FetchType.EAGER) // lazy throws <Could not write JSON: failed to lazily initialize a collection of role: ua.hudyma.Theater2025.model.Hall.hallTicketList: could not initialize proxy - no Session>
+    @Setter(AccessLevel.PRIVATE)
+    private List<Ticket> hallTicketList = new ArrayList<>();
+
+
+
+
+    // get & set & construct
+
+    public void addTicket (Ticket ticket){
+        hallTicketList.add(ticket);
+        ticket.setHall(this);
     }
+
+    public void removeTicket (Ticket ticket){
+        hallTicketList.remove(ticket);
+        ticket.setHall(null);
+    }
+
 }
