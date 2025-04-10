@@ -1,5 +1,6 @@
 package ua.hudyma.Theater2025.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -43,8 +44,40 @@ public class Movie {
 
 
 
+    @ManyToOne
+    @JoinColumn(name = "schedule_id")
+    private Schedule schedule;
+
+
+    @JsonBackReference(value = "movies_schedules")
+    @OneToOne
+    private Schedule schedule2;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     // get & set & construct
+
+    public Schedule getSchedule() {
+        return schedule;
+    }
+
+    public void setSchedule(Schedule schedule) {
+        this.schedule = schedule;
+    }
+
 
     public void addTicket (Ticket ticket){
         movieTicketList.add(ticket);
@@ -58,14 +91,6 @@ public class Movie {
 
     public Movie() {
     }
-
-    /*public Movie(Genre genre, LocalDate premiereStart, LocalDate showEnd, String imdbIndex, String name) {
-        this.genre = genre;
-        this.premiereStart = premiereStart;
-        this.showEnd = showEnd;
-        this.imdbIndex = imdbIndex;
-        this.name = name;
-    }*/
 
     public Long getId() {
         return id;

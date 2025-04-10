@@ -13,7 +13,6 @@ import ua.hudyma.Theater2025.repository.TicketRepository;
 import ua.hudyma.Theater2025.repository.UserRepository;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 

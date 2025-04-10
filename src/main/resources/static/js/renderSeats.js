@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     const rowLabel = document.createElement("td");
-    rowLabel.textContent = `Рядок ${i + 1}`;
+    rowLabel.textContent = `Ряд ${i + 1}`;
     rowLabel.style.fontWeight = "bold";
     rowLabel.style.backgroundColor = "#f0f0f0";
     tr.appendChild(rowLabel);

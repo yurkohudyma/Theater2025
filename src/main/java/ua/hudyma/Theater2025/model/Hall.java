@@ -6,7 +6,6 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.annotations.DynamicUpdate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +31,29 @@ public class Hall {
 
     public Hall() {
     }
+
+    @JsonManagedReference(value = "halls_tickets")
+    @OneToMany(mappedBy = "hall",
+               cascade = CascadeType.ALL,
+               fetch = FetchType.EAGER) // lazy throws <Could not write JSON: failed to lazily initialize a collection of role: ua.hudyma.Theater2025.model.Hall.hallTicketList: could not initialize proxy - no Session>
+    @Setter(AccessLevel.PRIVATE)
+    private List<Ticket> hallTicketList = new ArrayList<>();
+
+
+
+
+
+    // get & set & construct
+    public void addTicket (Ticket ticket){
+        hallTicketList.add(ticket);
+        ticket.setHall(this);
+    }
+
+    public void removeTicket (Ticket ticket){
+        hallTicketList.remove(ticket);
+        ticket.setHall(null);
+    }
+
 
     public Integer getId() {
         return id;
@@ -64,27 +86,4 @@ public class Hall {
     public void setName(String name) {
         this.name = name;
     }
-
-    @JsonManagedReference(value = "halls_tickets")
-    @OneToMany(mappedBy = "hall",
-               cascade = CascadeType.ALL,
-               fetch = FetchType.EAGER) // lazy throws <Could not write JSON: failed to lazily initialize a collection of role: ua.hudyma.Theater2025.model.Hall.hallTicketList: could not initialize proxy - no Session>
-    @Setter(AccessLevel.PRIVATE)
-    private List<Ticket> hallTicketList = new ArrayList<>();
-
-
-
-
-    // get & set & construct
-
-    public void addTicket (Ticket ticket){
-        hallTicketList.add(ticket);
-        ticket.setHall(this);
-    }
-
-    public void removeTicket (Ticket ticket){
-        hallTicketList.remove(ticket);
-        ticket.setHall(null);
-    }
-
 }
