@@ -27,6 +27,36 @@
     <table id="myTable" border="1"></table>
     <script src="/js/renderSeats.js"></script>
 
+    <!-- ISSUED TICKET DETAILS            -->
+
+    <div class = "issuedTicketPanel" th:if="${showIssuedTicket}">
+        <table>
+            <tr>
+                <td class="ticket_field" th:text="'Фільм: ' + ${ticket.movie.name}"></td>
+            </tr>
+            <tr>
+                <td class="ticket_field" th:text="'Зал: ' + ${ticket.hall.name}"></td>
+            </tr>
+            <tr>
+                <td class="ticket_field" th:text="'Ціна: ' + ${ticket.value}"></td>
+            </tr>
+            <tr>
+                <td class="ticket_field" th:text="'Ряд: ' + ${ticket.roww}"></td>
+            </tr>
+            <tr>
+                <td class="ticket_field" th:text="'Місце: ' + ${ticket.seat}"></td>
+            </tr>
+            <tr>
+                <td class="ticket_field" th:text="'Дата: ' + ${ticket.scheduledOn}"></td>
+            </tr>
+            <tr>
+                <td class="ticket_field" th:text="'Час: ' + ${schedule}"></td>
+            </tr>
+        </table>
+
+
+    </div>
+
 </div>
 </body>
 </html>

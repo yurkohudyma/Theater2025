@@ -8,13 +8,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
     for (let j = 0; j < seats; j++) {
       const td = document.createElement("td");
-      const a = document.createElement("a");
 
-      const seatNumber = j + 1;
-      a.textContent = seatNumber;
-      a.href = `/seat?row=${i + 1}&seat=${seatNumber}`;
+      const form = document.createElement("form");
+      form.method = "post";
+      form.action = `/tickets/addTicket/4/${i + 1}/${j + 1}`;
 
-      td.appendChild(a);
+      const button = document.createElement("button");
+      button.type = "submit";
+      button.textContent = j + 1;
+
+      form.appendChild(button);
+      td.appendChild(form);
       tr.appendChild(td);
     }
 

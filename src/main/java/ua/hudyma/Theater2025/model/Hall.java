@@ -32,6 +32,17 @@ public class Hall {
     public Hall() {
     }
 
+    public Double getSeatPrice() {
+        return seatPrice;
+    }
+
+    public void setSeatPrice(Double seatPrice) {
+        this.seatPrice = seatPrice;
+    }
+
+    @Column(name = "seat_price")
+    Double seatPrice;
+
     @JsonManagedReference(value = "halls_tickets")
     @OneToMany(mappedBy = "hall",
                cascade = CascadeType.ALL,
