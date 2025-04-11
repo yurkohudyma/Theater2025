@@ -28,7 +28,7 @@
             <tr class="ticket_table_legend">
                 <th>№</th>
                 <th>Власник</th>
-                <th>Придбано</th>
+                <th>Дата</th>
                 <th>Сеанс</th>
                 <th>Вартість</th>
                 <th>Статус</th>
@@ -41,8 +41,8 @@
             <tr th:each="ticket : ${ticketList}">
                 <td class="ticket_unit" th:text="${ticket.id}"></td>
                 <td class="ticket_unit" th:text="${ticket.user.name}"></td>
-                <td class="ticket_unit" th:text="${ticket.purchasedOn}"></td>
                 <td class="ticket_unit" th:text="${ticket.scheduledOn}"></td>
+                <td class="ticket_unit" th:text="${ticket.movie.schedule.timeSlot}"></td>
                 <td class="ticket_unit" th:text="'₴'+${ticket.value}"></td>
                 <td class="ticket_unit" th:text="${ticket.ticketStatus.str}"></td>
                 <td class="ticket_unit" th:text="${ticket.hall.name}"></td>

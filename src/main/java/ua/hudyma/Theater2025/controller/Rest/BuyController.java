@@ -22,6 +22,7 @@ public class BuyController {
         var hall = hallRepository.findById(id).orElseThrow();
         model.addAttribute("rows", hall.getRowz());
         model.addAttribute("seats", hall.getSeats());
+        model.addAttribute("hall", id);
         return "buy";
 
     }

@@ -42,16 +42,10 @@ public class Movie {
     @Setter(AccessLevel.PRIVATE)
     private List<Ticket> movieTicketList = new ArrayList<>();
 
-
-
+    @JsonBackReference(value = "movies_schedules")
     @ManyToOne
     @JoinColumn(name = "schedule_id")
     private Schedule schedule;
-
-
-    @JsonBackReference(value = "movies_schedules")
-    @OneToOne
-    private Schedule schedule2;
 
 
 

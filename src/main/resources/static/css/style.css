@@ -1,3 +1,143 @@
 * {
     font-family: "Arsenal", sans-serif;	
 }
+
+/* Загальні стилі */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #fff7f0;
+    color: #4b2e2e;
+    margin: 0;
+    padding: 20px;
+}
+
+/* Заголовок */
+.ticket_header {
+    font-size: 2em;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #d35400; /* насичений оранжевий */
+    text-align: center;
+}
+
+/* Таблиця */
+.ticket_table {
+    width: 100%;
+    border-collapse: collapse;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Заголовки стовпців */
+.ticket_table_legend {
+    background-color: #e67e22; /* яскравий оранжевий */
+    color: white;
+    text-align: left;
+    font-weight: bold;
+}
+
+.ticket_table_legend th {
+    padding: 12px 16px;
+    border-bottom: 2px solid #d35400;
+}
+
+/* Рядки з даними */
+.ticket_unit {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f2e1d9;
+}
+
+/* Чергування кольорів рядків */
+.ticket_table tbody tr:nth-child(even) {
+    background-color: #fdf1e4;
+}
+
+/* Ховер-ефект */
+.ticket_table tbody tr:hover {
+    background-color: #fdebd0;
+    transition: background-color 0.3s ease;
+}
+
+/* Адаптивність */
+@media (max-width: 768px) {
+    .ticket_table, .ticket_table thead, .ticket_table tbody, .ticket_table th, .ticket_table td, .ticket_table tr {
+        display: block;
+    }
+
+    .ticket_table_legend {
+        display: none;
+    }
+
+    .ticket_unit {
+        padding: 10px;
+        border: none;
+        border-bottom: 1px solid #f5d9c0;
+        position: relative;
+    }
+
+    .ticket_unit::before {
+        content: attr(data-label);
+        font-weight: bold;
+        display: block;
+        margin-bottom: 4px;
+        color: #b34700;
+    }
+}
+	/* Таблиця місць */
+#myTable {
+    margin: 0 auto;
+    border-collapse: collapse;
+}
+
+/* Рядки місць */
+.seat-row {
+    text-align: center;
+}
+
+/* Комірки місць */
+.seat-cell {
+    padding: 6px;
+}
+
+/* Кнопки місць */
+.seat-button {
+    background-color: #e67e22; /* оранжевий */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.seat-button:hover {
+    background-color: #d35400; /* темніший оранжевий */
+}
+
+/* Позначення ряду */
+.row-label {
+    font-weight: bold;
+    padding-left: 10px;
+    padding-right: 10px;
+    background-color: #f8e4d1; /* ніжний бежево-коричневий */
+    color: #4b2e2e;
+    border-left: 2px solid #d35400;
+}
+
+.issuedTicketPanel {
+    display: flex;
+    justify-content: center; /* центрує горизонтально */
+    margin-top: 30px;
+}
+
+.issuedTicketPanel table {
+    text-align: center;       /* центрує текст у клітинках */
+    border-collapse: collapse;
+    background-color: #fff8f0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+}

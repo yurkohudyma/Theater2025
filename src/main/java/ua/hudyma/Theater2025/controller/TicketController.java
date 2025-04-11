@@ -45,11 +45,11 @@ public class TicketController {
                              Model model){
 
         Ticket ticket = new Ticket();
-        Hall hall = hallRepository.findById(id).orElseThrow();
+        Hall hall = hallRepository.findById(Integer.parseInt(String.valueOf(id))).orElseThrow();
         ticket.setHall(hall);
         User user = userRepository.findById(1L).orElseThrow(); //todo implem current user
         ticket.setUser(user);
-        ticket.setTicketStatus(TicketStatus.PAID);
+        ticket.setTicketStatus(TicketStatus.RESERVED);
         Movie movie = movieRepository.findById(6L).orElseThrow(); //todo implem curr movie
         ticket.setMovie(movie);
         Schedule schedule = movie.getSchedule();
@@ -68,8 +68,8 @@ public class TicketController {
                 "showIssuedTicket", true,
                 "ticket", ticket,
                 "schedule", schedule.getTimeSlot(),
-                "rows", ticket.getRoww(),
-                "seats", ticket.getSeat()));
+                "rows", hall.getRowz(),
+                "seats", hall.getSeats()));
 
         return "buy";
     }
