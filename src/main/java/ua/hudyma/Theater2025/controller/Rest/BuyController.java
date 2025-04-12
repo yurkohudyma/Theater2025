@@ -9,13 +9,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import ua.hudyma.Theater2025.constants.TicketStatus;
 import ua.hudyma.Theater2025.constants.service.AdminService;
 import ua.hudyma.Theater2025.model.*;
-import ua.hudyma.Theater2025.repository.HallRepository;
-import ua.hudyma.Theater2025.repository.MovieRepository;
-import ua.hudyma.Theater2025.repository.TicketRepository;
-import ua.hudyma.Theater2025.repository.UserRepository;
+import ua.hudyma.Theater2025.repository.*;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/buy")
@@ -26,21 +25,31 @@ public class BuyController {
     private final UserRepository userRepository;
     private final MovieRepository movieRepository;
     private final AdminService adminService;
+    private final SeatRepository seatRepository;
 
-    public BuyController(TicketRepository ticketRepository, HallRepository hallRepository, UserRepository userRepository, MovieRepository movieRepository, AdminService adminService) {
+    public BuyController(TicketRepository ticketRepository, HallRepository hallRepository, UserRepository userRepository, MovieRepository movieRepository, AdminService adminService, SeatRepository seatRepository) {
         this.ticketRepository = ticketRepository;
         this.hallRepository = hallRepository;
         this.userRepository = userRepository;
         this.movieRepository = movieRepository;
         this.adminService = adminService;
+        this.seatRepository = seatRepository;
     }
 
     @GetMapping("/{id}")
-    public String generateTable (Model model, @PathVariable ("id") Long id){
+    public String generateTable(Model model, @PathVariable("id") Long id) {
         var hall = hallRepository.findById(id).orElseThrow();
+
+        List<Seat> soldSeats = seatRepository.findByHallIdAndIsOccupiedTrue(Math.toIntExact(id));
+
+        List<Map<String, Integer>> soldSeatList = soldSeats.stream()
+                .map(s -> Map.of("row", s.getRowNumber(), "seat", s.getSeatNumber()))
+                .toList();
+
         model.addAttribute("rows", hall.getRowz());
         model.addAttribute("seats", hall.getSeats());
         model.addAttribute("hall", id);
+        model.addAttribute("soldSeatList", soldSeatList);
         return "buy";
     }
 
@@ -52,11 +61,15 @@ public class BuyController {
 
         Ticket ticket = new Ticket();
         Hall hall = hallRepository.findById(id).orElseThrow();
-        //boolean[][] seatArray = hall.getSeatArray();
-        //seatArray[row][seat] = true;
-        //hall.setSeatArray(seatArray);
+        Seat soldSeat = new Seat();
+        soldSeat.setOccupied(true);
+        soldSeat.setSeatNumber(seat);
+        soldSeat.setRowNumber(row);
+        soldSeat.setHall(hall);
         ticket.setHall(hall);
+        seatRepository.save(soldSeat);
         //hall.addTicket(ticket);
+
         User user = userRepository.findById(1L).orElseThrow(); //todo implem current user
         ticket.setUser(user);
         ticket.setTicketStatus(TicketStatus.RESERVED);
@@ -74,13 +87,13 @@ public class BuyController {
                 + " в " + hall.getName() + " для " +
                 user.getName() + " на " +
                 schedule.getTimeSlot());
+
         model.addAllAttributes(Map.of(
                 "showIssuedTicket", true,
                 "ticket", ticket,
                 "schedule", schedule.getTimeSlot(),
                 "rows", hall.getRowz(),
                 "seats", hall.getSeats()));
-        //adminService.viewSeatArray(seatArray, hall.getName());
         return "buy";
     }
 }

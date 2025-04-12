@@ -20,9 +20,10 @@
     <header></header>
 
     <script th:inline="javascript">
-        window.rows = /*[[${rows}]]*/;
-        window.seats = /*[[${seats}]]*/;
-        window.hall = /*[[${hall}]]*/;
+        window.rows = [[${rows}]];
+        window.seats = [[${seats}]];
+        window.hall = [[${hall}]];
+        window.sold = [[${soldSeatList}]];
     </script>
 
     <table id="myTable" border="1"></table>

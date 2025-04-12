@@ -143,3 +143,28 @@ body {
     padding: 20px;
     border-radius: 10px;
 }
+
+.seat-button {
+  padding: 5px 10px;
+  background-color: lightgreen;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.seat-button:hover:not(:disabled) {
+  background-color: green;
+  color: white;
+}
+
+.sold-seat {
+  background-color: #ff4d4d !important;
+  color: white;
+  cursor: not-allowed;
+}
+
+.seat-button:disabled {
+  background-color: #ff4d4d !important;
+  color: white;
+  cursor: not-allowed;
+}

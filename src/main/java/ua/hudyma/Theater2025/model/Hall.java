@@ -48,6 +48,16 @@ public class Hall {
     @Setter(AccessLevel.PRIVATE)
     private List<Movie> hallMovieList = new ArrayList<>();
 
+    @OneToMany(mappedBy = "hall",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY)
+    private List<Seat> seatList = new ArrayList<>();
+
+
+
+
+
+
     public int getTicketListSize() {
         return hallTicketList.size();
     }

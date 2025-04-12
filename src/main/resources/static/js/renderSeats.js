@@ -3,6 +3,12 @@ document.addEventListener("DOMContentLoaded", function () {
   const rows = window.rows;
   const seats = window.seats;
   const hall = window.hall;
+  const sold = window.sold;
+
+  const soldSet = new Set(sold.map(seat => `${seat.row}-${seat.seat}`));
+
+  console.log("Sold seats:", sold);
+  console.log("Sold set:", soldSet);
 
   for (let i = 0; i < rows; i++) {
     const tr = document.createElement("tr");
@@ -21,6 +27,11 @@ document.addEventListener("DOMContentLoaded", function () {
       button.type = "submit";
       button.textContent = j + 1;
       button.classList.add("seat-button");
+
+      if (soldSet.has(`${i + 1}-${j + 1}`)) {
+        button.disabled = true;
+        button.classList.add("sold-seat");
+      }
 
       form.appendChild(button);
       td.appendChild(form);
