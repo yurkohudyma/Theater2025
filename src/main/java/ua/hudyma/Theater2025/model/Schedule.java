@@ -21,7 +21,9 @@ public class Schedule {
     @Column(name = "time_slot")
     String timeSlot;
 
-    @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL, fetch = FetchType.EAGER) //lazy throws Could not write JSON: failed to lazily initialize a collection of role: ua.hudyma.Theater2025.model.Hall.hallTicketList: could not initialize proxy - no Session
+    @OneToMany(mappedBy = "schedule",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY) //lazy throws Could not write JSON: failed to lazily initialize a collection of role: ua.hudyma.Theater2025.model.Hall.hallTicketList: could not initialize proxy - no Session
     @Setter(AccessLevel.PRIVATE)
     private List<Movie> scheduleList = new ArrayList<>();
 

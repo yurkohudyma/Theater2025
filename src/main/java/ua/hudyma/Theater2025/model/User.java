@@ -36,12 +36,27 @@ public class User {
     @Column(name = "update_date")
     LocalDate updateDate;
 
-    @JsonManagedReference(value = "users_tickets")
+    //@JsonManagedReference(value = "users_tickets")
     @OneToMany(mappedBy = "user",
                cascade = CascadeType.ALL,
-               fetch = FetchType.EAGER)
+               fetch = FetchType.LAZY)
     @Setter(AccessLevel.PRIVATE)
     private List<Ticket> userTicketList = new ArrayList<>();
+
+    //todo transactions list
+
+
+
+
+
+
+
+
+
+
+
+
+    //g & s
 
     public Long getId() {
         return id;
@@ -113,8 +128,5 @@ public class User {
         this.updateDate = updateDate;
     }*/
 
-    //todo transactions list
-
-    //todo methods addTicket etc CRUD
 
 }

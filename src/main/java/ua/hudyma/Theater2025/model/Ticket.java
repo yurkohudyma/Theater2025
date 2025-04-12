@@ -71,17 +71,17 @@ public class Ticket {
     @Column(name = "status")
     TicketStatus ticketStatus;
 
-    @JsonBackReference(value = "users_tickets")
+    //@JsonBackReference(value = "users_tickets")
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @JsonBackReference(value = "halls_tickets")
+    //@JsonBackReference(value = "halls_tickets")
     @ManyToOne(optional = false)
     @JoinColumn(name = "hall_id")
     private Hall hall;
 
-    @JsonBackReference(value = "movies_tickets")
+    //@JsonBackReference(value = "movies_tickets")
     @ManyToOne(optional = false)
     @JoinColumn(name = "movie_id")
     private Movie movie;

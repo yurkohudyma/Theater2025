@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       const form = document.createElement("form");
       form.method = "post";
-      form.action = `/tickets/addTicket/${hall}/${i + 1}/${j + 1}`;
+      form.action = `/buy/${hall}/${i + 1}/${j + 1}`;
       form.classList.add("seat-form");
 
       const button = document.createElement("button");

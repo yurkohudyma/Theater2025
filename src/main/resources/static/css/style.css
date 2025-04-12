@@ -6,56 +6,58 @@
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #fff7f0;
-    color: #4b2e2e;
+    /* color: #4b2e2e; */
     margin: 0;
     padding: 20px;
 }
 
 /* Заголовок */
-.ticket_header {
+.tickets_header, .movies_header, .users_header {
     font-size: 2em;
     font-weight: bold;
     margin-bottom: 20px;
     color: #d35400; /* насичений оранжевий */
-    text-align: center;
+    /* text-align: center; */
 }
 
 /* Таблиця */
-.ticket_table {
-    width: 100%;
+.tickets_table, .movies_table, .users_table {
+    /* width: 100%; */
     border-collapse: collapse;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     background-color: #fff;
     border-radius: 8px;
     overflow: hidden;
+	text-align: center;
+
 }
 
 /* Заголовки стовпців */
-.ticket_table_legend {
+.tickets_table_legend, .movies_table_legend, .users_table_legend  {
     background-color: #e67e22; /* яскравий оранжевий */
     color: white;
-    text-align: left;
+    /* text-align: left; */
     font-weight: bold;
 }
 
-.ticket_table_legend th {
+.tickets_table_legend, .movies_table_legend, .users_table_legend th {
     padding: 12px 16px;
     border-bottom: 2px solid #d35400;
 }
 
 /* Рядки з даними */
-.ticket_unit {
+.ticket_unit, .movie_unit, .user_unit {
     padding: 12px 16px;
     border-bottom: 1px solid #f2e1d9;
 }
 
 /* Чергування кольорів рядків */
-.ticket_table tbody tr:nth-child(even) {
+.tickets_table tbody tr:nth-child(even), .movies_table tbody tr:nth-child(even), .users_table tbody tr:nth-child(even) {
     background-color: #fdf1e4;
 }
 
 /* Ховер-ефект */
-.ticket_table tbody tr:hover {
+.tickets_table tbody tr:hover, .movies_table tbody tr:hover, .users_table tbody tr:hover {
     background-color: #fdebd0;
     transition: background-color 0.3s ease;
 }
@@ -66,18 +68,18 @@ body {
         display: block;
     }
 
-    .ticket_table_legend {
+    .ticket_table_legend, .movies_table_legend, .users_table_legend {
         display: none;
     }
 
-    .ticket_unit {
+    .ticket_unit, .movie_unit, .user_unit {
         padding: 10px;
         border: none;
         border-bottom: 1px solid #f5d9c0;
         position: relative;
     }
 
-    .ticket_unit::before {
+    .ticket_unit::before, .movie_unit::before, .user_unit::before {
         content: attr(data-label);
         font-weight: bold;
         display: block;
