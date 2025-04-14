@@ -7,14 +7,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import ua.hudyma.Theater2025.constants.TicketStatus;
-import ua.hudyma.Theater2025.constants.service.AdminService;
+import ua.hudyma.Theater2025.service.AdminService;
 import ua.hudyma.Theater2025.model.*;
 import ua.hudyma.Theater2025.repository.*;
+import ua.hudyma.Theater2025.service.TicketService;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Random;
 
 @Controller
 @RequestMapping("/buy")
@@ -24,43 +27,47 @@ public class BuyController {
     private final HallRepository hallRepository;
     private final UserRepository userRepository;
     private final MovieRepository movieRepository;
-    private final AdminService adminService;
+    private final TicketService ticketService;
     private final SeatRepository seatRepository;
 
-    public BuyController(TicketRepository ticketRepository, HallRepository hallRepository, UserRepository userRepository, MovieRepository movieRepository, AdminService adminService, SeatRepository seatRepository) {
+    public BuyController(TicketRepository ticketRepository, HallRepository hallRepository, UserRepository userRepository, MovieRepository movieRepository, AdminService adminService, TicketService ticketService, SeatRepository seatRepository) {
         this.ticketRepository = ticketRepository;
         this.hallRepository = hallRepository;
         this.userRepository = userRepository;
         this.movieRepository = movieRepository;
-        this.adminService = adminService;
+        this.ticketService = ticketService;
         this.seatRepository = seatRepository;
     }
 
-    @GetMapping("/{id}")
-    public String generateTable(Model model, @PathVariable("id") Long id) {
-        var hall = hallRepository.findById(id).orElseThrow();
+    @GetMapping("/{hall_id}/{movie_id}")
+    public String generateTable(Model model,
+                                @PathVariable("hall_id") Integer hall_id,
+                                @PathVariable("movie_id") Long movie_id) {
+        var hall = hallRepository.findById(hall_id).orElseThrow();
 
-        List<Seat> soldSeats = seatRepository.findByHallIdAndIsOccupiedTrue(Math.toIntExact(id));
+        List<Seat> soldSeats = seatRepository.findByHallIdAndIsOccupiedTrue(hall_id);
 
-        List<Map<String, Integer>> soldSeatList = soldSeats.stream()
-                .map(s -> Map.of("row", s.getRowNumber(), "seat", s.getSeatNumber()))
-                .toList();
+        List<Map<String, Integer>> soldSeatList = getMaps(soldSeats);
+        //передати напряму сет через thymeleaf не вийде, бо останній серіалізується у звичайний масив
 
-        model.addAttribute("rows", hall.getRowz());
-        model.addAttribute("seats", hall.getSeats());
-        model.addAttribute("hall", id);
-        model.addAttribute("soldSeatList", soldSeatList);
+        model.addAllAttributes(Map.of(
+                "rows", hall.getRowz(),
+                "seats", hall.getSeats(),
+                "hall", hall_id,
+                "soldSeatMapList", soldSeatList,
+                "movie_id", movie_id));
         return "buy";
     }
 
-    @PostMapping("/{hall_id}/{row}/{seat}")
-    public String addTicket(@PathVariable("hall_id") Integer id,
+    @PostMapping("/{hall_id}/{movie_id}/{row}/{seat}")
+    public String addTicket(@PathVariable("hall_id") Integer hall_id,
+                            @PathVariable("movie_id") Long movie_id,
                             @PathVariable("row") Integer row,
                             @PathVariable("seat") Integer seat,
                             Model model) {
 
         Ticket ticket = new Ticket();
-        Hall hall = hallRepository.findById(id).orElseThrow();
+        Hall hall = hallRepository.findById(hall_id).orElseThrow();
         Seat soldSeat = new Seat();
         soldSeat.setOccupied(true);
         soldSeat.setSeatNumber(seat);
@@ -68,15 +75,18 @@ public class BuyController {
         soldSeat.setHall(hall);
         ticket.setHall(hall);
         seatRepository.save(soldSeat);
-        //hall.addTicket(ticket);
 
-        User user = userRepository.findById(1L).orElseThrow(); //todo implem current user
+        int userListSize = userRepository.findAll().size();
+        long userRandomize = new Random().nextInt(userListSize);
+        userRandomize = userRandomize == 0 ? userRandomize + 1 : userRandomize;
+        User user = userRepository.findById(userRandomize).orElseThrow(); //todo implem current user
         ticket.setUser(user);
         ticket.setTicketStatus(TicketStatus.RESERVED);
-        Movie movie = movieRepository.findById(6L).orElseThrow(); //todo implem curr movie
+        Movie movie = movieRepository.findById(movie_id).orElseThrow();
         ticket.setMovie(movie);
         Schedule schedule = movie.getSchedule();
-        ticket.setScheduledOn(LocalDate.now());//todo implement calendar
+        LocalDateTime scheduleConvertedToDateTime = ticketService.convertTimeSlotToLocalDateTime(schedule.getTimeSlot());
+        ticket.setScheduledOn(scheduleConvertedToDateTime);
         ticket.setPurchasedOn(LocalDate.now());
         ticket.setValue(hall.getSeatPrice());
         ticket.setRoww(row);
@@ -88,12 +98,26 @@ public class BuyController {
                 user.getName() + " на " +
                 schedule.getTimeSlot());
 
+        List<Seat> soldSeats = seatRepository.findByHallIdAndIsOccupiedTrue(Math.toIntExact(hall_id));
+
+        List<Map<String, Integer>> soldSeatList = getMaps(soldSeats);
+
         model.addAllAttributes(Map.of(
                 "showIssuedTicket", true,
                 "ticket", ticket,
                 "schedule", schedule.getTimeSlot(),
                 "rows", hall.getRowz(),
-                "seats", hall.getSeats()));
+                "seats", hall.getSeats(),
+                "soldSeatMapList", soldSeatList,
+                "movie", movie));
         return "buy";
+    }
+
+    private static List<Map<String, Integer>> getMaps(List<Seat> soldSeats) {
+        return soldSeats.stream()
+                .map(s -> Map.of(
+                        "row", s.getRowNumber(),
+                        "seat", s.getSeatNumber()))
+                .toList();
     }
 }

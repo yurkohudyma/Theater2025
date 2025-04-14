@@ -3,11 +3,12 @@ document.addEventListener("DOMContentLoaded", function () {
   const rows = window.rows;
   const seats = window.seats;
   const hall = window.hall;
-  const sold = window.sold;
+  const soldArray = window.soldMapList;
+  const movie_id = window.movie_id;
 
-  const soldSet = new Set(sold.map(seat => `${seat.row}-${seat.seat}`));
+  const soldSet = new Set(soldArray.map(seat => `${seat.row}-${seat.seat}`));
 
-  console.log("Sold seats:", sold);
+  console.log("Sold seats:", soldArray);
   console.log("Sold set:", soldSet);
 
   for (let i = 0; i < rows; i++) {
@@ -20,7 +21,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       const form = document.createElement("form");
       form.method = "post";
-      form.action = `/buy/${hall}/${i + 1}/${j + 1}`;
+      form.action = `/buy/${hall}/${movie_id}/${i + 1}/${j + 1}`;
       form.classList.add("seat-form");
 
       const button = document.createElement("button");

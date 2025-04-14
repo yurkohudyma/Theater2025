@@ -12,7 +12,7 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
 
 
-    <title>Theater2025 ::: Квиточки</title>
+    <title>Theater2025 ::: Адмін</title>
 </head>
 <body>
 <div class="wrapper">
@@ -43,7 +43,7 @@
                 <td class="ticket_unit" th:text="${ticket.id}"></td>
                 <td class="ticket_unit" th:text="${ticket.movie.name}"></td>
                 <td class="ticket_unit" th:text="${ticket.user.name}"></td>
-                <td class="ticket_unit" th:text="${ticket.scheduledOn}"></td>
+                <td class="ticket_unit" th:text="${#temporals.format(ticket.scheduledOn, 'dd-MM-yyyy')}"></td>
                 <td class="ticket_unit" th:text="${ticket.movie.schedule.timeSlot}"></td>
                 <td class="ticket_unit" th:text="'₴'+${ticket.value}"></td>
                 <td class="ticket_unit" th:text="${ticket.ticketStatus.str}"></td>

@@ -1,4 +1,4 @@
-package ua.hudyma.Theater2025.constants.service;
+package ua.hudyma.Theater2025.service;
 
 import org.springframework.stereotype.Service;
 

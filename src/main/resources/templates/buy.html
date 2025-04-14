@@ -23,7 +23,8 @@
         window.rows = [[${rows}]];
         window.seats = [[${seats}]];
         window.hall = [[${hall}]];
-        window.sold = [[${soldSeatList}]];
+        window.soldMapList = [[${soldSeatMapList}]];
+        window.movie_id = [[${movie_id}]];
     </script>
 
     <table id="myTable" border="1"></table>
@@ -49,7 +50,7 @@
                 <td class="ticket_field" th:text="'Місце: ' + ${ticket.seat}"></td>
             </tr>
             <tr>
-                <td class="ticket_field" th:text="'Дата: ' + ${ticket.scheduledOn}"></td>
+                <td class="ticket_field" th:text="'Дата: ' + ${#temporals.format(ticket.scheduledOn, 'dd-MM-yyyy')}"></td>
             </tr>
             <tr>
                 <td class="ticket_field" th:text="'Час: ' + ${schedule}"></td>

@@ -39,7 +39,7 @@ public class AdminController {
         var hallList = hallRepository.findAll();
         model.addAllAttributes(Map.of(
                 "ticketList", ticketList,
-                "movieList", movieList, //todo add hall_id to movie
+                "movieList", movieList,
                 "userList", userList,
                 "hallList", hallList));
         return "admin";

@@ -37,13 +37,16 @@ public class Movie {
     @Column(name = "name")
     String name;
 
+    @Column(name = "img_url")
+    String imgUrl;
+
     //@JsonManagedReference(value = "movies_tickets")
+
     @OneToMany(mappedBy = "movie",
             cascade = CascadeType.ALL,
             fetch = FetchType.LAZY) //lazy throws Could not write JSON: failed to lazily initialize a collection of role: ua.hudyma.Theater2025.model.Hall.hallTicketList: could not initialize proxy - no Session
     @Setter(AccessLevel.PRIVATE)
     private List<Ticket> movieTicketList = new ArrayList<>();
-
     @JsonBackReference(value = "movies_schedules")
     @ManyToOne
     @JoinColumn(name = "schedule_id")
@@ -58,6 +61,7 @@ public class Movie {
     }
 
     //@JsonBackReference(value = "movies_halls")
+
     @ManyToOne
     @JoinColumn(name = "hall_id")
     private Hall hall;
@@ -78,7 +82,6 @@ public class Movie {
 
 
     // get & set & construct
-
     public Schedule getSchedule() {
         return schedule;
     }
@@ -147,5 +150,13 @@ public class Movie {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getImgUrl() {
+        return imgUrl;
+    }
+
+    public void setImgUrl(String imgUrl) {
+        this.imgUrl = imgUrl;
     }
 }
