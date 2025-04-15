@@ -1,8 +1,9 @@
 package ua.hudyma.Theater2025.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -41,6 +42,7 @@ public class User implements UserDetails {
     LocalDate updateDate;
 
     //@JsonManagedReference(value = "users_tickets")
+    @JsonIgnore
     @OneToMany(mappedBy = "user",
                cascade = CascadeType.ALL,
                fetch = FetchType.LAZY)
@@ -48,6 +50,7 @@ public class User implements UserDetails {
     private List<Ticket> userTicketList = new ArrayList<>();
 
     @Override
+    @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(() -> "ROLE_" + accessLevel.name());
     }
@@ -136,8 +139,8 @@ public class User implements UserDetails {
         ticket.setUser(null);
     }
 
-    public User() {
-    }
+    /*public User() {
+    }*/
 
     /*public User(Long id, String name, String email, UserAccessLevel accessLevel, LocalDateTime registerDate, LocalDateTime updateDate) {
         this.id = id;

@@ -1,9 +1,8 @@
 package ua.hudyma.Theater2025.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import ua.hudyma.Theater2025.constants.TicketStatus;
 
 import java.time.LocalDate;
@@ -11,8 +10,6 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "tickets")
-@EqualsAndHashCode(of = "id")
-@ToString(/*exclude = {"user"}*/)
 public class Ticket {
 
     @Id
@@ -39,17 +36,18 @@ public class Ticket {
     TicketStatus ticketStatus;
 
     //@JsonBackReference(value = "users_tickets")
-
+    @JsonIgnore
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id")
     private User user;
-    //@JsonBackReference(value = "halls_tickets")
 
+   //@JsonBackReference(value = "halls_tickets")
+   @JsonIgnore
     @ManyToOne(optional = false)
     @JoinColumn(name = "hall_id")
     private Hall hall;
     //@JsonBackReference(value = "movies_tickets")
-
+    @JsonIgnore
     @ManyToOne(optional = false)
     @JoinColumn(name = "movie_id")
     private Movie movie;

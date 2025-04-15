@@ -1,5 +1,7 @@
 package ua.hudyma.Theater2025.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
@@ -32,6 +34,7 @@ public class Hall {
     Double seatPrice;
 
     //@JsonManagedReference(value = "halls_tickets")
+    @JsonIgnore
     @OneToMany(mappedBy = "hall",
             cascade = CascadeType.ALL,
             fetch = FetchType.EAGER)
@@ -40,12 +43,15 @@ public class Hall {
     private List<Ticket> hallTicketList = new ArrayList<>();
 
     //@JsonManagedReference(value = "movies_halls")
+    @JsonIgnore
     @OneToMany(mappedBy = "hall",
             cascade = CascadeType.ALL,
             fetch = FetchType.LAZY) //lazy throws at JSON
     @Setter(AccessLevel.PRIVATE)
     private List<Movie> hallMovieList = new ArrayList<>();
 
+    //@JsonManagedReference(value = "halls_seats")
+    @JsonIgnore
     @OneToMany(mappedBy = "hall",
             cascade = CascadeType.ALL,
             fetch = FetchType.LAZY)

@@ -1,6 +1,9 @@
 package ua.hudyma.Theater2025.controller.Rest;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import ua.hudyma.Theater2025.constants.TicketStatus;
 import ua.hudyma.Theater2025.model.Hall;
@@ -12,7 +15,6 @@ import ua.hudyma.Theater2025.service.TicketService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -42,8 +44,10 @@ public class TicketRestController {
     }
 
     @GetMapping
-    public List<Ticket> getAll() {
-        return ticketRepository.findAll();
+    @Transactional
+    public ResponseEntity<List<Ticket>> getAll() {
+        System.out.println("......... current auth: " + SecurityContextHolder.getContext().getAuthentication());
+        return ResponseEntity.ok(ticketRepository.findAll());
     }
 
     @GetMapping("{id}")

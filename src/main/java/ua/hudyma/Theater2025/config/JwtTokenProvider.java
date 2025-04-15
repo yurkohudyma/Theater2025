@@ -1,73 +1,61 @@
 package ua.hudyma.Theater2025.config;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import jakarta.servlet.http.HttpServletRequest;
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.SecretKey;
 import java.util.Date;
 
 @Component
 public class JwtTokenProvider {
 
     @Value("${jwt.secret}")
-    private String secretKey;
+    public String secret;
 
-    @Value("${jwt.expiration}")
-    private long validityInMilliseconds; // 1h
+    private SecretKey secretKey;
 
-    // Генерація JWT токену
-    public String createToken(String email, String role) {
-        Claims claims = Jwts.claims().setSubject(email);
-        claims.put("role", role);
+    private final long validityInMs = 1000 * 60 * 60; // 1 година
 
+    @PostConstruct
+    public void init() {
+        // Універсальний спосіб — secret має бути або достатньо довгий, або Base64-енкоджений
+        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes());
+    }
+
+    public String generateToken(String email) {
         Date now = new Date();
-        Date validity = new Date(now.getTime() + validityInMilliseconds);
+        Date expiry = new Date(now.getTime() + validityInMs);
 
         return Jwts.builder()
-                .setClaims(claims)
+                .setSubject(email)
                 .setIssuedAt(now)
-                .setExpiration(validity)
-                .signWith(SignatureAlgorithm.HS256, secretKey)
+                .setExpiration(expiry)
+                .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    // Отримання користувача з токену
-    public String getEmailFromToken(String token) {
-        return Jwts.parser()
-                .setSigningKey(secretKey)
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
-    }
-
-    // Перевірка токену на валідність
     public boolean validateToken(String token) {
         try {
-            Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
+            Jwts.parserBuilder()
+                    .setSigningKey(secretKey)
+                    .build()
+                    .parseClaimsJws(token);
             return true;
-        } catch (Exception e) {
+        } catch (JwtException | IllegalArgumentException e) {
+            System.out.println("JWT validation failed: " + e.getMessage());
             return false;
         }
     }
 
-    // Отримання аутентифікації з токену
-    public Authentication getAuthentication(String token) {
-        String email = getEmailFromToken(token);
-        return new UsernamePasswordAuthenticationToken(email, token, AuthorityUtils.createAuthorityList("ROLE_USER"));
-    }
-
-    // Отримання токену з заголовка
-    public String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
-        }
-        return null;
+    public String getEmailFromToken(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
     }
 }

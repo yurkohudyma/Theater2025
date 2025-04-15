@@ -2,6 +2,7 @@ package ua.hudyma.Theater2025.service;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
@@ -12,11 +13,14 @@ import java.util.function.Function;
 @Service
 public class JwtService {
 
-    // Секретний ключ (можеш замінити на щось серйозніше, або підгрузити з конфігу)
-    private static final String SECRET_KEY = "12345678901234567890123456789012"; // 32+ символи для HMAC
+    private final Key secretKey;
+
+    public JwtService(@Value("${jwt.secret}") String secret) {
+        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes());
+    }
 
     private Key getSignInKey() {
-        return Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
+        return secretKey;
     }
 
     public String extractUsername(String token) {

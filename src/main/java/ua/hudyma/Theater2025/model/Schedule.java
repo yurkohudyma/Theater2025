@@ -1,6 +1,7 @@
 package ua.hudyma.Theater2025.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -21,6 +22,8 @@ public class Schedule {
     @Column(name = "time_slot")
     String timeSlot;
 
+    //@JsonManagedReference(value = "movies_schedules")
+    @JsonIgnore
     @OneToMany(mappedBy = "schedule",
             cascade = CascadeType.ALL,
             fetch = FetchType.LAZY) //lazy throws Could not write JSON: failed to lazily initialize a collection of role: ua.hudyma.Theater2025.model.Hall.hallTicketList: could not initialize proxy - no Session

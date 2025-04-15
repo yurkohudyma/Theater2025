@@ -1,5 +1,8 @@
 package ua.hudyma.Theater2025.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 @Entity
@@ -21,6 +24,8 @@ public class Seat {
     private Double price;
 
     @ManyToOne
+    @JsonIgnore
+    //@JsonBackReference(value = "halls_seats")
     @JoinColumn(name = "hall_id")
     private Hall hall;
 
