@@ -1,4 +1,4 @@
-package ua.hudyma.Theater2025.controller.Rest;
+package ua.hudyma.Theater2025.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

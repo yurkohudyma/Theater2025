@@ -2,8 +2,8 @@ package ua.hudyma.Theater2025.controller.Rest;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ua.hudyma.Theater2025.dto.HallDTO;
 import ua.hudyma.Theater2025.model.Hall;
-import ua.hudyma.Theater2025.model.Movie;
 import ua.hudyma.Theater2025.repository.HallRepository;
 
 import java.util.Arrays;
@@ -21,9 +21,18 @@ public class HallRestController {
         this.hallRepository = hallRepository;
     }
 
-    @GetMapping
+    @GetMapping("/all")
     public List<Hall> getAll() {
         return hallRepository.findAll();
+    }
+
+    @GetMapping
+    public List<HallDTO> getAllDto (){
+        return hallRepository
+                .findAll()
+                .stream()
+                .map(HallDTO::from)
+                .toList();
     }
 
     @PostMapping("/add")

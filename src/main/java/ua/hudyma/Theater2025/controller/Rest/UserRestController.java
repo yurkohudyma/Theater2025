@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import ua.hudyma.Theater2025.constants.UserAccessLevel;
+import ua.hudyma.Theater2025.dto.UserDTO;
 import ua.hudyma.Theater2025.model.User;
 import ua.hudyma.Theater2025.repository.UserRepository;
 
@@ -21,10 +22,15 @@ public class UserRestController {
         this.userRepository = userRepository;
     }
 
-    @GetMapping
+    @GetMapping("/all")
     public List<User> getAll (){
         System.out.println("......... current auth: " + SecurityContextHolder.getContext().getAuthentication());
         return userRepository.findAll();
+    }
+
+    @GetMapping
+    public List<UserDTO> getAllUsersDto (){
+        return userRepository.findAll().stream().map(UserDTO::from).toList();
     }
 
     @GetMapping("{id}")

@@ -3,6 +3,7 @@ package ua.hudyma.Theater2025.controller.Rest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ua.hudyma.Theater2025.dto.MovieDTO;
 import ua.hudyma.Theater2025.model.Movie;
 import ua.hudyma.Theater2025.repository.MovieRepository;
 
@@ -22,9 +23,18 @@ public class MovieRestController {
         this.movieRepository = movieRepository;
     }
 
-    @GetMapping
+    @GetMapping("all")
     public ResponseEntity<List<Movie>> getAll(){
         return ResponseEntity.ok(movieRepository.findAll());
+    }
+
+    @GetMapping
+    public List<MovieDTO> getAllDto (){
+        return movieRepository
+                .findAll()
+                .stream()
+                .map(MovieDTO::from)
+                .toList();
     }
 
     @PostMapping("/add")

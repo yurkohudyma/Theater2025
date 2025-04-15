@@ -6,6 +6,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import ua.hudyma.Theater2025.constants.TicketStatus;
+import ua.hudyma.Theater2025.dto.TicketDTO;
 import ua.hudyma.Theater2025.model.Hall;
 import ua.hudyma.Theater2025.model.Movie;
 import ua.hudyma.Theater2025.model.Ticket;
@@ -43,11 +44,18 @@ public class TicketRestController {
         this.ticketService = ticketService;
     }
 
-    @GetMapping
-    @Transactional
+    @GetMapping("/all")
     public ResponseEntity<List<Ticket>> getAll() {
         System.out.println("......... current auth: " + SecurityContextHolder.getContext().getAuthentication());
         return ResponseEntity.ok(ticketRepository.findAll());
+    }
+    @GetMapping
+    public List<TicketDTO> getAllDto (){
+        return ticketRepository
+                .findAll()
+                .stream()
+                .map(TicketDTO::from)
+                .toList();
     }
 
     @GetMapping("{id}")

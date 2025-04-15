@@ -3,6 +3,7 @@ package ua.hudyma.Theater2025.controller.Rest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ua.hudyma.Theater2025.dto.ScheduleDTO;
 import ua.hudyma.Theater2025.model.Schedule;
 import ua.hudyma.Theater2025.repository.ScheduleRepository;
 
@@ -20,9 +21,18 @@ public class ScheduleRestController {
         this.scheduleRepository = scheduleRepository;
     }
 
-    @GetMapping
+    @GetMapping("/all")
     public List<Schedule> getAll() {
         return scheduleRepository.findAll();
+    }
+
+    @GetMapping
+    public List<ScheduleDTO> getAllDto (){
+        return scheduleRepository
+                .findAll()
+                .stream()
+                .map(ScheduleDTO::from)
+                .toList();
     }
 
     @GetMapping("{id}")
