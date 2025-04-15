@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import ua.hudyma.Theater2025.repository.MovieRepository;
 
-@Log4j
 @RequestMapping("/movies")
 @Controller
 public class MovieController {
