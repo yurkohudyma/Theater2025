@@ -1,35 +1,35 @@
 package ua.hudyma.Theater2025.controller;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-import ua.hudyma.Theater2025.constants.TicketStatus;
-import ua.hudyma.Theater2025.model.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import ua.hudyma.Theater2025.repository.HallRepository;
 import ua.hudyma.Theater2025.repository.MovieRepository;
 import ua.hudyma.Theater2025.repository.TicketRepository;
 import ua.hudyma.Theater2025.repository.UserRepository;
 
-import java.time.LocalDate;
 import java.util.Map;
 
 @Controller
 @RequestMapping("/admin")
+//@CrossOrigin(origins = "*")
+@RequiredArgsConstructor
 public class AdminController {
-
-    public static final String REDIRECT_BUY = "redirect:/buy/";
-
     private final TicketRepository ticketRepository;
     private final HallRepository hallRepository;
     private final UserRepository userRepository;
     private final MovieRepository movieRepository;
 
-    public AdminController(TicketRepository ticketRepository, HallRepository hallRepository, UserRepository userRepository, MovieRepository movieRepository) {
+    /*public AdminController(TicketRepository ticketRepository, HallRepository hallRepository, UserRepository userRepository, MovieRepository movieRepository) {
         this.ticketRepository = ticketRepository;
         this.hallRepository = hallRepository;
         this.userRepository = userRepository;
         this.movieRepository = movieRepository;
-    }
+    }*/
 
     @GetMapping
     public String getEverything(Model model) {
@@ -42,6 +42,7 @@ public class AdminController {
                 "movieList", movieList,
                 "userList", userList,
                 "hallList", hallList));
+        System.out.println("......... current auth: " + SecurityContextHolder.getContext().getAuthentication());
         return "admin";
     }
 

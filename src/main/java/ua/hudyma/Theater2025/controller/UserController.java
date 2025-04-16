@@ -4,6 +4,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import ua.hudyma.Theater2025.constants.UserAccessLevel;
+import ua.hudyma.Theater2025.model.User;
 import ua.hudyma.Theater2025.repository.MovieRepository;
 import ua.hudyma.Theater2025.repository.UserRepository;
 
@@ -21,6 +23,8 @@ public class UserController {
     public String getAllMovies (Model model){
         var moviesList = movieRepository.findAll();
         model.addAttribute("moviesList", moviesList);
+        User user = new User();
+        UserAccessLevel level = user.getAccessLevel();
         return "user";
     }
 }

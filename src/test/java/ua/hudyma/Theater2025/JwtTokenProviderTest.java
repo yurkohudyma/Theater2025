@@ -2,7 +2,7 @@ package ua.hudyma.Theater2025;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ua.hudyma.Theater2025.config.JwtTokenProvider;
+import ua.hudyma.Theater2025.security.JwtTokenProvider;
 
 import static org.junit.jupiter.api.Assertions.*;
 

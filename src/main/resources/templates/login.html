@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<head>
+  <meta charset="UTF-8" content="application/json">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=yes, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <link rel="icon" href="/img/favicon.ico" type="image/x-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Arsenal:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+        rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+
+  <title>Theater2025 ::: Логін</title>
+</head>
+<body>
+<h2>Вхід</h2>
+<form method="POST" action="/login">
+  <label for="username">Email:</label>
+  <input type="text" id="username" name="email" required><br><br>
+
+  <label for="password">Пароль:</label>
+  <input type="password" id="password" name="password" required><br><br>
+
+  <button type="submit">Увійти</button>
+</form>
+
+<br><br>
+
+<form method="POST" action="/logout">
+  <button type="submit">Вийти</button>
+</form>
+
+</body>
+</html>

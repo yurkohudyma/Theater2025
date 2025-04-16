@@ -1,7 +1,8 @@
-package ua.hudyma.Theater2025.filter;
+package ua.hudyma.Theater2025.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -9,7 +10,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import ua.hudyma.Theater2025.config.JwtTokenProvider;
 import ua.hudyma.Theater2025.service.CustomUserDetailsService;
 
 import java.io.IOException;
@@ -33,12 +33,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String path = request.getServletPath();
 
         // Ігнорувати login та register
-        if (path.equals("/api/auth/login") || path.equals("/api/auth/register")) {
+        /*if (path.equals("/api/auth/login") || path.equals("/api/auth/register")) {
             filterChain.doFilter(request, response);
             return;
-        }
+        }*/
 
-        String token = getTokenFromRequest(request);
+        //String token = getTokenFromRequest(request);
+        String token = getJwtFromRequest(request);
 
         if (token != null && jwtTokenProvider.validateToken(token)) {
             String email = jwtTokenProvider.getEmailFromToken(token);
@@ -55,6 +56,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String bearer = request.getHeader("Authorization");
         if (bearer != null && bearer.startsWith("Bearer ")) {
             return bearer.substring(7);
+        }
+        return null;
+    }
+
+    private String getJwtFromRequest(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("Authorization")) {
+                    return cookie.getValue();
+                }
+            }
         }
         return null;
     }

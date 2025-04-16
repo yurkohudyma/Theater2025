@@ -1,4 +1,4 @@
-package ua.hudyma.Theater2025.config;
+package ua.hudyma.Theater2025.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -17,7 +17,7 @@ public class JwtTokenProvider {
 
     private SecretKey secretKey;
 
-    private final long validityInMs = 1000 * 60 * 60; // 1 година
+    private final long validityInMs = 86400000L; // 24 години
 
     @PostConstruct
     public void init() {

@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ua.hudyma.Theater2025.dto.MovieDTO;
 import ua.hudyma.Theater2025.model.Movie;
+import ua.hudyma.Theater2025.model.User;
 import ua.hudyma.Theater2025.repository.MovieRepository;
 
 import java.time.LocalDate;
