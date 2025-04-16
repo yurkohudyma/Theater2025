@@ -2,6 +2,7 @@ package ua.hudyma.Theater2025.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,7 +15,7 @@ import util.PassGen;
 
 import java.time.LocalDate;
 
-@Log4j
+@Log4j2
 @Controller
 @RequestMapping("/login")
 @RequiredArgsConstructor
@@ -24,6 +25,11 @@ public class LoginController {
 
     @GetMapping
     public String login (){
+        return "login";
+    }
+
+    @GetMapping("/logout")
+    public String loginOut (){
         return "login";
     }
 

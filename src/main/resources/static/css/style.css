@@ -227,3 +227,7 @@ header {
 .email {
 	text-align: right;
 }
+
+.logout_button {
+	float: right;
+}

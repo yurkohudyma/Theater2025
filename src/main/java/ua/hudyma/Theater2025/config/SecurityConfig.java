@@ -44,6 +44,7 @@ public class SecurityConfig {
                                 "/login",
                                 "/register",
                                 "/login/register",
+                                "/login/logout",
                                 "/user",
                                 "/buy/**",
                                 "/css/**",
@@ -65,8 +66,8 @@ public class SecurityConfig {
                         .permitAll()
                 ))
                 .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login?logout")
+                        .logoutUrl("/login/logout")
+                        .logoutSuccessUrl("/login")
                 )
                 .build();
     }

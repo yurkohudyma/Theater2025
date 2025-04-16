@@ -16,7 +16,11 @@
 </head>
 <body>
 <div class="wrapper">
-    <div class = "email" th:text = "${email}"></div>
+    <div class = "email" th:text = "${email}">
+    </div>
+    <form action="#" th:method="post" th:action="@{'/login/logout'}">
+        <button type="submit" class="logout_button">Вийти</button>
+    </form>
     <header>
     </header>
 
