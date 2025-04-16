@@ -30,7 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        String path = request.getServletPath();
+        /*String path = request.getServletPath();*/
 
         // Ігнорувати login та register
         /*if (path.equals("/api/auth/login") || path.equals("/api/auth/register")) {
@@ -52,13 +52,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private String getTokenFromRequest(HttpServletRequest request) {
+    /*private String getTokenFromRequest(HttpServletRequest request) {
         String bearer = request.getHeader("Authorization");
         if (bearer != null && bearer.startsWith("Bearer ")) {
             return bearer.substring(7);
         }
         return null;
-    }
+    }*/
 
     private String getJwtFromRequest(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();

@@ -224,4 +224,6 @@ header {
 	display: initial;
 	
 }
-
+.email {
+	text-align: right;
+}

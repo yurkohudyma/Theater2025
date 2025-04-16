@@ -24,8 +24,20 @@
 
   <button type="submit">Увійти</button>
 </form>
+<br>
+<form method="POST" action="/login/register">
+  <label for="username">Email:</label>
+  <input type="text" id="email" name="email" required><br><br>
 
-<br><br>
+  <label for="password">Пароль:</label>
+  <input type="password" id="password" name="password" required>
+  <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+  <br><br>
+
+  <button type="submit">Реєстрація</button>
+</form>
+
+<br>
 
 <form method="POST" action="/logout">
   <button type="submit">Вийти</button>

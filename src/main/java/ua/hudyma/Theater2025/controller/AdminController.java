@@ -12,6 +12,7 @@ import ua.hudyma.Theater2025.repository.MovieRepository;
 import ua.hudyma.Theater2025.repository.TicketRepository;
 import ua.hudyma.Theater2025.repository.UserRepository;
 
+import java.security.Principal;
 import java.util.Map;
 
 @Controller
@@ -32,7 +33,7 @@ public class AdminController {
     }*/
 
     @GetMapping
-    public String getEverything(Model model) {
+    public String getEverything(Model model, Principal principal) {
         var ticketList = ticketRepository.findAll();
         var movieList = movieRepository.findAll();
         var userList = userRepository.findAll();
@@ -41,7 +42,8 @@ public class AdminController {
                 "ticketList", ticketList,
                 "movieList", movieList,
                 "userList", userList,
-                "hallList", hallList));
+                "hallList", hallList,
+                "email", principal.getName()));
         System.out.println("......... current auth: " + SecurityContextHolder.getContext().getAuthentication());
         return "admin";
     }

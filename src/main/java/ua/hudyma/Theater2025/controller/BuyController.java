@@ -1,5 +1,6 @@
 package ua.hudyma.Theater2025.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -7,20 +8,19 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import ua.hudyma.Theater2025.constants.TicketStatus;
-import ua.hudyma.Theater2025.service.AdminService;
 import ua.hudyma.Theater2025.model.*;
 import ua.hudyma.Theater2025.repository.*;
 import ua.hudyma.Theater2025.service.TicketService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
 @Controller
 @RequestMapping("/buy")
+@RequiredArgsConstructor
 public class BuyController {
 
     private final TicketRepository ticketRepository;
@@ -30,14 +30,14 @@ public class BuyController {
     private final TicketService ticketService;
     private final SeatRepository seatRepository;
 
-    public BuyController(TicketRepository ticketRepository, HallRepository hallRepository, UserRepository userRepository, MovieRepository movieRepository, AdminService adminService, TicketService ticketService, SeatRepository seatRepository) {
+    /*public BuyController(TicketRepository ticketRepository, HallRepository hallRepository, UserRepository userRepository, MovieRepository movieRepository, AdminService adminService, TicketService ticketService, SeatRepository seatRepository) {
         this.ticketRepository = ticketRepository;
         this.hallRepository = hallRepository;
         this.userRepository = userRepository;
         this.movieRepository = movieRepository;
         this.ticketService = ticketService;
         this.seatRepository = seatRepository;
-    }
+    }*/
 
     @GetMapping("/{hall_id}/{movie_id}")
     public String generateTable(Model model,
