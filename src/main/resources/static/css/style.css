@@ -14,6 +14,12 @@ header {
     font-weight: bold;
 }
 
+.wrapper {
+	display: flex;
+    align-items: flex-start; /* щоб не тягнуло по висоті */
+    gap: 40px; /* відступ між фільмами та місцями */
+}
+
 /* Заголовок */
 .tickets_header, .movies_header, .users_header {
     font-size: 2em;
@@ -91,9 +97,10 @@ header {
     }
 }
 	/* Таблиця місць */
-#myTable {
+#seatsTable {
     margin: 0 auto;
     border-collapse: collapse;
+	max-width: 35%;
 }
 
 /* Рядки місць */
@@ -129,7 +136,7 @@ header {
     padding-right: 10px;
     background-color: #f8e4d1; /* ніжний бежево-коричневий */
     color: #4b2e2e;
-    border-left: 2px solid #d35400;
+    /* border-left: 2px solid #d35400; */
 }
 
 .issuedTicketPanel {
@@ -149,25 +156,25 @@ header {
 
 .seat-button {
   padding: 5px 10px;
-  background-color: lightgreen;
+  background-color: tan;
   border: none;
   border-radius: 5px;
   cursor: pointer;
 }
 
 .seat-button:hover:not(:disabled) {
-  background-color: green;
+  background-color: brown;
   color: white;
 }
 
 .sold-seat {
-  background-color: #ff4d4d !important;
+  /* background-color: #ff4d4d !important; */
   color: white;
   cursor: not-allowed;
 }
 
 .seat-button:disabled {
-  background-color: #ff4d4d !important;
+  background-color: #fff7f0 !important;
   color: white;
   cursor: not-allowed;
 }
@@ -178,6 +185,7 @@ header {
     flex-wrap: wrap;
     gap: 20px;
     justify-content: left;
+	 max-width: 60%;
 }
 
 /* Блок одного фільму */
@@ -224,10 +232,34 @@ header {
 	display: initial;
 	
 }
-.email {
+.email, .userStatus {
 	text-align: right;
+	margin-bottom: 5px;
 }
 
 .logout_button {
 	float: right;
+}
+
+.user_data_block{
+	/* display:flex; */
+	position: fixed;
+    bottom: 0;
+    left: 0;
+    margin: 20px;
+    z-index: 1000; /* щоб не перекривали інші */
+}
+
+.user_data_block_admin {
+	position: fixed;
+    top: 0;
+    right: 0;
+    margin: 20px; /* відступ від краю */
+    z-index: 1000; /* поверх усього */
+}
+
+.error_status {
+		font-size: 30px;
+	text-align: center;
+}
 }

@@ -16,6 +16,14 @@
 </head>
 <body>
 <div class="wrapper">
+    <div class="user_data_block">
+        <div class="userStatus" th:text="${userStatus}"></div>
+        <div class="email" th:text="${email}"></div>
+        <form action="#" th:method="post" th:action="@{'/login/logout'}">
+            <button type="submit" class="logout_button">Вийти</button>
+        </form>
+    </div>
+
     <header>Вибір кіно</header>
     <br>
 
@@ -26,16 +34,62 @@
             </div>
             <div class="movie_name" th:text="${movie.name}"></div>
             <div class="movie_genre" th:text="${movie.genre.str}"></div>
-            <div class="movie_unit" th:text="'Кінець прокату: '+ ${#temporals.format(movie.showEnd, 'dd-MM-yyyy')}"></div>
+            <div class="movie_unit"
+                 th:text="'Кінець прокату: '+ ${#temporals.format(movie.showEnd, 'dd-MM-yyyy')}"></div>
             <div class="movie_unit">Сеанси:
                 <div class="movie_timeslot">
-                    <a th:href="@{'/buy/' + ${movie.hall.id} + '/' + ${movie.id}}" th:text="${movie.schedule.timeSlot}"></a>
+                    <a th:href="@{'/user/buy/' + ${movie.hall.id} + '/' + ${movie.id}}"
+                       th:text="${movie.schedule.timeSlot}"></a>
                 </div>
             </div>
             <div class="movie_unit" th:text="'Кінозал: '+ ${movie.hall.name}"></div>
         </div>
     </div>
-</div>
 
+
+    <script th:inline="javascript">
+        window.rows = [[${rows}]];
+        window.seats = [[${seats}]];
+        window.hall = [[${hall}]];
+        window.soldMapList = [[${soldSeatMapList}]];
+        window.movie_id = [[${movie_id}]];
+
+
+    </script>
+
+    <table id="seatsTable" border="0"></table>
+    <script src="/js/renderSeats.js"></script>
+
+    <!-- ISSUED TICKET DETAILS            -->
+
+    <div class="issuedTicketPanel" th:if="${showIssuedTicket}">
+        <table>
+            <tr>
+                <td class="ticket_field" th:text="'Фільм: ' + ${ticket.movie.name}"></td>
+            </tr>
+            <tr>
+                <td class="ticket_field" th:text="'Зал: ' + ${ticket.hall.name}"></td>
+            </tr>
+            <tr>
+                <td class="ticket_field" th:text="'Ціна: ' + ${ticket.value}"></td>
+            </tr>
+            <tr>
+                <td class="ticket_field" th:text="'Ряд: ' + ${ticket.roww}"></td>
+            </tr>
+            <tr>
+                <td class="ticket_field" th:text="'Місце: ' + ${ticket.seat}"></td>
+            </tr>
+            <tr>
+                <td class="ticket_field"
+                    th:text="'Дата: ' + ${#temporals.format(ticket.scheduledOn, 'dd-MM-yyyy')}"></td>
+            </tr>
+            <tr>
+                <td class="ticket_field" th:text="'Час: ' + ${schedule}"></td>
+            </tr>
+        </table>
+
+
+    </div>
+</div>
 </body>
 </html>

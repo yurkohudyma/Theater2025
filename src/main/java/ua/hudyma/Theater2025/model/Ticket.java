@@ -3,6 +3,10 @@ package ua.hudyma.Theater2025.model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import ua.hudyma.Theater2025.constants.TicketStatus;
 
 import java.time.LocalDate;
@@ -10,6 +14,10 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "tickets")
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Ticket {
 
     @Id
@@ -20,7 +28,7 @@ public class Ticket {
     Double value;
 
     @Column (name = "purchased_on")
-    LocalDate purchasedOn;
+    LocalDateTime purchasedOn;
 
     @Column(name = "scheduled_on")
     LocalDateTime scheduledOn;
@@ -51,93 +59,4 @@ public class Ticket {
     @ManyToOne(optional = false)
     @JoinColumn(name = "movie_id")
     private Movie movie;
-
-
-
-
-
-
-    //get & set
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Double getValue() {
-        return value;
-    }
-
-    public void setValue(Double value) {
-        this.value = value;
-    }
-
-    public LocalDate getPurchasedOn() {
-        return purchasedOn;
-    }
-
-    public void setPurchasedOn(LocalDate purchasedOn) {
-        this.purchasedOn = purchasedOn;
-    }
-
-    public LocalDateTime getScheduledOn() {
-        return scheduledOn;
-    }
-
-    public void setScheduledOn(LocalDateTime scheduledOn) {
-        this.scheduledOn = scheduledOn;
-    }
-
-    public TicketStatus getTicketStatus() {
-        return ticketStatus;
-    }
-
-    public void setTicketStatus(TicketStatus ticketStatus) {
-        this.ticketStatus = ticketStatus;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public Ticket() {
-    }
-
-    public Integer getRoww() {
-        return roww;
-    }
-
-    public void setRoww(Integer row) {
-        this.roww = row;
-    }
-
-    public Integer getSeat() {
-        return seat;
-    }
-
-    public void setSeat(Integer seat) {
-        this.seat = seat;
-    }
-
-    public Hall getHall() {
-        return hall;
-    }
-
-    public void setHall(Hall hall) {
-        this.hall = hall;
-    }
-
-    public Movie getMovie() {
-        return movie;
-    }
-
-    public void setMovie(Movie movie) {
-        this.movie = movie;
-    }
 }

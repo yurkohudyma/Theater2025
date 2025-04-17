@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-  const table = document.getElementById("myTable");
+  const table = document.getElementById("seatsTable");
   const rows = window.rows;
   const seats = window.seats;
   const hall = window.hall;
@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       const form = document.createElement("form");
       form.method = "post";
-      form.action = `/buy/${hall}/${movie_id}/${i + 1}/${j + 1}`;
+      form.action = `/user/buy/${hall}/${movie_id}/${i + 1}/${j + 1}`;
       form.classList.add("seat-form");
 
       const button = document.createElement("button");
@@ -32,6 +32,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (soldSet.has(`${i + 1}-${j + 1}`)) {
         button.disabled = true;
         button.classList.add("sold-seat");
+        button.textContent = "";
       }
 
       form.appendChild(button);

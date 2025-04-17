@@ -11,7 +11,6 @@ import ua.hudyma.Theater2025.constants.UserAccessLevel;
 import ua.hudyma.Theater2025.exception.UserEmailExistsException;
 import ua.hudyma.Theater2025.model.User;
 import ua.hudyma.Theater2025.repository.UserRepository;
-import util.PassGen;
 
 import java.time.LocalDate;
 

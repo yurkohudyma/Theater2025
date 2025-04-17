@@ -1,6 +1,7 @@
 package ua.hudyma.Theater2025.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +22,7 @@ import java.util.Random;
 @Controller
 @RequestMapping("/buy")
 @RequiredArgsConstructor
+@Log4j2
 public class BuyController {
 
     private final TicketRepository ticketRepository;
@@ -29,15 +31,6 @@ public class BuyController {
     private final MovieRepository movieRepository;
     private final TicketService ticketService;
     private final SeatRepository seatRepository;
-
-    /*public BuyController(TicketRepository ticketRepository, HallRepository hallRepository, UserRepository userRepository, MovieRepository movieRepository, AdminService adminService, TicketService ticketService, SeatRepository seatRepository) {
-        this.ticketRepository = ticketRepository;
-        this.hallRepository = hallRepository;
-        this.userRepository = userRepository;
-        this.movieRepository = movieRepository;
-        this.ticketService = ticketService;
-        this.seatRepository = seatRepository;
-    }*/
 
     @GetMapping("/{hall_id}/{movie_id}")
     public String generateTable(Model model,
@@ -79,7 +72,7 @@ public class BuyController {
         int userListSize = userRepository.findAll().size();
         long userRandomize = new Random().nextInt(userListSize);
         userRandomize = userRandomize == 0 ? userRandomize + 1 : userRandomize;
-        User user = userRepository.findById(userRandomize).orElseThrow(); //todo implem current user
+        User user = userRepository.findById(userRandomize).orElseThrow();
         ticket.setUser(user);
         ticket.setTicketStatus(TicketStatus.RESERVED);
         Movie movie = movieRepository.findById(movie_id).orElseThrow();
@@ -87,12 +80,12 @@ public class BuyController {
         Schedule schedule = movie.getSchedule();
         LocalDateTime scheduleConvertedToDateTime = ticketService.convertTimeSlotToLocalDateTime(schedule.getTimeSlot());
         ticket.setScheduledOn(scheduleConvertedToDateTime);
-        ticket.setPurchasedOn(LocalDate.now());
+        ticket.setPurchasedOn(LocalDateTime.now());
         ticket.setValue(hall.getSeatPrice());
         ticket.setRoww(row);
         ticket.setSeat(seat);
         ticketRepository.save(ticket);
-        System.out.println("...created ticket at "
+        log.info("...created ticket at "
                 + ticket.getMovie().getName()
                 + " в " + hall.getName() + " для " +
                 user.getName() + " на " +

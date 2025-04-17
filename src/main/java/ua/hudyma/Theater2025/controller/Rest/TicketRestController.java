@@ -66,7 +66,7 @@ public class TicketRestController {
     @PostMapping("/add")
     @ResponseStatus(HttpStatus.CREATED)
     public void addTicket(@RequestBody Ticket ticket) {
-        ticket.setPurchasedOn(LocalDate.now());
+        ticket.setPurchasedOn(LocalDateTime.now());
 
         ticket.setTicketStatus(TicketStatus.PAID);
         User user = userRepository.findById(ticket.getUser().getId()).orElseThrow();

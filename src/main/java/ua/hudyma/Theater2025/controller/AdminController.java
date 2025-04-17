@@ -25,25 +25,21 @@ public class AdminController {
     private final UserRepository userRepository;
     private final MovieRepository movieRepository;
 
-    /*public AdminController(TicketRepository ticketRepository, HallRepository hallRepository, UserRepository userRepository, MovieRepository movieRepository) {
-        this.ticketRepository = ticketRepository;
-        this.hallRepository = hallRepository;
-        this.userRepository = userRepository;
-        this.movieRepository = movieRepository;
-    }*/
-
     @GetMapping
     public String getEverything(Model model, Principal principal) {
         var ticketList = ticketRepository.findAll();
         var movieList = movieRepository.findAll();
         var userList = userRepository.findAll();
         var hallList = hallRepository.findAll();
+        var userEmail = principal.getName();
+        var user = userRepository.findByEmail(userEmail).orElseThrow();
         model.addAllAttributes(Map.of(
                 "ticketList", ticketList,
                 "movieList", movieList,
                 "userList", userList,
                 "hallList", hallList,
-                "email", principal.getName()));
+                "email", userEmail,
+                "userStatus", user.getAccessLevel().str));
         System.out.println("......... current auth: " + SecurityContextHolder.getContext().getAuthentication());
         return "admin";
     }

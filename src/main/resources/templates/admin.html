@@ -15,12 +15,14 @@
     <title>Theater2025 ::: Адмін</title>
 </head>
 <body>
-<div class="wrapper">
-    <div class = "email" th:text = "${email}">
+<div class="wrapper_admin">
+    <div class="user_data_block_admin">
+        <div class="userStatus" th:text="${userStatus}"></div>
+        <div class="email" th:text="${email}"></div>
+        <form action="#" th:method="post" th:action="@{'/login/logout'}">
+            <button type="submit" class="logout_button">Вийти</button>
+        </form>
     </div>
-    <form action="#" th:method="post" th:action="@{'/login/logout'}">
-        <button type="submit" class="logout_button">Вийти</button>
-    </form>
     <header>
     </header>
 

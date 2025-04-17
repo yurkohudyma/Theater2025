@@ -6,7 +6,7 @@ import ua.hudyma.Theater2025.model.Ticket;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-public record TicketDTO(Long id, Double value, LocalDate purchasedOn, LocalDateTime scheduledOn, Integer roww, Integer seat, TicketStatus ticketStatus, Long userId, Integer hallId, Long movieId) {
+public record TicketDTO(Long id, Double value, LocalDateTime purchasedOn, LocalDateTime scheduledOn, Integer roww, Integer seat, TicketStatus ticketStatus, Long userId, Integer hallId, Long movieId) {
     public static TicketDTO from (Ticket ticket){
         return new TicketDTO(
                 ticket.getId(),
