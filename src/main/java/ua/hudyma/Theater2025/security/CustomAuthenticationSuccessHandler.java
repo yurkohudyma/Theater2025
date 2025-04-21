@@ -44,7 +44,8 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         response.addCookie(cookie);
 
         var userStatus = userRepository.findByEmail(email).orElseThrow().getAccessLevel();
-        if (userStatus == UserAccessLevel.ADMIN || userStatus == UserAccessLevel.MANAGER){
+        if (userStatus == UserAccessLevel.ADMIN
+                || userStatus == UserAccessLevel.MANAGER){
             response.sendRedirect("/admin");
         }
         else {

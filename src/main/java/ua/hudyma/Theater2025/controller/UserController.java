@@ -1,6 +1,5 @@
 package ua.hudyma.Theater2025.controller;
 
-import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Controller;
@@ -15,7 +14,6 @@ import ua.hudyma.Theater2025.repository.*;
 import ua.hudyma.Theater2025.service.TicketService;
 
 import java.security.Principal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +23,9 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Log4j2
 public class UserController {
+    public static final String MOVIES_LIST = "moviesList";
+    public static final String EMAIL = "email";
+    public static final String USER_STATUS = "userStatus";
     private final TicketRepository ticketRepository;
     private final HallRepository hallRepository;
     private final UserRepository userRepository;
@@ -38,16 +39,17 @@ public class UserController {
         var userEmail = principal.getName();
         var user = userRepository.findByEmail(userEmail).orElseThrow();
         model.addAllAttributes(Map.of(
-                "moviesList", moviesList,
-                "email", userEmail,
-                "userStatus", user.getAccessLevel().str));
+                MOVIES_LIST, moviesList,
+                EMAIL, userEmail,
+                USER_STATUS, user.getAccessLevel().str));
         return "user";
     }
 
-    @GetMapping("/buy/{hall_id}/{movie_id}")
+    @GetMapping("/buy/{hall_id}/{movie_id}/{selected_timeslot}")
     public String generateTable(Model model, Principal principal,
                                 @PathVariable("hall_id") Integer hall_id,
-                                @PathVariable("movie_id") Long movie_id) {
+                                @PathVariable("movie_id") Long movie_id,
+                                @PathVariable("selected_timeslot") String selectedTimeslot) {
         var hall = hallRepository.findById(hall_id).orElseThrow();
 
         List<Seat> soldSeats = seatRepository.findByHallIdAndIsOccupiedTrue(hall_id);
@@ -63,15 +65,17 @@ public class UserController {
                 "hall", hall_id,
                 "soldSeatMapList", soldSeatList,
                 "movie_id", movie_id,
-                "moviesList", moviesList,
-                "email", userEmail,
-                "userStatus", user.getAccessLevel().str));
+                MOVIES_LIST, moviesList,
+                EMAIL, userEmail,
+                USER_STATUS, user.getAccessLevel().str,
+                "selected_timeslot", selectedTimeslot));
         return "user";
     }
 
-    @PostMapping("/buy/{hall_id}/{movie_id}/{row}/{seat}")
+    @PostMapping("/buy/{hall_id}/{movie_id}/{selected_timeslot}/{row}/{seat}")
     public String addTicket(@PathVariable("hall_id") Integer hall_id,
                             @PathVariable("movie_id") Long movie_id,
+                            @PathVariable("selected_timeslot") String selectedTimeslot,
                             @PathVariable("row") Integer row,
                             @PathVariable("seat") Integer seat,
                             Model model, Principal principal) {
@@ -88,15 +92,14 @@ public class UserController {
         var email = principal.getName();
         User user = userRepository.findByEmail(email).orElseThrow();
         Movie movie = movieRepository.findById(movie_id).orElseThrow();
-        Schedule schedule = movie.getSchedule();
-        LocalDateTime scheduleConvertedToDateTime = ticketService.convertTimeSlotToLocalDateTime(schedule.getTimeSlot());
-
+        LocalDateTime timeSlotToLocalDateTime =
+                ticketService.convertTimeSlotToLocalDateTime(selectedTimeslot);
         ticket.setUser(user);
         ticket.setTicketStatus(TicketStatus.RESERVED);
 
         ticket.setMovie(movie);
 
-        ticket.setScheduledOn(scheduleConvertedToDateTime);
+        ticket.setScheduledOn(timeSlotToLocalDateTime);
         ticket.setPurchasedOn(LocalDateTime.now());
         ticket.setValue(hall.getSeatPrice());
         ticket.setRoww(row);
@@ -106,9 +109,10 @@ public class UserController {
                 + ticket.getMovie().getName()
                 + " в " + hall.getName() + " для " +
                 user.getName() + " на " +
-                schedule.getTimeSlot());
+                selectedTimeslot);
 
-        List<Seat> soldSeats = seatRepository.findByHallIdAndIsOccupiedTrue(Math.toIntExact(hall_id));
+        List<Seat> soldSeats = seatRepository
+                .findByHallIdAndIsOccupiedTrue(Math.toIntExact(hall_id));
 
         List<Map<String, Integer>> soldSeatList = getMaps(soldSeats);
         var moviesList = movieRepository.findAll();
@@ -116,14 +120,14 @@ public class UserController {
         model.addAllAttributes(Map.of(
                 "showIssuedTicket", true,
                 "ticket", ticket,
-                "schedule", schedule.getTimeSlot(),
+                "selected_timeslot", selectedTimeslot,
                 "rows", hall.getRowz(),
                 "seats", hall.getSeats(),
                 "soldSeatMapList", soldSeatList,
                 "movie", movie,
-                "moviesList", moviesList,
-                "email", email,
-                "userStatus", user.getAccessLevel().str));
+                MOVIES_LIST, moviesList,
+                EMAIL, email,
+                USER_STATUS, user.getAccessLevel().str));
         return "user";
     }
 

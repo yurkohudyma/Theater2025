@@ -3,6 +3,7 @@ package ua.hudyma.Theater2025.security;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -10,6 +11,7 @@ import javax.crypto.SecretKey;
 import java.util.Date;
 
 @Component
+@Log4j2
 public class JwtTokenProvider {
 
     @Value("${jwt.secret}")
@@ -45,7 +47,7 @@ public class JwtTokenProvider {
                     .parseClaimsJws(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
-            System.out.println("JWT validation failed: " + e.getMessage());
+            log.error("JWT validation failed: " + e.getMessage());
             return false;
         }
     }

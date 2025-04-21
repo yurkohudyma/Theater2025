@@ -1,11 +1,9 @@
 package ua.hudyma.Theater2025.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
+import lombok.Data;
 import lombok.Setter;
 import ua.hudyma.Theater2025.constants.Genre;
 
@@ -15,7 +13,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "movies")
-@EqualsAndHashCode(of = "id")
+@Data
 public class Movie {
 
     @Id
@@ -54,16 +52,7 @@ public class Movie {
     @JoinColumn(name = "schedule_id")
     private Schedule schedule;
 
-    public Hall getHall() {
-        return hall;
-    }
-
-    public void setHall(Hall hall) {
-        this.hall = hall;
-    }
-
-    //@JsonBackReference(value = "movies_halls")
-
+        //@JsonBackReference(value = "movies_halls")
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "hall_id")

@@ -5,11 +5,13 @@ document.addEventListener("DOMContentLoaded", function () {
   const hall = window.hall;
   const soldArray = window.soldMapList;
   const movie_id = window.movie_id;
+  const selected_timeslot = window.selected_timeslot;
 
   const soldSet = new Set(soldArray.map(seat => `${seat.row}-${seat.seat}`));
 
   console.log("Sold seats:", soldArray);
   console.log("Sold set:", soldSet);
+  console.log("Sel timeslot:", selected_timeslot);
 
   for (let i = 0; i < rows; i++) {
     const tr = document.createElement("tr");
@@ -21,7 +23,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       const form = document.createElement("form");
       form.method = "post";
-      form.action = `/user/buy/${hall}/${movie_id}/${i + 1}/${j + 1}`;
+      form.action = `/user/buy/${hall}/${movie_id}/${selected_timeslot}/${i + 1}/${j + 1}`;
       form.classList.add("seat-form");
 
       const button = document.createElement("button");

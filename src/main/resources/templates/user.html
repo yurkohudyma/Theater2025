@@ -38,8 +38,16 @@
                  th:text="'Кінець прокату: '+ ${#temporals.format(movie.showEnd, 'dd-MM-yyyy')}"></div>
             <div class="movie_unit">Сеанси:
                 <div class="movie_timeslot">
-                    <a th:href="@{'/user/buy/' + ${movie.hall.id} + '/' + ${movie.id}}"
+                    <a th:href="@{'/user/buy/' + ${movie.hall.id} + '/' + ${movie.id} + '/' + ${movie.schedule.timeSlot}}"
                        th:text="${movie.schedule.timeSlot}"></a>
+                </div>
+                <div class="movie_timeslot" th:if = "${movie.schedule.timeSlot2 != null}">
+                    <a th:href="@{'/user/buy/' + ${movie.hall.id} + '/' + ${movie.id}  + '/' + ${movie.schedule.timeSlot2}}"
+                       th:text="${movie.schedule.timeSlot2}"></a>
+                </div>
+                <div class="movie_timeslot" th:if = "${movie.schedule.timeSlot3 != null}">
+                    <a th:href="@{'/user/buy/' + ${movie.hall.id} + '/' + ${movie.id}  + '/' + ${movie.schedule.timeSlot3}}"
+                       th:text="${movie.schedule.timeSlot3}"></a>
                 </div>
             </div>
             <div class="movie_unit" th:text="'Кінозал: '+ ${movie.hall.name}"></div>
@@ -53,8 +61,7 @@
         window.hall = [[${hall}]];
         window.soldMapList = [[${soldSeatMapList}]];
         window.movie_id = [[${movie_id}]];
-
-
+        window.selected_timeslot = [[${selected_timeslot}]];
     </script>
 
     <table id="seatsTable" border="0"></table>
@@ -84,7 +91,7 @@
                     th:text="'Дата: ' + ${#temporals.format(ticket.scheduledOn, 'dd-MM-yyyy')}"></td>
             </tr>
             <tr>
-                <td class="ticket_field" th:text="'Час: ' + ${schedule}"></td>
+                <td class="ticket_field" th:text="'Час: ' + ${selected_timeslot}"></td>
             </tr>
         </table>
 

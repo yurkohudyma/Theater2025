@@ -15,4 +15,6 @@ public interface HallRepository extends JpaRepository<Hall, Integer> {
 
     @Transactional(readOnly = true)
     Optional<Hall> findById (Long id);
+
+    Optional<Hall> findByName(String name);
 }

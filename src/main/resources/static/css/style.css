@@ -262,4 +262,23 @@ header {
 		font-size: 30px;
 	text-align: center;
 }
+
+.add_movie_form_container {
+	position: fixed;
+    top: 80px;
+    right: 0;
+    margin: 20px; /* відступ від краю */
+    z-index: 1000; /* поверх усього */
+}
+
+.add_movie_form_level {
+	padding: 5px;	
+}
+
+.select_button {
+	background-color: #fff7f0;
+	color: black;	
+}
+
+.premiere_start_input {
 }

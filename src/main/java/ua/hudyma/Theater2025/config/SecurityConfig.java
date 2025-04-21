@@ -12,7 +12,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import ua.hudyma.Theater2025.constants.UserAccessLevel;
 import ua.hudyma.Theater2025.security.CustomAuthenticationSuccessHandler;
 import ua.hudyma.Theater2025.security.JwtAuthenticationFilter;
 
