@@ -19,6 +19,10 @@
     <div class="user_data_block">
         <div class="userStatus" th:text="${userStatus}"></div>
         <div class="email" th:text="${email}"></div>
+        <form action="#" th:method="get" th:if="${userStatus == 'Адмін'} or ${userStatus == 'Менеджер'}"
+              th:action="@{'/admin'}">
+            <button type="submit" class="logout_button">Адмін</button>
+        </form>
         <form action="#" th:method="post" th:action="@{'/login/logout'}">
             <button type="submit" class="logout_button">Вийти</button>
         </form>
@@ -72,13 +76,13 @@
     <div class="issuedTicketPanel" th:if="${showIssuedTicket}">
         <table>
             <tr>
-                <td class="ticket_field" th:text="'Фільм: ' + ${ticket.movie.name}"></td>
+                <td class="ticket_field" th:text="${ticket.movie.name}"></td>
             </tr>
             <tr>
                 <td class="ticket_field" th:text="'Зал: ' + ${ticket.hall.name}"></td>
             </tr>
             <tr>
-                <td class="ticket_field" th:text="'Ціна: ' + ${ticket.value}"></td>
+                <td class="ticket_field" th:text="'Ціна: ' + ${ticket.value} + ' ₴'"></td>
             </tr>
             <tr>
                 <td class="ticket_field" th:text="'Ряд: ' + ${ticket.roww}"></td>
@@ -88,10 +92,10 @@
             </tr>
             <tr>
                 <td class="ticket_field"
-                    th:text="'Дата: ' + ${#temporals.format(ticket.scheduledOn, 'dd-MM-yyyy')}"></td>
+                    th:text="${#temporals.format(ticket.scheduledOn, 'dd-MM-yyyy')}"></td>
             </tr>
             <tr>
-                <td class="ticket_field" th:text="'Час: ' + ${selected_timeslot}"></td>
+                <td class="ticket_field" th:text="'Сеанс: ' + ${selected_timeslot}"></td>
             </tr>
         </table>
 

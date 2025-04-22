@@ -19,6 +19,9 @@
     <div class="user_data_block_admin">
         <div class="userStatus" th:text="${userStatus}"></div>
         <div class="email" th:text="${email}"></div>
+        <form action="#" th:method="get" th:action="@{'/user'}">
+            <button type="submit" class="logout_button">USER</button>
+        </form>
         <form action="#" th:method="post" th:action="@{'/login/logout'}">
             <button type="submit" class="logout_button">Вийти</button>
         </form>
@@ -88,7 +91,7 @@
     <!--TICKETS LISTING SECTION-->
 
     <div class="tickets_header">Квиточки</div>
-    <table class="tickets_table" th:unless="${ticketList.size() == 0}">
+    <table class="tickets_table" th:unless="${ticketList.isEmpty}">
 
         <thead>
         <tr class="tickets_table_legend">
@@ -160,7 +163,10 @@
             <td class="movie_unit" th:text="${movie.id}"></td>
             <td class="movie_unit" th:text="${movie.name}"></td>
             <td class="movie_unit" th:text="${movie.genre.str}"></td>
-            <td class="movie_unit" th:text="${movie.imdbIndex}"></td>
+            <td class="movie_unit">
+                <a th:href="@{'https://www.imdb.com/title/' + ${movie.imdbIndex}}"
+                   th:text="${movie.imdbIndex}" target="_blank"></a>
+            </td>
             <td class="movie_unit" th:text="${movie.premiereStart}"></td>
             <td class="movie_unit" th:text="${movie.showEnd}"></td>
             <td class="movie_unit" th:text="${movie.schedule.timeSlot}"></td>

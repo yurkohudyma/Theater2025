@@ -16,7 +16,6 @@ import ua.hudyma.Theater2025.repository.*;
 import ua.hudyma.Theater2025.service.HallService;
 import util.FileUtils;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -40,8 +39,10 @@ public class AdminController {
     private final MovieRepository movieRepository;
     private final HallService hallService;
     private final ScheduleRepository scheduleRepository;
-    private final Path uploadDir = Path.of("S:/TOOLS/.Hudyma_projects/Theater2025/src/main/resources/static/img/movies");
-    private final Path basePath = Paths.get("S:/TOOLS/.Hudyma_projects/Theater2025/src/main/resources/static");
+    @Value("${uploadConfig}")
+    private String uploadConfig;
+    @Value("${basePathConfig}")
+    private String basePathConfig;
 
     @GetMapping
     public String getEverything(Model model, Principal principal) {
@@ -82,7 +83,9 @@ public class AdminController {
         movie.setShowEnd(showEnd);
         movie.setImdbIndex(imdbIndex);
         uploadFile(file);
-        movie.setImgUrl(FileUtils.buildRelativeUrl(basePath, uploadDir) + file.getOriginalFilename());
+        movie.setImgUrl(FileUtils.buildRelativeUrl(
+                Paths.get(basePathConfig), Path.of(uploadConfig))
+                + "/" + file.getOriginalFilename());
         movieRepository.save(movie);
 
         addAllNecessaryAdminAttributes(model, principal);
@@ -114,11 +117,8 @@ public class AdminController {
     private void uploadFile(MultipartFile file) throws IOException {
         String filename = file.getOriginalFilename();
         assert filename != null;
-        Path targetPath = uploadDir.resolve(filename).normalize();
+        Path targetPath = Path.of(uploadConfig).resolve(filename).normalize();
         Files.copy(file.getInputStream(), targetPath,
                 StandardCopyOption.REPLACE_EXISTING);
-        //return targetPath;
     }
-
-
 }

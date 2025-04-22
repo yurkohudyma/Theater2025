@@ -19,7 +19,8 @@ public class JwtTokenProvider {
 
     private SecretKey secretKey;
 
-    private final long validityInMs = 86400000L; // 24 години
+    @Value("${jwt.expiration}")
+    private long validityInMs;
 
     @PostConstruct
     public void init() {

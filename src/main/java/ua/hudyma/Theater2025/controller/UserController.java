@@ -72,16 +72,16 @@ public class UserController {
         return "user";
     }
 
-    @PostMapping("/buy/{hall_id}/{movie_id}/{selected_timeslot}/{row}/{seat}")
-    public String addTicket(@PathVariable("hall_id") Integer hall_id,
-                            @PathVariable("movie_id") Long movie_id,
+    @PostMapping("/buy/{hallId}/{movieId}/{selected_timeslot}/{row}/{seat}")
+    public String addTicket(@PathVariable("hallId") Integer hallId,
+                            @PathVariable("movieId") Long movieId,
                             @PathVariable("selected_timeslot") String selectedTimeslot,
                             @PathVariable("row") Integer row,
                             @PathVariable("seat") Integer seat,
                             Model model, Principal principal) {
 
         Ticket ticket = new Ticket();
-        Hall hall = hallRepository.findById(hall_id).orElseThrow();
+        Hall hall = hallRepository.findById(hallId).orElseThrow();
         Seat soldSeat = new Seat();
         soldSeat.setOccupied(true);
         soldSeat.setSeatNumber(seat);
@@ -89,14 +89,14 @@ public class UserController {
         soldSeat.setHall(hall);
         ticket.setHall(hall);
         seatRepository.save(soldSeat);
+
         var email = principal.getName();
         User user = userRepository.findByEmail(email).orElseThrow();
-        Movie movie = movieRepository.findById(movie_id).orElseThrow();
+        Movie movie = movieRepository.findById(movieId).orElseThrow();
         LocalDateTime timeSlotToLocalDateTime =
                 ticketService.convertTimeSlotToLocalDateTime(selectedTimeslot);
         ticket.setUser(user);
         ticket.setTicketStatus(TicketStatus.RESERVED);
-
         ticket.setMovie(movie);
 
         ticket.setScheduledOn(timeSlotToLocalDateTime);
@@ -105,6 +105,7 @@ public class UserController {
         ticket.setRoww(row);
         ticket.setSeat(seat);
         ticketRepository.save(ticket);
+
         log.info("...created ticket at "
                 + ticket.getMovie().getName()
                 + " в " + hall.getName() + " для " +
@@ -112,7 +113,7 @@ public class UserController {
                 selectedTimeslot);
 
         List<Seat> soldSeats = seatRepository
-                .findByHallIdAndIsOccupiedTrue(Math.toIntExact(hall_id));
+                .findByHallIdAndIsOccupiedTrue(Math.toIntExact(hallId));
 
         List<Map<String, Integer>> soldSeatList = getMaps(soldSeats);
         var moviesList = movieRepository.findAll();

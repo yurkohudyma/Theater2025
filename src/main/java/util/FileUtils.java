@@ -1,9 +1,10 @@
 package util;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class FileUtils {
+    private FileUtils() {
+    }
 
     /**
      * Створює відносний шлях до файлу, відносно базового шляху.

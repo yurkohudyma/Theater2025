@@ -9,9 +9,22 @@ body {
     padding: 20px;
 }
 
+input, textarea, select, button {
+    font-family: inherit;
+}
+
+input[type="file"] {
+	font-family: inherit;
+}
+
 header {
 	font-size: 2em;
     font-weight: bold;
+	position: fixed;
+	top: 0;
+	left: 0;
+	margin-top:5px;
+	margin-left: 5px;	
 }
 
 .wrapper {
@@ -140,9 +153,14 @@ header {
 }
 
 .issuedTicketPanel {
-    display: flex;
+    /*display: fixed;*/
     justify-content: center; /* центрує горизонтально */
-    margin-top: 30px;
+	position: fixed;
+    top: 20px;
+    left: 0;
+    margin: 20px;
+    z-index: 1000; /* щоб не перекривали інші */
+    /* margin-top: 30px; */
 }
 
 .issuedTicketPanel table {
@@ -185,7 +203,8 @@ header {
     flex-wrap: wrap;
     gap: 20px;
     justify-content: left;
-	 max-width: 60%;
+	max-width: 60%;
+	margin-left: 100px;
 }
 
 /* Блок одного фільму */
@@ -266,8 +285,8 @@ header {
 .add_movie_form_container {
 	position: fixed;
     top: 80px;
-    right: 0;
-    margin: 20px; /* відступ від краю */
+    right: 1px;
+    margin: 10px; /* відступ від краю */
     z-index: 1000; /* поверх усього */
 }
 
@@ -282,3 +301,5 @@ header {
 
 .premiere_start_input {
 }
+
+
