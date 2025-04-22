@@ -19,13 +19,8 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
-
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
-
-    /*public CustomAuthenticationSuccessHandler(JwtTokenProvider jwtTokenProvider) {
-        this.jwtTokenProvider = jwtTokenProvider;
-    }*/
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
@@ -43,12 +38,16 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         cookie.setMaxAge(60 * 60); // 1 година
         response.addCookie(cookie);
 
-        var userStatus = userRepository.findByEmail(email).orElseThrow().getAccessLevel();
+        var userStatus = userRepository
+                .findByEmail(email)
+                .orElseThrow()
+                .getAccessLevel();
         if (userStatus == UserAccessLevel.ADMIN
                 || userStatus == UserAccessLevel.MANAGER){
             response.sendRedirect("/admin");
-        }
-        else {
+        } else if (userStatus == UserAccessLevel.BLOCKED) {
+            response.sendRedirect("/error");
+        } else {
             response.sendRedirect("/user");
         }
     }

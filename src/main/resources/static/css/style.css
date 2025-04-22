@@ -11,6 +11,7 @@ body {
 
 input, textarea, select, button {
     font-family: inherit;
+	margin: 5px;
 }
 
 input[type="file"] {
@@ -284,10 +285,10 @@ header {
 
 .add_movie_form_container {
 	position: fixed;
-    top: 80px;
+    top: 100px;
     right: 1px;
-    margin: 10px; /* відступ від краю */
-    z-index: 1000; /* поверх усього */
+    margin-left: 20px;	
+    z-index: 1000;
 }
 
 .add_movie_form_level {

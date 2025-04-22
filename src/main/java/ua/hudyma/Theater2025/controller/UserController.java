@@ -34,7 +34,7 @@ public class UserController {
     private final SeatRepository seatRepository;
 
     @GetMapping
-    public String getAllMovies (Model model, Principal principal){
+    public String getAllMovies(Model model, Principal principal) {
         var moviesList = movieRepository.findAll();
         var userEmail = principal.getName();
         var user = userRepository.findByEmail(userEmail).orElseThrow();
@@ -45,16 +45,26 @@ public class UserController {
         return "user";
     }
 
-    @GetMapping("/buy/{hall_id}/{movie_id}/{selected_timeslot}")
+    @GetMapping("/buy/{hallId}/{movieId}/{selected_timeslot}")
     public String generateTable(Model model, Principal principal,
-                                @PathVariable("hall_id") Integer hall_id,
-                                @PathVariable("movie_id") Long movie_id,
+                                @PathVariable("hallId") Integer hallId,
+                                @PathVariable("movieId") Long movieId,
                                 @PathVariable("selected_timeslot") String selectedTimeslot) {
-        var hall = hallRepository.findById(hall_id).orElseThrow();
+        var hall = hallRepository.findById(hallId).orElseThrow();
 
-        List<Seat> soldSeats = seatRepository.findByHallIdAndIsOccupiedTrue(hall_id);
+        //List<Seat> soldSeats = seatRepository.findByHallIdAndIsOccupiedTrue(hallId);
 
-        List<Map<String, Integer>> soldSeatList = getMaps(soldSeats);
+        //List<Map<String, Integer>> soldSeatList = getMaps(soldSeats);
+        LocalDateTime timeSlotToLocalDateTime =
+                ticketService.convertTimeSlotToLocalDateTime(selectedTimeslot);
+        List<Ticket> soldTickets = ticketRepository
+                .findByHallIdAndMovieIdAndScheduledOn(
+                        Long.valueOf(hallId),
+                        movieId,
+                        timeSlotToLocalDateTime);
+
+        var soldTicketList = getTicketMap(soldTickets);
+
         //передати напряму сет через thymeleaf не вийде, бо останній серіалізується у звичайний масив
         var moviesList = movieRepository.findAll();
         var userEmail = principal.getName();
@@ -62,9 +72,9 @@ public class UserController {
         model.addAllAttributes(Map.of(
                 "rows", hall.getRowz(),
                 "seats", hall.getSeats(),
-                "hall", hall_id,
-                "soldSeatMapList", soldSeatList,
-                "movie_id", movie_id,
+                "hall", hallId,
+                "soldSeatMapList", soldTicketList,
+                "movieId", movieId,
                 MOVIES_LIST, moviesList,
                 EMAIL, userEmail,
                 USER_STATUS, user.getAccessLevel().str,
@@ -112,10 +122,17 @@ public class UserController {
                 user.getName() + " на " +
                 selectedTimeslot);
 
-        List<Seat> soldSeats = seatRepository
-                .findByHallIdAndIsOccupiedTrue(Math.toIntExact(hallId));
+        /*List<Seat> soldSeats = seatRepository
+                .findByHallIdAndIsOccupiedTrue(Math.toIntExact(hallId));*/
 
-        List<Map<String, Integer>> soldSeatList = getMaps(soldSeats);
+        List<Ticket> soldTickets = ticketRepository
+                .findByHallIdAndMovieIdAndScheduledOn(
+                        Long.valueOf(hallId),
+                                 movieId,
+                        timeSlotToLocalDateTime);
+
+        var soldTicketList = getTicketMap(soldTickets);
+        //List<Map<String, Integer>> soldSeatList = getMaps(soldSeats);
         var moviesList = movieRepository.findAll();
 
         model.addAllAttributes(Map.of(
@@ -124,7 +141,7 @@ public class UserController {
                 "selected_timeslot", selectedTimeslot,
                 "rows", hall.getRowz(),
                 "seats", hall.getSeats(),
-                "soldSeatMapList", soldSeatList,
+                "soldSeatMapList", soldTicketList,
                 "movie", movie,
                 MOVIES_LIST, moviesList,
                 EMAIL, email,
@@ -137,6 +154,14 @@ public class UserController {
                 .map(s -> Map.of(
                         "row", s.getRowNumber(),
                         "seat", s.getSeatNumber()))
+                .toList();
+    }
+
+    private static List<Map<String, Integer>> getTicketMap(List<Ticket> ticketList) {
+        return ticketList.stream()
+                .map(t -> Map.of(
+                        "row", t.getRoww(),
+                        "seat", t.getSeat()))
                 .toList();
     }
 }

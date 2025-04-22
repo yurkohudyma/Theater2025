@@ -24,7 +24,6 @@ public class JwtTokenProvider {
 
     @PostConstruct
     public void init() {
-        // Універсальний спосіб — secret має бути або достатньо довгий, або Base64-енкоджений
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes());
     }
 

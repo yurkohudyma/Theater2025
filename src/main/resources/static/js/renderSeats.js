@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const seats = window.seats;
   const hall = window.hall;
   const soldArray = window.soldMapList;
-  const movie_id = window.movie_id;
+  const movie_id = window.movieId;
   const selected_timeslot = window.selected_timeslot;
 
   const soldSet = new Set(soldArray.map(seat => `${seat.row}-${seat.seat}`));

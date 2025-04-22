@@ -7,14 +7,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import ua.hudyma.Theater2025.repository.UserRepository;
 
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/error")
 public class ErrorController {
-
-//    UserRepository userRepository;
 
     @GetMapping
     public String handleError(HttpServletRequest request, Model model) {

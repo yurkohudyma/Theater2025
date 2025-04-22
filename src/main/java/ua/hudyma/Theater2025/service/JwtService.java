@@ -1,5 +1,6 @@
-package ua.hudyma.Theater2025.service;
 
+package ua.hudyma.Theater2025.service;
+/*
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -68,3 +69,4 @@ public class JwtService {
                 .getBody();
     }
 }
+*/
