@@ -303,4 +303,12 @@ header {
 .premiere_start_input {
 }
 
+.liqpay_button{
+	position: fixed;
+    bottom: 100px;
+    right: 0;
+    margin-left: 20px;	
+    z-index: 1000;
+}
+
 

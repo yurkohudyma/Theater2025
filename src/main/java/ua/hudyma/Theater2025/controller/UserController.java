@@ -2,6 +2,7 @@ package ua.hudyma.Theater2025.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,9 +11,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import ua.hudyma.Theater2025.constants.TicketStatus;
 import ua.hudyma.Theater2025.model.*;
+import ua.hudyma.Theater2025.payment.LiqPayHelper;
 import ua.hudyma.Theater2025.repository.*;
 import ua.hudyma.Theater2025.service.TicketService;
 
+import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -33,15 +36,25 @@ public class UserController {
     private final TicketService ticketService;
     private final SeatRepository seatRepository;
 
+    @Value("${liqpay_public_key}")
+    private String publicKey;
+    @Value("${liqpay_private_key}")
+    private String privateKey;
+
     @GetMapping
-    public String getAllMovies(Model model, Principal principal) {
+    public String getAllMovies(Model model, Principal principal) throws NoSuchAlgorithmException {
         var moviesList = movieRepository.findAll();
         var userEmail = principal.getName();
         var user = userRepository.findByEmail(userEmail).orElseThrow();
+        var paymentJSON = LiqPayHelper.preparePayment("10", "UAH", publicKey);
+        var paymentData = LiqPayHelper.getData(paymentJSON);
+        var paymentSignature = LiqPayHelper.getSignature(paymentData, privateKey);
         model.addAllAttributes(Map.of(
                 MOVIES_LIST, moviesList,
                 EMAIL, userEmail,
-                USER_STATUS, user.getAccessLevel().str));
+                USER_STATUS, user.getAccessLevel().str,
+                "paymentData", paymentData,
+                "paymentSignature", paymentSignature));
         return "user";
     }
 
@@ -49,7 +62,7 @@ public class UserController {
     public String generateTable(Model model, Principal principal,
                                 @PathVariable("hallId") Integer hallId,
                                 @PathVariable("movieId") Long movieId,
-                                @PathVariable("selected_timeslot") String selectedTimeslot) {
+                                @PathVariable("selected_timeslot") String selectedTimeslot) throws NoSuchAlgorithmException {
         var hall = hallRepository.findById(hallId).orElseThrow();
 
         //List<Seat> soldSeats = seatRepository.findByHallIdAndIsOccupiedTrue(hallId);
@@ -69,6 +82,9 @@ public class UserController {
         var moviesList = movieRepository.findAll();
         var userEmail = principal.getName();
         var user = userRepository.findByEmail(userEmail).orElseThrow();
+        /*var paymentJSON = LiqPayHelper.preparePayment("10", "UAH");
+        var paymentData = LiqPayHelper.getData(paymentJSON);
+        var paymentSignature = LiqPayHelper.getSignature(paymentData);*/
         model.addAllAttributes(Map.of(
                 "rows", hall.getRowz(),
                 "seats", hall.getSeats(),
@@ -79,6 +95,8 @@ public class UserController {
                 EMAIL, userEmail,
                 USER_STATUS, user.getAccessLevel().str,
                 "selected_timeslot", selectedTimeslot));
+        /*model.addAttribute("paymentData", paymentData);
+        model.addAttribute("paymentSignature", paymentSignature);*/
         return "user";
     }
 

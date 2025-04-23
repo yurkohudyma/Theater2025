@@ -36,3 +36,4 @@ build/
 /mvnw
 /mvnw.cmd
 /sql/scheme.PNG
+/sql/dump.sql
