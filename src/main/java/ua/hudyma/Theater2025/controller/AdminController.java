@@ -93,25 +93,20 @@ public class AdminController {
     }
 
     private void addAllNecessaryAdminAttributes(Model model, Principal principal) {
-        var ticketList = ticketRepository.findAll();
-        var movieList = movieRepository.findAll();
-        var userList = userRepository.findAll();
-        var hallList = hallRepository.findAll();
         var userEmail = principal.getName();
         var user = userRepository.findByEmail(userEmail).orElseThrow();
         var genreArray = Arrays.stream(Genre.values()).toArray();
-        var hallsNamesList = hallService.getHallsNames();
         model.addAllAttributes(Map.of(
-                "ticketList", ticketList,
-                "movieList", movieList,
-                "userList", userList,
-                "hallList", hallList,
+                "ticketList", ticketRepository.findAll(),
+                "movieList", movieRepository.findAll(),
+                "userList", userRepository.findAll(),
+                "hallList", hallRepository.findAll(),
                 "email", userEmail,
                 "userStatus", user.getAccessLevel().str,
                 "genreArray", genreArray,
                 "today", LocalDate.now(),
                 "current_time", LocalDateTime.now()));
-        model.addAttribute("hallsNamesList", hallsNamesList);
+        model.addAllAttributes(Map.of("hallsNamesList", hallService.getHallsNames()));
     }
 
     private void uploadFile(MultipartFile file) throws IOException {

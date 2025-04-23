@@ -19,12 +19,14 @@
     <div class="user_data_block_admin">
         <div class="userStatus" th:text="${userStatus}"></div>
         <div class="email" th:text="${email}"></div>
-        <form action="#" th:method="get" th:action="@{'/user'}">
-            <button type="submit" class="logout_button">USER</button>
-        </form>
-        <form action="#" th:method="post" th:action="@{'/login/logout'}">
-            <button type="submit" class="logout_button">Вийти</button>
-        </form>
+        <div class="admin_data_block_buttons">
+            <form action="#" th:method="get" th:action="@{'/user'}">
+                <button type="submit" class="logout_button">USER</button>
+            </form>
+            <form action="#" th:method="post" th:action="@{'/login/logout'}">
+                <button type="submit" class="logout_button">Вийти</button>
+            </form>
+        </div>
     </div>
     <header>
     </header>
@@ -68,7 +70,7 @@
             <div class="add_movie_form_level">
                 <label for="timeslot_input">1 сеанс</label><span style="color: red;">*</span>
                 <input id="timeslot_input" name="timeSlot" type="time"
-                       required value = "09:00" th:min="'09:00'" th:max="'23:00'">
+                       required value="09:00" th:min="'09:00'" th:max="'23:00'">
             </div>
             <div class="add_movie_form_level">
                 <label for="timeslot_input2">2 сеанс</label>
@@ -254,7 +256,9 @@
             <th>Місць</th>
             <th>Ємність</th>
             <th>Вільних місць</th>
+            <th>Продано</th>
             <th>Ціна місця</th>
+            <th>Сума</th>
         </tr>
         </thead>
         <tbody>
@@ -265,7 +269,9 @@
             <td class="user_unit" th:text="${hall.seats}"></td>
             <td class="user_unit" th:text="${hall.seats * hall.rowz}"></td>
             <td class="user_unit" th:text="${hall.seats * hall.rowz - hall.getTicketListSize()}"></td>
+            <td class="user_unit" th:text="${hall.getTicketListSize()}"></td>
             <td class="user_unit" th:text="${hall.seatPrice}"></td>
+            <td class="user_unit" th:text="${hall.seatPrice * hall.getTicketListSize()}"></td>
 
             <!-- <td class="buttons_ticket_unit">
                 <form action="#" th:action="@{'/tickets/'+${ticket.id}}" th:method="delete">
