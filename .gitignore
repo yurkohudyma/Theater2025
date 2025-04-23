@@ -37,3 +37,4 @@ build/
 /mvnw.cmd
 /sql/scheme.PNG
 /sql/dump.sql
+/src/main/resources/application.properties
