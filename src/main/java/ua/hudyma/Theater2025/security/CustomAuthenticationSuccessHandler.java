@@ -24,8 +24,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
                                         HttpServletResponse response,
-                                        Authentication authentication)
-            throws IOException, ServletException {
+                                        Authentication authentication) throws IOException {
         String email = authentication.getName();
         String token = jwtTokenProvider.generateToken(email);
         log.info("........generated....... token for "+ email);

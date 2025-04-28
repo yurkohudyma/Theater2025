@@ -9,14 +9,11 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import ua.hudyma.Theater2025.security.CustomAuthenticationSuccessHandler;
-import ua.hudyma.Theater2025.security.CustomLogoutSuccessHandler;
 import ua.hudyma.Theater2025.security.JwtAuthenticationFilter;
 
 @Configuration
@@ -27,7 +24,7 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
-    private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
+    //private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -46,11 +43,11 @@ public class SecurityConfig {
                                 "/login/logout",
                                 "/css/**",
                                 "/img/**",
-                                "/js/**",
-                                "/user"
+                                "/js/**"
                         ).permitAll()
                         .requestMatchers("/admin/**").hasAnyRole("ADMIN", "MANAGER")
-                        .requestMatchers("/buy/**").hasAnyRole("ADMIN", "MANAGER", "USER")
+                        .requestMatchers("/user/buy/**").hasAnyRole("ADMIN", "MANAGER", "USER")
+                        .requestMatchers("/user").permitAll()
                         .anyRequest().authenticated()
                 )
                 /*.exceptionHandling(exception -> exception

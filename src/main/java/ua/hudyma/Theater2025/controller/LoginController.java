@@ -31,9 +31,9 @@ public class LoginController {
         return "login";
     }
 
-    @GetMapping("/logout")
+    @PostMapping("/logout")
     public String loginOut (HttpServletResponse response){
-        Cookie cookie = new Cookie("jwt", null);
+        Cookie cookie = new Cookie("Authorization", null);
         cookie.setHttpOnly(true);
         cookie.setSecure(false); // real env set to true
         cookie.setPath("/");
@@ -41,12 +41,6 @@ public class LoginController {
         response.addCookie(cookie);
         return "redirect:/user";
     }
-
-    /*@PostMapping("/custom-logout")
-    public String logoutManually(HttpServletRequest request) throws ServletException {
-        request.logout();
-        return "redirect:/user";
-    }*/
 
     @PostMapping("/register")
     public String register(@RequestParam("email") String email,

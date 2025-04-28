@@ -1,6 +1,6 @@
 package ua.hudyma.Theater2025.security;
 
-import jakarta.servlet.http.HttpServletRequest;
+/*import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -25,4 +25,4 @@ public class CustomLogoutSuccessHandler implements LogoutSuccessHandler {
         }
         response.sendRedirect("/user");
     }
-}
+}*/
