@@ -16,7 +16,7 @@
 </head>
 <body>
 <div class="wrapper">
-    <div class="user_data_block">
+    <div class="user_data_block" th:unless="${authIsNull}">
         <div class="userStatus" th:text="${userStatus}"></div>
         <div class="email" th:text="${email}"></div>
         <form action="#" th:method="get" th:if="${userStatus == 'Адмін'} or ${userStatus == 'Менеджер'}"
@@ -28,19 +28,22 @@
         </form>
     </div>
 
-    <div class="liqpay_button">
+    <div class="user_data_block" th:if="${authIsNull}">
+        <form action="#" th:method="get" th:action="@{'/login'}">
+            <button type="submit" class="logout_button">Вхід/реєстрація</button>
+        </form>
+    </div>
+
+    <!--<div class="liqpay_button">
         <form th:method="post" th:action="@{https://www.liqpay.ua/api/3/checkout}" accept-charset="utf-8">
             <input type="hidden" name="data" th:value="${paymentData}">
             <input type="hidden" name="signature" th:value="${paymentSignature}">
-            <button style="border: none !important; display:inline-block !important;text-align: center !important;padding: 5px 24px !important;
-    color: #fff !important; box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.12), 0px 2px 4px rgba(0, 0, 0, 0.12); font-size:16px !important; line-height: 1.75 !important; font-weight: 600 !important; font-family: 'Open Sans', sans-serif; cursor: pointer !important; border-radius: 8px !important;
-    background: #009C53 !important;"onmouseover="this.style.opacity='0.5';" onmouseout="this.style.opacity='1';">
-                <img src="https://static.liqpay.ua/buttons/logo-white.svg" name="btn_text"
-                     style="vertical-align: middle !important;"/>
-                <span style="vertical-align:middle; !important; margin-left: 8px !important; ">Сплатити</span>
+            <button class="liqpay-button">
+                <img src="https://static.liqpay.ua/buttons/logo-white.svg" alt="LiqPay" class="liqpay-logo" />
+                <span class="liqpay-text">Оплатити</span>
             </button>
         </form>
-    </div>
+    </div>-->
 
     <header>Вибір кіно</header>
     <br>
@@ -59,11 +62,11 @@
                     <a th:href="@{'/user/buy/' + ${movie.hall.id} + '/' + ${movie.id} + '/' + ${movie.schedule.timeSlot}}"
                        th:text="${movie.schedule.timeSlot}"></a>
                 </div>
-                <div class="movie_timeslot" th:if = "${movie.schedule.timeSlot2 != null}">
+                <div class="movie_timeslot" th:if="${movie.schedule.timeSlot2 != null}">
                     <a th:href="@{'/user/buy/' + ${movie.hall.id} + '/' + ${movie.id}  + '/' + ${movie.schedule.timeSlot2}}"
                        th:text="${movie.schedule.timeSlot2}"></a>
                 </div>
-                <div class="movie_timeslot" th:if = "${movie.schedule.timeSlot3 != null}">
+                <div class="movie_timeslot" th:if="${movie.schedule.timeSlot3 != null}">
                     <a th:href="@{'/user/buy/' + ${movie.hall.id} + '/' + ${movie.id}  + '/' + ${movie.schedule.timeSlot3}}"
                        th:text="${movie.schedule.timeSlot3}"></a>
                 </div>
@@ -71,6 +74,10 @@
             <div class="movie_unit" th:text="'Кінозал: '+ ${movie.hall.name}"></div>
         </div>
     </div>
+
+    <!-- <div id="liqpayData" data-paymentData="${paymentData}"></div>
+
+     <div id="liqpaySignature" data-paymentSignature="${paymentSignature}"></div>-->
 
 
     <script th:inline="javascript">
@@ -80,7 +87,10 @@
         window.soldMapList = [[${soldSeatMapList}]];
         window.movieId = [[${movieId}]];
         window.selected_timeslot = [[${selected_timeslot}]];
+        window.paymentData = [[${paymentData}]];
+        window.paymentSignature = [[${paymentSignature}]];
     </script>
+
 
     <table id="seatsTable" border="0"></table>
     <script src="/js/renderSeats.js"></script>

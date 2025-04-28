@@ -1,8 +1,10 @@
 package ua.hudyma.Theater2025.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,15 +13,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import ua.hudyma.Theater2025.constants.TicketStatus;
 import ua.hudyma.Theater2025.model.*;
-import ua.hudyma.Theater2025.payment.LiqPayHelper;
 import ua.hudyma.Theater2025.repository.*;
+import ua.hudyma.Theater2025.service.AuthService;
 import ua.hudyma.Theater2025.service.TicketService;
 
-import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+
+import static ua.hudyma.Theater2025.payment.LiqPayHelper.*;
 
 @Controller
 @RequestMapping("/user")
@@ -35,6 +38,7 @@ public class UserController {
     private final MovieRepository movieRepository;
     private final TicketService ticketService;
     private final SeatRepository seatRepository;
+    private final AuthService authService;
 
     @Value("${liqpay_public_key}")
     private String publicKey;
@@ -42,32 +46,42 @@ public class UserController {
     private String privateKey;
 
     @GetMapping
-    public String getAllMovies(Model model, Principal principal) throws NoSuchAlgorithmException {
+    public String getAllMovies(Model model,
+                               Principal principal,
+                               Authentication authentication) {
         var moviesList = movieRepository.findAll();
-        var userEmail = principal.getName();
-        var user = userRepository.findByEmail(userEmail).orElseThrow();
-        var paymentJSON = LiqPayHelper.preparePayment("10", "UAH", publicKey);
-        var paymentData = LiqPayHelper.getData(paymentJSON);
-        var paymentSignature = LiqPayHelper.getSignature(paymentData, privateKey);
-        model.addAllAttributes(Map.of(
-                MOVIES_LIST, moviesList,
-                EMAIL, userEmail,
-                USER_STATUS, user.getAccessLevel().str,
-                "paymentData", paymentData,
-                "paymentSignature", paymentSignature));
+        if (authentication != null){
+            var userEmail = principal.getName();
+            var user = userRepository.findByEmail(userEmail).orElseThrow();
+            var authIsNull = authService.currentAuthIsNullOrAnonymous();
+            model.addAllAttributes(Map.of(
+                    MOVIES_LIST, moviesList,
+                    EMAIL, userEmail,
+                    USER_STATUS, user.getAccessLevel().str,
+                    "authIsNull", authIsNull));
+            log.info("...............user " + principal.getName() + " authNULL is " + authIsNull);
+        }
+
+        else {
+            model.addAllAttributes(Map.of(
+                    MOVIES_LIST, moviesList,
+                    "authIsNull", true));
+        }
         return "user";
     }
 
+
+
+    /**
+     * ендпойнт для виведення схеми кінозалу
+     */
+    @SneakyThrows
     @GetMapping("/buy/{hallId}/{movieId}/{selected_timeslot}")
     public String generateTable(Model model, Principal principal,
                                 @PathVariable("hallId") Integer hallId,
                                 @PathVariable("movieId") Long movieId,
-                                @PathVariable("selected_timeslot") String selectedTimeslot) throws NoSuchAlgorithmException {
+                                @PathVariable("selected_timeslot") String selectedTimeslot) {
         var hall = hallRepository.findById(hallId).orElseThrow();
-
-        //List<Seat> soldSeats = seatRepository.findByHallIdAndIsOccupiedTrue(hallId);
-
-        //List<Map<String, Integer>> soldSeatList = getMaps(soldSeats);
         LocalDateTime timeSlotToLocalDateTime =
                 ticketService.convertTimeSlotToLocalDateTime(selectedTimeslot);
         List<Ticket> soldTickets = ticketRepository
@@ -75,16 +89,21 @@ public class UserController {
                         Long.valueOf(hallId),
                         movieId,
                         timeSlotToLocalDateTime);
-
         var soldTicketList = getTicketMap(soldTickets);
 
         //передати напряму сет через thymeleaf не вийде, бо останній серіалізується у звичайний масив
         var moviesList = movieRepository.findAll();
         var userEmail = principal.getName();
         var user = userRepository.findByEmail(userEmail).orElseThrow();
-        /*var paymentJSON = LiqPayHelper.preparePayment("10", "UAH");
-        var paymentData = LiqPayHelper.getData(paymentJSON);
-        var paymentSignature = LiqPayHelper.getSignature(paymentData);*/
+
+        String paymentDescription = "Квиток на сеанс " + selectedTimeslot;
+        var paymentJSON = preparePayment(hall.getSeatPrice().toString(),
+                "UAH",
+                publicKey,
+                paymentDescription);
+        var paymentData = getData(paymentJSON);
+        var paymentSignature = getSignature(paymentData, privateKey);
+
         model.addAllAttributes(Map.of(
                 "rows", hall.getRowz(),
                 "seats", hall.getSeats(),
@@ -95,11 +114,15 @@ public class UserController {
                 EMAIL, userEmail,
                 USER_STATUS, user.getAccessLevel().str,
                 "selected_timeslot", selectedTimeslot));
-        /*model.addAttribute("paymentData", paymentData);
-        model.addAttribute("paymentSignature", paymentSignature);*/
+        model.addAttribute("paymentData", paymentData);
+        model.addAttribute("paymentSignature", paymentSignature);
         return "user";
     }
 
+    /**
+     * придбання квитка і оновлення схеми кінозалу
+     */
+    @SneakyThrows
     @PostMapping("/buy/{hallId}/{movieId}/{selected_timeslot}/{row}/{seat}")
     public String addTicket(@PathVariable("hallId") Integer hallId,
                             @PathVariable("movieId") Long movieId,
@@ -139,10 +162,6 @@ public class UserController {
                 + " в " + hall.getName() + " для " +
                 user.getName() + " на " +
                 selectedTimeslot);
-
-        /*List<Seat> soldSeats = seatRepository
-                .findByHallIdAndIsOccupiedTrue(Math.toIntExact(hallId));*/
-
         List<Ticket> soldTickets = ticketRepository
                 .findByHallIdAndMovieIdAndScheduledOn(
                         Long.valueOf(hallId),
@@ -150,8 +169,14 @@ public class UserController {
                         timeSlotToLocalDateTime);
 
         var soldTicketList = getTicketMap(soldTickets);
-        //List<Map<String, Integer>> soldSeatList = getMaps(soldSeats);
         var moviesList = movieRepository.findAll();
+        String paymentDescription = "Квиток на сеанс " + selectedTimeslot;
+        var paymentJSON = preparePayment(hall.getSeatPrice().toString(),
+                "UAH",
+                publicKey,
+                paymentDescription);
+        var paymentData = getData(paymentJSON);
+        var paymentSignature = getSignature(paymentData, privateKey);
 
         model.addAllAttributes(Map.of(
                 "showIssuedTicket", true,
@@ -164,6 +189,8 @@ public class UserController {
                 MOVIES_LIST, moviesList,
                 EMAIL, email,
                 USER_STATUS, user.getAccessLevel().str));
+        model.addAttribute("paymentData", paymentData);
+        model.addAttribute("paymentSignature", paymentSignature);
         return "user";
     }
 

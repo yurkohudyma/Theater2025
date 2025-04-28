@@ -1,5 +1,9 @@
 package ua.hudyma.Theater2025.controller;
 
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -11,6 +15,7 @@ import ua.hudyma.Theater2025.exception.UserEmailExistsException;
 import ua.hudyma.Theater2025.model.User;
 import ua.hudyma.Theater2025.repository.UserRepository;
 
+import java.security.Principal;
 import java.time.LocalDate;
 
 @Log4j2
@@ -27,9 +32,21 @@ public class LoginController {
     }
 
     @GetMapping("/logout")
-    public String loginOut (){
-        return "login";
+    public String loginOut (HttpServletResponse response){
+        Cookie cookie = new Cookie("jwt", null);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false); // real env set to true
+        cookie.setPath("/");
+        cookie.setMaxAge(0); // <== ось це очищає cookie
+        response.addCookie(cookie);
+        return "redirect:/user";
     }
+
+    /*@PostMapping("/custom-logout")
+    public String logoutManually(HttpServletRequest request) throws ServletException {
+        request.logout();
+        return "redirect:/user";
+    }*/
 
     @PostMapping("/register")
     public String register(@RequestParam("email") String email,

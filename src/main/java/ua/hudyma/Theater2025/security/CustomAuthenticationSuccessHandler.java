@@ -7,7 +7,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import ua.hudyma.Theater2025.constants.UserAccessLevel;
@@ -38,10 +37,8 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         cookie.setMaxAge(60 * 60); // 1 година
         response.addCookie(cookie);
 
-        var userStatus = userRepository
-                .findByEmail(email)
-                .orElseThrow()
-                .getAccessLevel();
+        var user = userRepository.findByEmail(email).orElseThrow();
+        var userStatus = user.getAccessLevel();
         if (userStatus == UserAccessLevel.ADMIN
                 || userStatus == UserAccessLevel.MANAGER){
             response.sendRedirect("/admin");

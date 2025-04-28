@@ -1,5 +1,6 @@
 package ua.hudyma.Theater2025.config;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -8,27 +9,25 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import ua.hudyma.Theater2025.security.CustomAuthenticationSuccessHandler;
+import ua.hudyma.Theater2025.security.CustomLogoutSuccessHandler;
 import ua.hudyma.Theater2025.security.JwtAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-
+@RequiredArgsConstructor
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-
     private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
-
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler) {
-        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-        this.customAuthenticationSuccessHandler = customAuthenticationSuccessHandler;
-    }
+    private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -47,10 +46,11 @@ public class SecurityConfig {
                                 "/login/logout",
                                 "/css/**",
                                 "/img/**",
-                                "/js/**"
+                                "/js/**",
+                                "/user"
                         ).permitAll()
                         .requestMatchers("/admin/**").hasAnyRole("ADMIN", "MANAGER")
-                        .requestMatchers("/user/**").hasAnyRole("ADMIN", "MANAGER", "USER")
+                        .requestMatchers("/buy/**").hasAnyRole("ADMIN", "MANAGER", "USER")
                         .anyRequest().authenticated()
                 )
                 /*.exceptionHandling(exception -> exception
@@ -59,14 +59,17 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .formLogin((form -> form
                         .loginPage("/login")
-                        .usernameParameter("email")// шлях до твоєї HTML-сторінки
+                        .usernameParameter("email")// шлях до HTML-сторінки
                         //.defaultSuccessUrl("/admin", true) // або куди редіректити після успіху
                         .successHandler(customAuthenticationSuccessHandler)
                         .permitAll()
                 ))
                 .logout(logout -> logout
                         .logoutUrl("/login/logout")
-                        .logoutSuccessUrl("/login")
+                        //.logoutSuccessHandler(customLogoutSuccessHandler)
+                                /*.logoutSuccessHandler((request, response, authentication) ->
+                                        SecurityContextHolder.clearContext())*/
+                        .logoutSuccessUrl("/user")
                 )
                 .build();
     }

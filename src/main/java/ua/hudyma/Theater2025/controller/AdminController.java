@@ -13,6 +13,7 @@ import ua.hudyma.Theater2025.model.Hall;
 import ua.hudyma.Theater2025.model.Movie;
 import ua.hudyma.Theater2025.model.Schedule;
 import ua.hudyma.Theater2025.repository.*;
+import ua.hudyma.Theater2025.service.AuthService;
 import ua.hudyma.Theater2025.service.HallService;
 import util.FileUtils;
 
@@ -39,6 +40,8 @@ public class AdminController {
     private final MovieRepository movieRepository;
     private final HallService hallService;
     private final ScheduleRepository scheduleRepository;
+    private final AuthService authService;
+
     @Value("${uploadConfig}")
     private String uploadConfig;
     @Value("${basePathConfig}")
@@ -47,7 +50,9 @@ public class AdminController {
     @GetMapping
     public String getEverything(Model model, Principal principal) {
         addAllNecessaryAdminAttributes(model, principal);
-        log.info("......... current auth: " + SecurityContextHolder.getContext().getAuthentication());
+        var authIsNull = authService.currentAuthIsNullOrAnonymous();
+        log.info(".............. current auth: " + SecurityContextHolder.getContext().getAuthentication());
+        log.info("...............user " + principal.getName() + " authNULL is " + authIsNull);
         return "admin";
     }
 

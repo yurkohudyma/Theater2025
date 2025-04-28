@@ -1,4 +1,10 @@
 document.addEventListener("DOMContentLoaded", function () {
+  /*const liqpayData = document.getElementById("liqpayData");
+  const paymentData = liqpayData.dataset.paymentData;
+  const liqpaySignature = document.getElementById("liqpaySignature");
+  const paymentSignature = liqpaySignature.dataset.paymentSignature;*/
+  const paymentData = window.paymentData;
+  const paymentSignature = window.paymentSignature;
   const table = document.getElementById("seatsTable");
   const rows = window.rows;
   const seats = window.seats;
@@ -6,47 +12,78 @@ document.addEventListener("DOMContentLoaded", function () {
   const soldArray = window.soldMapList;
   const movie_id = window.movieId;
   const selected_timeslot = window.selected_timeslot;
-
   const soldSet = new Set(soldArray.map(seat => `${seat.row}-${seat.seat}`));
 
   console.log("Sold seats:", soldArray);
   console.log("Sold set:", soldSet);
   console.log("Sel timeslot:", selected_timeslot);
+  console.log("paymentData: ", paymentData);
+  console.log("paymentSign: ", paymentSignature);
 
-  for (let i = 0; i < rows; i++) {
-    const tr = document.createElement("tr");
-    tr.classList.add("seat-row");
+ for (let i = 0; i < rows; i++) {
+   const tr = document.createElement("tr");
+   tr.classList.add("seat-row");
 
-    for (let j = 0; j < seats; j++) {
-      const td = document.createElement("td");
-      td.classList.add("seat-cell");
+   for (let j = 0; j < seats; j++) {
+     const td = document.createElement("td");
+     td.classList.add("seat-cell");
 
-      const form = document.createElement("form");
-      form.method = "post";
-      form.action = `/user/buy/${hall}/${movie_id}/${selected_timeslot}/${i + 1}/${j + 1}`;
-      form.classList.add("seat-form");
+     const button = document.createElement("button");
+     button.type = "button"; // зміна тут!
+     button.textContent = j + 1;
+     button.classList.add("seat-button");
 
-      const button = document.createElement("button");
-      button.type = "submit";
-      button.textContent = j + 1;
-      button.classList.add("seat-button");
+     // Додаємо координати до атрибутів для зручності (опціонально)
+     button.dataset.row = i + 1;
+     button.dataset.seat = j + 1;
 
-      if (soldSet.has(`${i + 1}-${j + 1}`)) {
-        button.disabled = true;
-        button.classList.add("sold-seat");
-        button.textContent = "";
-      }
+     // Деактивація куплених
+     if (soldSet.has(`${i + 1}-${j + 1}`)) {
+       button.disabled = true;
+       button.classList.add("sold-seat");
+       button.textContent = "";
+     } else {
+       // Прив’язка до функції створення LiqPay-форми
+       button.addEventListener("click", function () {
+         console.log(`Обране місце: ряд ${this.dataset.row}, місце ${this.dataset.seat}`);
+         createLiqpayForm(paymentData, paymentSignature);
+       });
+     }
 
-      form.appendChild(button);
-      td.appendChild(form);
-      tr.appendChild(td);
-    }
+     td.appendChild(button);
+     tr.appendChild(td);
+   }
 
-    const rowLabel = document.createElement("td");
-    rowLabel.textContent = `Ряд ${i + 1}`;
-    rowLabel.classList.add("row-label");
-    tr.appendChild(rowLabel);
+   const rowLabel = document.createElement("td");
+   rowLabel.textContent = `Ряд ${i + 1}`;
+   rowLabel.classList.add("row-label");
+   tr.appendChild(rowLabel);
 
-    table.appendChild(tr);
-  }
+   table.appendChild(tr);
+ }
 });
+
+function createLiqpayForm(data, signature) {
+  const form = document.createElement("form");
+  form.method = "post";
+  form.action = "https://www.liqpay.ua/api/3/checkout";
+  form.acceptCharset = "utf-8";
+  form.target = "_blank"; // або "_self" якщо хочеш в цьому ж вікні
+
+  const inputData = document.createElement("input");
+  inputData.type = "hidden";
+  inputData.name = "data";
+  inputData.value = data;
+
+  const inputSignature = document.createElement("input");
+  inputSignature.type = "hidden";
+  inputSignature.name = "signature";
+  inputSignature.value = signature;
+
+  form.appendChild(inputData);
+  form.appendChild(inputSignature);
+
+  document.body.appendChild(form);
+  form.submit();
+}
+
