@@ -41,3 +41,11 @@ function goToBuy() {
     }
   });
 }
+
+function showGhost(msg) {
+    const ghost = document.getElementById('ghost');
+    ghost.textContent = msg;
+    ghost.style.opacity = '1';
+    setTimeout(() => ghost.style.opacity = '0', 3000);
+    console.info(msg);
+}

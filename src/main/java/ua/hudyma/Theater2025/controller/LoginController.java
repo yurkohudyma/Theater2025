@@ -8,10 +8,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ua.hudyma.Theater2025.constants.UserAccessLevel;
 import ua.hudyma.Theater2025.exception.UserEmailExistsException;
 import ua.hudyma.Theater2025.model.User;
@@ -28,22 +29,26 @@ public class LoginController {
 
     public static final String REDIRECT_USER = "redirect:/user";
     public static final String AUTHORIZATION = "Authorization";
+    public static final String REDIRECT_ADMIN = "redirect:/admin";
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
 
     @PostMapping
     public String login(@RequestParam String email,
-                              @RequestParam String password,
-                              HttpServletResponse response) {
+                        @RequestParam String password,
+                        HttpServletResponse response,
+                        Model model) {
 
         var userOpt = userRepository.findByEmail(email);
         if (userOpt.isEmpty()) {
-            return "redirect:/login?error=notfound";
+            model.addAttribute("authError", true);
+            return "user";
         }
 
         User user = userOpt.get();
         if (!new BCryptPasswordEncoder().matches(password, user.getPassword())) {
-            return "redirect:/login?error=wrongpassword";
+            model.addAttribute("authError", true);
+            return "user";
         }
 
         var userDetails = org.springframework.security.core.userdetails.User
@@ -62,6 +67,10 @@ public class LoginController {
         cookie.setMaxAge(60 * 60);
         response.addCookie(cookie);
 
+        if (user.getAccessLevel() == UserAccessLevel.ADMIN
+                || user.getAccessLevel() == UserAccessLevel.MANAGER){
+            return REDIRECT_ADMIN;
+        }
         return REDIRECT_USER;
     }
 
@@ -102,14 +111,13 @@ public class LoginController {
         var userDetails = org.springframework.security.core.userdetails.User
                 .withUsername(user.getEmail())
                 .password(user.getPassword())
-                .authorities("ROLE_USER") // або user.getAuthorities() — якщо є
+                .authorities("ROLE_USER")
                 .build();
 
         var auth = new UsernamePasswordAuthenticationToken(
                 userDetails, user.getPassword(), userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(auth);
 
-        // Генерація JWT
         String token = jwtTokenProvider.generateToken(email);
         Cookie cookie = new Cookie(AUTHORIZATION, token);
         cookie.setHttpOnly(true);
@@ -124,13 +132,11 @@ public class LoginController {
     public String handleForm(@RequestParam String email,
                              @RequestParam String password,
                              @RequestParam String action,
-                             HttpServletResponse response) {
-
+                             HttpServletResponse response, Model model) {
         if ("login".equals(action)) {
-            return login(email, password, response);
+            return login(email, password, response, model);
         }
         return register(email, password, response);
     }
-
 }
 

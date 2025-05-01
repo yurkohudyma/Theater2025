@@ -17,17 +17,14 @@
 
 <body>
 
-<!-- Pop-up (спочатку прихований) -->
-<div id="authModal" class="modal">
-    <div class="modal-content">
-        <span class="close-button">&times;</span>
-        <h2>Увійдіть або зареєструйтесь</h2>
-        <p>Щоб продовжити, будь ласка, авторизуйтесь.</p>
-        <button onclick="window.location='/login'">Увійти</button>
-        <button onclick="window.location='/login/register'">Реєстрація</button>
-    </div>
-</div>
+<script th:inline="javascript">
+    window.authError = [[${authError}]];
+    if (window.authError) {
+        showGhost(window.authError);
+    }
+</script>
 
+<div th:insert="~{fragments/login_popup :: popup}"></div>
 
 <script src="/js/auth-popup.js"></script>
 
@@ -36,4 +33,5 @@
 <div class="error_status" th:text="${message}"></div>
 
 </body>
+
 </html>

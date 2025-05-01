@@ -94,13 +94,16 @@
         window.selected_timeslot = [[${selected_timeslot}]];
         window.paymentData = [[${paymentData}]];
         window.paymentSignature = [[${paymentSignature}]];
+        window.authError = [[${authError}]];
     </script>
 
-    <div th:replace="fragments/login_popup :: popup"></div>
+    <div th:insert="~{fragments/login_popup :: popup}"></div>
 
     <script src="/js/auth-popup.js"></script>
     <table id="seatsTable" border="0"></table>
     <script src="/js/renderSeats.js"></script>
+
+
 
     <!-- ISSUED TICKET DETAILS            -->
 

@@ -13,29 +13,34 @@
 </head>
 <body>
 
-<!-- Pop-up (спочатку прихований)
-<div id="authModal" class="modal" th:fragment="popup">
-    <div class="modal-content">
-        <span class="close-button">&times;</span>
-        <h2>Увійдіть або зареєструйтесь</h2>
-        <button onclick="window.location='/login'">Увійти/Реєстрація</button>
-    </div>
-</div>
--->
+<script th:inline="javascript">
+    window.authError = [[${authError}]];
+</script>
+<script>
+    if (window.authError) {
+        showGhost(window.authError);
+    }
+    console.log('authError: ' authError);
+</script>
+
+
 
 <div id="authModal" class="modal" th:fragment="popup">
     <div class="modal-content">
         <span class="close-button">&times;</span>
-        <h2>Увійдіть або зареєструйтесь</h2>
+        <h3>Увійдіть або зареєструйтесь</h3>
         <form th:action="@{/login/process-form}" method="post">
-            <input type="email" name="email" placeholder="Email" required />
-            <input type="password" name="password" placeholder="Password" required /><br>
+            <input type="email" name="email" placeholder="Email" required/>
+            <input type="password" name="password" placeholder="Password" required/><br>
             <button type="submit" name="action" value="login">Увійти</button>
             <button type="submit" name="action" value="register">Зареєструватися</button>
+            <div class = "authErrorMgs" th:if="${authError}">Імейл або пароль неправильні</div>
         </form>
-
     </div>
 </div>
 
+
+
 </body>
+
 </html>
