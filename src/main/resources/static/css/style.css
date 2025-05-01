@@ -290,7 +290,7 @@ header {
 .add_movie_form_container {
 	position: fixed;
     top: 150px;
-    right: 1px;
+    right: -20px;
     margin-left: 20px;	
     z-index: 1000;
 }

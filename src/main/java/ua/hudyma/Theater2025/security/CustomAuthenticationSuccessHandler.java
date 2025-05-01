@@ -26,15 +26,21 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
                                         HttpServletResponse response,
                                         Authentication authentication) throws IOException {
         String email = authentication.getName();
-        String token = jwtTokenProvider.generateToken(email);
-        log.info("........generated....... token for "+ email);
-        log.info("........" + token);
+        String accessToken = jwtTokenProvider.generateToken(email);
+        String refreshToken = jwtTokenProvider.generateRefreshToken(email);
 
-        Cookie cookie = new Cookie("Authorization", token);
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-        cookie.setMaxAge(60 * 60); // 1 година
-        response.addCookie(cookie);
+        Cookie accessCookie = new Cookie("Authorization", accessToken);
+        accessCookie.setHttpOnly(true);
+        accessCookie.setPath("/");
+        accessCookie.setMaxAge((int) (jwtTokenProvider.getValidityInMs() / 1000));
+
+        Cookie refreshCookie = new Cookie("RefreshToken", refreshToken);
+        refreshCookie.setHttpOnly(true);
+        refreshCookie.setPath("/");
+        refreshCookie.setMaxAge(7 * 24 * 60 * 60); // 7 днів
+
+        response.addCookie(accessCookie);
+        response.addCookie(refreshCookie);
 
         var user = userRepository.findByEmail(email).orElseThrow();
         var userStatus = user.getAccessLevel();
