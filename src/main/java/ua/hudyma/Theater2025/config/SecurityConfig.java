@@ -58,6 +58,7 @@ public class SecurityConfig {
                         .requestMatchers("/user/buy/**").hasAnyRole(ADMIN, MANAGER, USER)
                         .requestMatchers("/buy").hasAnyRole(ADMIN, MANAGER, USER)
                         .requestMatchers("/user").permitAll()
+                        .requestMatchers("/liqpay-callback").permitAll()
                         .requestMatchers("/access/buy").permitAll()
                         .anyRequest().authenticated()
                 )

@@ -6,6 +6,8 @@ import org.json.JSONObject;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Base64;
 
 @Log4j2
@@ -24,9 +26,9 @@ public class LiqPayHelper {
         json.put("amount", amount);
         json.put("currency", currency);
         json.put("description", paymentDescription);
-        json.put("order_id", "order123456"); //todo implement TX, amend with its data
+        json.put("order_id", "order" + LocalDateTime.now()); //todo implement TX, amend with its data
         json.put("sandbox", 1); // Увімкнено тестовий режим
-        json.put("server_url", "https://your.site/callback");
+        json.put("server_url", "https://63949316847c677b932c7ee7feaac662.serveo.net/liqpay-callback");
         return json;
     }
 
