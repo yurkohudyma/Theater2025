@@ -15,6 +15,20 @@
     <title>Theater2025 ::: Адмін</title>
 </head>
 <body>
+
+<!-- Pop-up (спочатку прихований) -->
+<div id="authModal" class="modal">
+    <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <h2>Увійдіть або зареєструйтесь</h2>
+        <p>Щоб продовжити, будь ласка, авторизуйтесь.</p>
+        <button onclick="window.location='redirect:/login'">Увійти</button>
+        <button onclick="window.location='redirect:/login/register'">Реєстрація</button>
+    </div>
+</div>
+
+<script src="/js/auth-popup.js"></script>
+
 <div class="wrapper_admin">
     <div class="user_data_block_admin">
         <div class="userStatus" th:text="${userStatus}"></div>
@@ -254,7 +268,9 @@
             <th>Місць</th>
             <th>Ємність</th>
             <th>Вільних місць</th>
+            <th>Продано</th>
             <th>Ціна місця</th>
+            <th>Сума</th>
         </tr>
         </thead>
         <tbody>
@@ -265,7 +281,9 @@
             <td class="user_unit" th:text="${hall.seats}"></td>
             <td class="user_unit" th:text="${hall.seats * hall.rowz}"></td>
             <td class="user_unit" th:text="${hall.seats * hall.rowz - hall.getTicketListSize()}"></td>
+            <td class="user_unit" th:text="${hall.getTicketListSize()}"></td>
             <td class="user_unit" th:text="${hall.seatPrice}"></td>
+            <td class="user_unit" th:text="${hall.seatPrice * hall.getTicketListSize()}"></td>
 
             <!-- <td class="buttons_ticket_unit">
                 <form action="#" th:action="@{'/tickets/'+${ticket.id}}" th:method="delete">

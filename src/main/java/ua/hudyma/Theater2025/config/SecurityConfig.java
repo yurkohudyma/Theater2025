@@ -3,6 +3,7 @@ package ua.hudyma.Theater2025.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -12,8 +13,10 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import ua.hudyma.Theater2025.security.CustomAuthenticationSuccessHandler;
+import ua.hudyma.Theater2025.security.CustomLogoutSuccessHandler;
 import ua.hudyma.Theater2025.security.JwtAuthenticationFilter;
 
 @Configuration
@@ -22,9 +25,12 @@ import ua.hudyma.Theater2025.security.JwtAuthenticationFilter;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    public static final String ADMIN = "ADMIN";
+    public static final String MANAGER = "MANAGER";
+    public static final String USER = "USER";
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
-    //private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
+    private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -37,25 +43,35 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/api/auth/**",
+                                "/auth/check",
                                 "/login",
                                 "/register",
                                 "/login/register",
                                 "/login/logout",
+                                "/login/popup",
                                 "/css/**",
                                 "/img/**",
                                 "/js/**"
                         ).permitAll()
-                        .requestMatchers("/admin/**").hasAnyRole("ADMIN", "MANAGER")
-                        .requestMatchers("/user/buy/**").hasAnyRole("ADMIN", "MANAGER", "USER")
+                        .requestMatchers("/admin").hasAnyRole(ADMIN, MANAGER)
+                        .requestMatchers("/user/buy/**").hasAnyRole(ADMIN, MANAGER, USER)
+                        .requestMatchers("/buy").hasAnyRole(ADMIN, MANAGER, USER)
                         .requestMatchers("/user").permitAll()
+                        .requestMatchers("/access/buy").permitAll()
                         .anyRequest().authenticated()
                 )
-                /*.exceptionHandling(exception -> exception
-                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.FORBIDDEN))
-                )*/
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(
+                                new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+                        /*.accessDeniedHandler((request, response, accessDeniedException) -> {
+                            response.setStatus(HttpStatus.UNAUTHORIZED.value()); // замінюємо 403 на 401
+                            response.setContentType("application/json");
+                            response.getWriter().write("{\"error\": \"Unauthorized access\"}");
+                        })*/
+                )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .formLogin((form -> form
-                        .loginPage("/login")
+                        .loginPage( "/login")
                         .usernameParameter("email")// шлях до HTML-сторінки
                         //.defaultSuccessUrl("/admin", true) // або куди редіректити після успіху
                         .successHandler(customAuthenticationSuccessHandler)
@@ -63,10 +79,7 @@ public class SecurityConfig {
                 ))
                 .logout(logout -> logout
                         .logoutUrl("/login/logout")
-                        //.logoutSuccessHandler(customLogoutSuccessHandler)
-                                /*.logoutSuccessHandler((request, response, authentication) ->
-                                        SecurityContextHolder.clearContext())*/
-                        .logoutSuccessUrl("/user")
+                        .logoutSuccessHandler(customLogoutSuccessHandler)
                 )
                 .build();
     }

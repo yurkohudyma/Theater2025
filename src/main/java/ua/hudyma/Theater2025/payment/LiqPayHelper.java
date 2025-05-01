@@ -13,8 +13,6 @@ public class LiqPayHelper {
     private LiqPayHelper() {
     }
 
-
-
     public static JSONObject preparePayment(String amount,
                                             String currency,
                                             String publicKey,

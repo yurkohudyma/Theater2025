@@ -14,6 +14,9 @@
   <title>Theater2025 ::: Логін</title>
 </head>
 <body>
+
+<script src="/js/auth-popup.js"></script>
+
 <h2>Вхід</h2>
 <form method="POST" action="/login">
   <label for="username">Email:</label>
@@ -30,7 +33,7 @@
   <input type="text" id="email" name="email" required><br><br>
 
   <label for="password">Пароль:</label>
-  <input type="password" id="password" name="password" required>
+  <input type="password" id="pazzword" name="password" required>
   <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
   <br><br>
 

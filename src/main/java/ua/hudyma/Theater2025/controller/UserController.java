@@ -18,6 +18,7 @@ import ua.hudyma.Theater2025.service.AuthService;
 import ua.hudyma.Theater2025.service.TicketService;
 
 import java.security.Principal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -96,7 +97,7 @@ public class UserController {
         var userEmail = principal.getName();
         var user = userRepository.findByEmail(userEmail).orElseThrow();
 
-        String paymentDescription = "Квиток на сеанс " + selectedTimeslot;
+        String paymentDescription = "Квиток на сеанс " + selectedTimeslot + " " + LocalDate .now() + " " + userEmail;
         var paymentJSON = preparePayment(hall.getSeatPrice().toString(),
                 "UAH",
                 publicKey,
@@ -194,13 +195,13 @@ public class UserController {
         return "user";
     }
 
-    private static List<Map<String, Integer>> getMaps(List<Seat> soldSeats) {
+    /*private static List<Map<String, Integer>> getMaps(List<Seat> soldSeats) {
         return soldSeats.stream()
                 .map(s -> Map.of(
                         "row", s.getRowNumber(),
                         "seat", s.getSeatNumber()))
                 .toList();
-    }
+    }*/
 
     private static List<Map<String, Integer>> getTicketMap(List<Ticket> ticketList) {
         return ticketList.stream()

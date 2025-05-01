@@ -68,7 +68,7 @@ function createLiqpayForm(data, signature) {
   form.method = "post";
   form.action = "https://www.liqpay.ua/api/3/checkout";
   form.acceptCharset = "utf-8";
-  form.target = "_blank"; // або "_self" якщо хочеш в цьому ж вікні
+  form.target = "_blank";
 
   const inputData = document.createElement("input");
   inputData.type = "hidden";

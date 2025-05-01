@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/auth")
 @Log4j2
-public class AuthController {
+public class AuthRestController {
 
     @PostMapping("/revoke")
     public ResponseEntity<?> revokeToken(HttpServletResponse response) {

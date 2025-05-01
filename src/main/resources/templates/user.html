@@ -32,7 +32,12 @@
         <form action="#" th:method="get" th:action="@{'/login'}">
             <button type="submit" class="logout_button">Вхід/реєстрація</button>
         </form>
+        <form action="#" th:method="get">
+            <button type="button" onclick="goToBuy()">Купити</button>
+        </form>
     </div>
+
+
 
     <!--<div class="liqpay_button">
         <form th:method="post" th:action="@{https://www.liqpay.ua/api/3/checkout}" accept-charset="utf-8">
@@ -91,7 +96,18 @@
         window.paymentSignature = [[${paymentSignature}]];
     </script>
 
+    <!-- Pop-up (спочатку прихований) -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Увійдіть або зареєструйтесь</h2>
+            <p>Щоб продовжити, будь ласка, авторизуйтесь.</p>
+            <button onclick="window.location='/login'">Увійти</button>
+            <button onclick="window.location='/login/register'">Реєстрація</button>
+        </div>
+    </div>
 
+    <script src="/js/auth-popup.js"></script>
     <table id="seatsTable" border="0"></table>
     <script src="/js/renderSeats.js"></script>
 
