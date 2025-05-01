@@ -96,15 +96,7 @@
         window.paymentSignature = [[${paymentSignature}]];
     </script>
 
-    <!-- Pop-up (спочатку прихований) -->
-    <div id="authModal" class="modal">
-        <div class="modal-content">
-            <span class="close-button">&times;</span>
-            <h2>Увійдіть або зареєструйтесь</h2>
-            <p>Щоб продовжити, будь ласка, авторизуйтесь.</p>
-            <button onclick="window.location='/login'">Увійти/Реєстрація</button>
-        </div>
-    </div>
+    <div th:replace="fragments/login_popup :: popup"></div>
 
     <script src="/js/auth-popup.js"></script>
     <table id="seatsTable" border="0"></table>

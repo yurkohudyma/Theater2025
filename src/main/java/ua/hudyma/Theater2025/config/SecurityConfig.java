@@ -48,7 +48,7 @@ public class SecurityConfig {
                                 "/register",
                                 "/login/register",
                                 "/login/logout",
-                                "/login/popup",
+                                "/login/process-form",
                                 "/css/**",
                                 "/img/**",
                                 "/js/**"
@@ -70,13 +70,13 @@ public class SecurityConfig {
                         })*/
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .formLogin((form -> form
+                /*.formLogin((form -> form
                         .loginPage( "/login")
                         .usernameParameter("email")// шлях до HTML-сторінки
                         //.defaultSuccessUrl("/admin", true) // або куди редіректити після успіху
                         .successHandler(customAuthenticationSuccessHandler)
                         .permitAll()
-                ))
+                ))*/
                 .logout(logout -> logout
                         .logoutUrl("/login/logout")
                         .logoutSuccessHandler(customLogoutSuccessHandler)

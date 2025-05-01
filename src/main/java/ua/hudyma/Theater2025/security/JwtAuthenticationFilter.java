@@ -62,18 +62,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    /*private String getJwtFromRequest(HttpServletRequest request) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if ("Authorization".equals(cookie.getName())) {
-                    return cookie.getValue();
-                }
-            }
-        }
-        return null;
-    }*/
-
     private boolean shouldRefreshToken(Date expiration) {
         long timeLeftMs = expiration.getTime() - System.currentTimeMillis();
         long thresholdMs = 15 * 60 * 1000; // 15 хв до закінчення
