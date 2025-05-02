@@ -1,6 +1,5 @@
 package ua.hudyma.Theater2025.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -9,7 +8,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import ua.hudyma.Theater2025.constants.TicketStatus;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity

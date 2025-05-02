@@ -3,6 +3,9 @@ package ua.hudyma.Theater2025.controller.Rest;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
+import ua.hudyma.Theater2025.repository.TransactionRepository;
+import ua.hudyma.Theater2025.service.TicketService;
+import ua.hudyma.Theater2025.service.TransactionService;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -14,6 +17,9 @@ import java.util.Map;
 @RequestMapping("/liqpay-callback")
 public class LiqpayCallbackRestController {
 
+    TransactionService transactionService;
+    TicketService ticketService;
+
     @Value("${liqpay_private_key}")
     private String privateKey;
 
@@ -23,14 +29,20 @@ public class LiqpayCallbackRestController {
         String signature = body.get("signature");
 
         if (verifySignature(data, signature)) {
-            String decodedJson = new String(
-                    Base64.getDecoder().decode(data), StandardCharsets.UTF_8);
-            log.info("...........LiqPay payment SUCCESSFULL, callback received:");
+            String decodedJson = getDecodedJson(data);
+            log.info("...........LiqPay payment SUCCESSFULL, callback received");
             log.info(decodedJson);
+            ticketService.addNewTicket(null); //todo input user data
+            transactionService.addNewTransaction(decodedJson);
         } else {
             log.error("........Wrong signature. Potential spoofing attempt.");
-            log.info(new String(Base64.getDecoder().decode(data), StandardCharsets.UTF_8));
+            log.info(getDecodedJson(data));
         }
+    }
+
+    private static String getDecodedJson(String data) {
+        return new String(
+                Base64.getDecoder().decode(data), StandardCharsets.UTF_8);
     }
 
     private boolean verifySignature(String data, String signature) {
