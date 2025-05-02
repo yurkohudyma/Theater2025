@@ -38,3 +38,4 @@ build/
 /sql/scheme.PNG
 /sql/dump.sql
 /src/main/resources/application.properties
+/src/main/java/util/liqpay.json

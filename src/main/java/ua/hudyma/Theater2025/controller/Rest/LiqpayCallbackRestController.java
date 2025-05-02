@@ -15,7 +15,7 @@ import java.util.Map;
 public class LiqpayCallbackRestController {
 
     @Value("${liqpay_private_key}")
-    private static String privateKey;
+    private String privateKey;
 
     @PostMapping
     public void handleCallback(@RequestParam Map<String, String> body) {
@@ -23,11 +23,13 @@ public class LiqpayCallbackRestController {
         String signature = body.get("signature");
 
         if (verifySignature(data, signature)) {
-            String decodedJson = new String(Base64.getDecoder().decode(data), StandardCharsets.UTF_8);
-            log.info("...........✅ LiqPay payment callback received:");
+            String decodedJson = new String(
+                    Base64.getDecoder().decode(data), StandardCharsets.UTF_8);
+            log.info("...........LiqPay payment SUCCESSFULL, callback received:");
             log.info(decodedJson);
         } else {
-            log.error("........❌ Wrong signature. Potential spoofing attempt.");
+            log.error("........Wrong signature. Potential spoofing attempt.");
+            log.info(new String(Base64.getDecoder().decode(data), StandardCharsets.UTF_8));
         }
     }
 
@@ -41,6 +43,8 @@ public class LiqpayCallbackRestController {
 
             // Кодуємо результат в Base64
             String calculatedSignature = Base64.getEncoder().encodeToString(sha1).trim();
+            log.info("calculatedSignature: {}", calculatedSignature);
+            log.info("acceptedSignature: {}", signature);
 
             // Порівнюємо з підписом, наданим LiqPay
             return calculatedSignature.equals(signature);

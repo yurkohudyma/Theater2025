@@ -2,23 +2,26 @@ package ua.hudyma.Theater2025.payment;
 
 import lombok.extern.log4j.Log4j2;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Base64;
 
 @Log4j2
 public class LiqPayHelper {
+
+
     private LiqPayHelper() {
     }
 
     public static JSONObject preparePayment(String amount,
                                             String currency,
                                             String publicKey,
-                                            String paymentDescription) {
+                                            String paymentDescription,
+                                            String serverUrl) {
         JSONObject json = new JSONObject();
         json.put("version", "3");
         json.put("public_key", publicKey);
@@ -28,7 +31,7 @@ public class LiqPayHelper {
         json.put("description", paymentDescription);
         json.put("order_id", "order" + LocalDateTime.now()); //todo implement TX, amend with its data
         json.put("sandbox", 1); // Увімкнено тестовий режим
-        json.put("server_url", "https://63949316847c677b932c7ee7feaac662.serveo.net/liqpay-callback");
+        json.put("server_url", serverUrl + "/liqpay-callback");
         return json;
     }
 

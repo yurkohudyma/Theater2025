@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import ua.hudyma.Theater2025.constants.TicketStatus;
 import ua.hudyma.Theater2025.model.*;
+import ua.hudyma.Theater2025.payment.LiqPayHelper;
 import ua.hudyma.Theater2025.repository.*;
 import ua.hudyma.Theater2025.service.AuthService;
 import ua.hudyma.Theater2025.service.TicketService;
@@ -45,6 +46,8 @@ public class UserController {
     private String publicKey;
     @Value("${liqpay_private_key}")
     private String privateKey;
+    @Value("${liqpay_server_url}")
+    private String serverUrl;
 
     @GetMapping
     public String getAllMovies(Model model,
@@ -97,13 +100,13 @@ public class UserController {
         var userEmail = principal.getName();
         var user = userRepository.findByEmail(userEmail).orElseThrow();
 
-        String paymentDescription = "Квиток на сеанс " + selectedTimeslot + " " + LocalDate .now() + " " + userEmail;
+        /*String paymentDescription = "Квиток на сеанс " + selectedTimeslot + " " + LocalDate .now() + " " + userEmail;
         var paymentJSON = preparePayment(hall.getSeatPrice().toString(),
                 "UAH",
                 publicKey,
-                paymentDescription);
+                paymentDescription, serverUrl);
         var paymentData = getData(paymentJSON);
-        var paymentSignature = getSignature(paymentData, privateKey);
+        var paymentSignature = getSignature(paymentData, privateKey);*/
 
         model.addAllAttributes(Map.of(
                 "rows", hall.getRowz(),
@@ -115,8 +118,8 @@ public class UserController {
                 EMAIL, userEmail,
                 USER_STATUS, user.getAccessLevel().str,
                 "selected_timeslot", selectedTimeslot));
-        model.addAttribute("paymentData", paymentData);
-        model.addAttribute("paymentSignature", paymentSignature);
+        /*model.addAttribute("paymentData", paymentData);
+        model.addAttribute("paymentSignature", paymentSignature);*/
         return "user";
     }
 
@@ -175,7 +178,8 @@ public class UserController {
         var paymentJSON = preparePayment(hall.getSeatPrice().toString(),
                 "UAH",
                 publicKey,
-                paymentDescription);
+                paymentDescription,
+                serverUrl);
         var paymentData = getData(paymentJSON);
         var paymentSignature = getSignature(paymentData, privateKey);
 
@@ -194,14 +198,6 @@ public class UserController {
         model.addAttribute("paymentSignature", paymentSignature);
         return "user";
     }
-
-    /*private static List<Map<String, Integer>> getMaps(List<Seat> soldSeats) {
-        return soldSeats.stream()
-                .map(s -> Map.of(
-                        "row", s.getRowNumber(),
-                        "seat", s.getSeatNumber()))
-                .toList();
-    }*/
 
     private static List<Map<String, Integer>> getTicketMap(List<Ticket> ticketList) {
         return ticketList.stream()
