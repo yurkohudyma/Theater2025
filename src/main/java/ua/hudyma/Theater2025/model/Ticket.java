@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import ua.hudyma.Theater2025.constants.TicketStatus;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "tickets")
@@ -48,7 +49,7 @@ public class Ticket {
     private User user;
 
    //@JsonBackReference(value = "halls_tickets")
-   @JsonIgnore
+    @JsonIgnore
     @ManyToOne(optional = false)
     @JoinColumn(name = "hall_id")
     private Hall hall;
@@ -57,4 +58,7 @@ public class Ticket {
     @ManyToOne(optional = false)
     @JoinColumn(name = "movie_id")
     private Movie movie;
+    @JsonIgnore
+    @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL)
+    private List<Transaction> transactions;
 }

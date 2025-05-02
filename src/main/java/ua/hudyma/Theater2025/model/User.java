@@ -71,14 +71,4 @@ public class User implements UserDetails {
     @Override public boolean isEnabled() {
         return accessLevel != UserAccessLevel.BLOCKED;
     }
-
-    public void addTicket (Ticket ticket){
-        userTicketList.add(ticket);
-        ticket.setUser(this);
-    }
-
-    public void removeTicket (Ticket ticket){
-        userTicketList.remove(ticket);
-        ticket.setUser(null);
-    }
 }

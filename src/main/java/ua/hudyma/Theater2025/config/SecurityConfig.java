@@ -15,7 +15,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import ua.hudyma.Theater2025.security.CustomAuthenticationSuccessHandler;
 import ua.hudyma.Theater2025.security.CustomLogoutSuccessHandler;
 import ua.hudyma.Theater2025.security.JwtAuthenticationFilter;
 
@@ -29,7 +28,7 @@ public class SecurityConfig {
     public static final String MANAGER = "MANAGER";
     public static final String USER = "USER";
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
+    //private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
     private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
 
     @Bean

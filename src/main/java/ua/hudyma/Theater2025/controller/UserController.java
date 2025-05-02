@@ -13,13 +13,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import ua.hudyma.Theater2025.constants.TicketStatus;
 import ua.hudyma.Theater2025.model.*;
-import ua.hudyma.Theater2025.payment.LiqPayHelper;
 import ua.hudyma.Theater2025.repository.*;
 import ua.hudyma.Theater2025.service.AuthService;
 import ua.hudyma.Theater2025.service.TicketService;
 
 import java.security.Principal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;

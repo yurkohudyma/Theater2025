@@ -3,6 +3,7 @@ package ua.hudyma.Theater2025.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
+import ua.hudyma.Theater2025.model.Transaction;
 import ua.hudyma.Theater2025.repository.TransactionRepository;
 
 import java.time.Instant;
@@ -16,8 +17,9 @@ public class TransactionService {
 
     TransactionRepository transactionRepository;
 
-    public void addNewTransaction(String decodedJson) {
-        //todo implement
+    public void addNewTransaction(Transaction transaction) {
+        transactionRepository.save(transaction);
+        log.info("... tx no.{} has been saved", transaction.getId());
     }
 
     public LocalDateTime convertTimeStamp (long timestamp){
