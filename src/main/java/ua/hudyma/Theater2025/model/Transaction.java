@@ -5,10 +5,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import jakarta.persistence.*;
-import lombok.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import ua.hudyma.Theater2025.constants.liqpay.*;
-import ua.hudyma.Theater2025.service.TransactionService;
 import util.UnixToLocalDateTimeDeserializer;
 
 import java.math.BigDecimal;

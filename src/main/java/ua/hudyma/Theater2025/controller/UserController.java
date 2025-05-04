@@ -144,6 +144,8 @@ public class UserController {
         ticket.setHall(hall);
         seatRepository.save(soldSeat);
 
+
+
         var email = principal.getName();
         User user = userRepository.findByEmail(email).orElseThrow();
         Movie movie = movieRepository.findById(movieId).orElseThrow();

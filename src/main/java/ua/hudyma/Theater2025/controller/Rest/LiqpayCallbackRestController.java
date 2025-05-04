@@ -39,6 +39,15 @@ public class LiqpayCallbackRestController {
             log.info("...........LiqPay payment SUCCESSFULL, callback received");
             log.info(decodedJson);
             //Ticket ticket = ticketService.createNewTicket(null); //todo input user data
+
+            /** TODO
+             * 1) create transaction - DONE
+             * 2) retrieve ticket created before payment from draft Ticket
+             * 3) create seat
+             * 4) recalculate seat map
+             * 5) show user his ticket
+             */
+
             Transaction transaction = new ObjectMapper()
                     .readValue(decodedJson, Transaction.class);
             transactionService.addNewTransaction(transaction);
