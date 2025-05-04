@@ -18,6 +18,7 @@ import ua.hudyma.Theater2025.service.AuthService;
 import ua.hudyma.Theater2025.service.TicketService;
 
 import java.security.Principal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -98,13 +99,13 @@ public class UserController {
         var userEmail = principal.getName();
         var user = userRepository.findByEmail(userEmail).orElseThrow();
 
-        /*String paymentDescription = "Квиток на сеанс " + selectedTimeslot + " " + LocalDate .now() + " " + userEmail;
+        String paymentDescription = "Квиток на сеанс " + selectedTimeslot + " " + LocalDate.now() + " " + userEmail;
         var paymentJSON = preparePayment(hall.getSeatPrice().toString(),
                 "UAH",
                 publicKey,
                 paymentDescription, serverUrl);
         var paymentData = getData(paymentJSON);
-        var paymentSignature = getSignature(paymentData, privateKey);*/
+        var paymentSignature = getSignature(paymentData, privateKey);
 
         model.addAllAttributes(Map.of(
                 "rows", hall.getRowz(),
@@ -116,8 +117,8 @@ public class UserController {
                 EMAIL, userEmail,
                 USER_STATUS, user.getAccessLevel().str,
                 "selected_timeslot", selectedTimeslot));
-        /*model.addAttribute("paymentData", paymentData);
-        model.addAttribute("paymentSignature", paymentSignature);*/
+        model.addAttribute("paymentData", paymentData);
+        model.addAttribute("paymentSignature", paymentSignature);
         return "user";
     }
 

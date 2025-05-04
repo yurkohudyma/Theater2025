@@ -1,17 +1,21 @@
 package ua.hudyma.Theater2025.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import ua.hudyma.Theater2025.constants.liqpay.*;
+import ua.hudyma.Theater2025.service.TransactionService;
+import util.UnixToLocalDateTimeDeserializer;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Table(name = "transactions")
 @Data
 @NoArgsConstructor
@@ -36,6 +40,7 @@ public class Transaction {
     @Enumerated(EnumType.STRING)
     LiqPayType type;
     @JsonProperty("paytype")
+    @Enumerated(EnumType.STRING)
     LiqPaySystemPaymentType systemPaymentType;
     @JsonProperty("acq_id")
     Integer acqBankId;
@@ -43,7 +48,6 @@ public class Transaction {
     String localOrderId;
     @JsonProperty("liqpay_order_id")
     String liqpayOrderId;
-    @JsonProperty("sender_phone")
     String description;
     @JsonProperty("sender_phone")
     Long senderPhone;
@@ -60,9 +64,12 @@ public class Transaction {
     String currency;
     @JsonProperty("receiver_commission")
     BigDecimal liqpayCommission;
+
     @JsonProperty("create_date")
+    @JsonDeserialize(using = UnixToLocalDateTimeDeserializer.class)
     LocalDateTime createDate;
     @JsonProperty("end_date")
+    @JsonDeserialize(using = UnixToLocalDateTimeDeserializer.class)
     LocalDateTime endDate;
 
 }

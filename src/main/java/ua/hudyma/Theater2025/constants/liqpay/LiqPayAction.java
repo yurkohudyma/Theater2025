@@ -1,5 +1,8 @@
 package ua.hudyma.Theater2025.constants.liqpay;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum LiqPayAction {
     PAY("pay"),
     HOLD("hold"),
@@ -21,10 +24,12 @@ public enum LiqPayAction {
         this.value = value;
     }
 
+    @JsonValue
     public String getValue() {
         return value;
     }
 
+    @JsonCreator
     public static LiqPayAction fromValue(String value) {
         for (LiqPayAction action : values()) {
             if (action.value.equalsIgnoreCase(value)) {

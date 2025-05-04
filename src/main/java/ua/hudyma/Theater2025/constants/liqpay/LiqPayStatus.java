@@ -1,5 +1,8 @@
 package ua.hudyma.Theater2025.constants.liqpay;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum LiqPayStatus {
     SUCCESS("success"),
     SANDBOX("sandbox"),
@@ -22,10 +25,12 @@ public enum LiqPayStatus {
         this.value = value;
     }
 
+    @JsonValue
     public String getValue() {
         return value;
     }
 
+    @JsonCreator
     public static LiqPayStatus fromValue(String value) {
         for (LiqPayStatus status : values()) {
             if (status.value.equalsIgnoreCase(value)) {

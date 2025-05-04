@@ -1,5 +1,8 @@
 package ua.hudyma.Theater2025.constants.liqpay;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum LiqPaySystemPaymentType {
     PRIVAT24("privat24"),
     LIQPAY("liqpay"),
@@ -18,10 +21,12 @@ public enum LiqPaySystemPaymentType {
         this.value = value;
     }
 
+    @JsonValue
     public String getValue() {
         return value;
     }
 
+    @JsonCreator
     public static LiqPaySystemPaymentType fromValue(String value) {
         for (LiqPaySystemPaymentType type : values()) {
             if (type.value.equalsIgnoreCase(value)) {

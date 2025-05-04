@@ -1,6 +1,7 @@
 package ua.hudyma.Theater2025.controller.Rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,10 +19,11 @@ import java.util.Map;
 @RestController
 @Log4j2
 @RequestMapping("/liqpay-callback")
+@RequiredArgsConstructor
 public class LiqpayCallbackRestController {
 
-    TransactionService transactionService;
-    TicketService ticketService;
+    private final TransactionService transactionService;
+    private final TicketService ticketService;
 
     @Value("${liqpay_private_key}")
     private String privateKey;
@@ -39,20 +41,19 @@ public class LiqpayCallbackRestController {
             //Ticket ticket = ticketService.createNewTicket(null); //todo input user data
             Transaction transaction = new ObjectMapper()
                     .readValue(decodedJson, Transaction.class);
-            //transactionService.addNewTransaction(transaction);
+            transactionService.addNewTransaction(transaction);
+            log.info("........ tx id = {} has SUCCESSFULLY created", transaction.getId());
         } else {
             log.error("........Wrong signature. Potential spoofing attempt.");
             log.info(getDecodedJson(data));
         }
     }
-
     private static String getDecodedJson(String data) {
         return new String(
                 Base64
                         .getDecoder()
                         .decode(data), StandardCharsets.UTF_8);
     }
-
     private boolean verifySignature(String data, String signature) {
         try {
             String toSign = privateKey + data + privateKey;

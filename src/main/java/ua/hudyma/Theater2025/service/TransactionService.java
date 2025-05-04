@@ -15,17 +15,17 @@ import java.time.ZoneOffset;
 @RequiredArgsConstructor
 public class TransactionService {
 
-    TransactionRepository transactionRepository;
+    private final TransactionRepository transactionRepository;
 
     public void addNewTransaction(Transaction transaction) {
         transactionRepository.save(transaction);
         log.info("... tx no.{} has been saved", transaction.getId());
     }
 
-    public LocalDateTime convertTimeStamp (long timestamp){
+    /*public LocalDateTime convertTimeStamp (long timestamp){
         return Instant
                 .ofEpochMilli(timestamp)
                 .atZone(ZoneOffset.UTC)
                 .toLocalDateTime();
-    }
+    }*/
 }
