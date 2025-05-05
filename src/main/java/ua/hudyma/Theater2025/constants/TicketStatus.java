@@ -6,7 +6,7 @@ public enum TicketStatus {
     DECLINED ("Відхилено"),
     CANCELLED ("Скасовано"),
     UTILISED ("Використано"),
-    RESERVED ("Заброньовано");
+    PENDING ("Неоплачено");
 
     public final String str;
 

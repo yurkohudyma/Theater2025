@@ -1,5 +1,6 @@
 package ua.hudyma.Theater2025.controller;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
@@ -7,21 +8,20 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import ua.hudyma.Theater2025.constants.TicketStatus;
+import ua.hudyma.Theater2025.dto.TicketDTO;
 import ua.hudyma.Theater2025.model.*;
 import ua.hudyma.Theater2025.repository.*;
 import ua.hudyma.Theater2025.service.AuthService;
 import ua.hudyma.Theater2025.service.TicketService;
 
+import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static ua.hudyma.Theater2025.payment.LiqPayHelper.*;
 
@@ -33,6 +33,8 @@ public class UserController {
     public static final String MOVIES_LIST = "moviesList";
     public static final String EMAIL = "email";
     public static final String USER_STATUS = "userStatus";
+    public static final String PAYMENT_DATA = "paymentData";
+    public static final String PAYMENT_SIGNATURE = "paymentSignature";
     private final TicketRepository ticketRepository;
     private final HallRepository hallRepository;
     private final UserRepository userRepository;
@@ -53,7 +55,7 @@ public class UserController {
                                Principal principal,
                                Authentication authentication) {
         var moviesList = movieRepository.findAll();
-        if (authentication != null){
+        if (authentication != null) {
             var userEmail = principal.getName();
             var user = userRepository.findByEmail(userEmail).orElseThrow();
             var authIsNull = authService.currentAuthIsNullOrAnonymous();
@@ -63,16 +65,13 @@ public class UserController {
                     USER_STATUS, user.getAccessLevel().str,
                     "authIsNull", authIsNull));
             log.info("...............user " + principal.getName() + " authNULL is " + authIsNull);
-        }
-
-        else {
+        } else {
             model.addAllAttributes(Map.of(
                     MOVIES_LIST, moviesList,
                     "authIsNull", true));
         }
         return "user";
     }
-
 
 
     /**
@@ -83,10 +82,15 @@ public class UserController {
     public String generateTable(Model model, Principal principal,
                                 @PathVariable("hallId") Integer hallId,
                                 @PathVariable("movieId") Long movieId,
-                                @PathVariable("selected_timeslot") String selectedTimeslot) {
+                                @PathVariable("selected_timeslot") String selectedTimeslot,
+                                HttpSession session) {
+
         var hall = hallRepository.findById(hallId).orElseThrow();
-        LocalDateTime timeSlotToLocalDateTime =
+        var amount = hall.getSeatPrice().toString();
+        var timeSlotToLocalDateTime =
                 ticketService.convertTimeSlotToLocalDateTime(selectedTimeslot);
+        session.setAttribute("timeslot", timeSlotToLocalDateTime);
+        session.setAttribute("amount", amount);
         List<Ticket> soldTickets = ticketRepository
                 .findByHallIdAndMovieIdAndScheduledOn(
                         Long.valueOf(hallId),
@@ -98,35 +102,106 @@ public class UserController {
         var moviesList = movieRepository.findAll();
         var userEmail = principal.getName();
         var user = userRepository.findByEmail(userEmail).orElseThrow();
+        var movie = movieRepository.findById(movieId).orElseThrow();
 
-        String paymentDescription = "Квиток на сеанс " + selectedTimeslot + " " + LocalDate.now() + " " + userEmail;
-        var paymentJSON = preparePayment(hall.getSeatPrice().toString(),
-                "UAH",
+        /*** DRAFT TICKET PREPARE
+         *
+         */
+
+        //String orderId = String.valueOf(UUID.randomUUID());
+
+
+       /* session.setAttribute("orderId", orderId);
+        var dto = TicketDTO.from(draftTicket);
+        session.setAttribute("draftTicket", dto);*/
+
+       /* String paymentDescription = "Квиток на сеанс " + selectedTimeslot + " " + userEmail;
+        var paymentJSON = preparePayment(
+                amount,
                 publicKey,
-                paymentDescription, serverUrl);
+                orderId,
+                paymentDescription,
+                serverUrl);
         var paymentData = getData(paymentJSON);
-        var paymentSignature = getSignature(paymentData, privateKey);
+        var paymentSignature = getSignature(paymentData, privateKey);*/
+
 
         model.addAllAttributes(Map.of(
                 "rows", hall.getRowz(),
                 "seats", hall.getSeats(),
-                "hall", hallId,
+                "hallId", hallId,
                 "soldSeatMapList", soldTicketList,
                 "movieId", movieId,
                 MOVIES_LIST, moviesList,
                 EMAIL, userEmail,
                 USER_STATUS, user.getAccessLevel().str,
                 "selected_timeslot", selectedTimeslot));
-        model.addAttribute("paymentData", paymentData);
-        model.addAttribute("paymentSignature", paymentSignature);
+        /*model.addAttribute(PAYMENT_DATA, paymentData);
+        model.addAttribute(PAYMENT_SIGNATURE, paymentSignature);*/
         return "user";
     }
+    /**
+     * ендпойнт для ajax-отримання ряду та місця квитка та формування paymentData
+     */
+    @PostMapping("/updateRowSeatData")
+    @ResponseBody
+    public Map<String, String> getUpdatedPaymentData(
+            @RequestBody SeatRequest req,
+            Principal principal
+            /*HttpSession session*/) throws NoSuchAlgorithmException {
+
+        String orderId = UUID.randomUUID() + "_r" + req.row() + "_s" + req.seat();
+        var timeSlotToLocalDateTime =
+                ticketService.convertTimeSlotToLocalDateTime(req.timeslot());
+        var userEmail = principal.getName();
+        String paymentDescription = "Квиток на сеанс " + timeSlotToLocalDateTime + " " + userEmail;
+        var amount = hallRepository
+                .findById(req.hallId())
+                .orElseThrow()
+                .getSeatPrice()
+                .toString();
+
+        var paymentJSON = preparePayment(
+                amount,
+                publicKey,
+                paymentDescription,
+                orderId,
+                serverUrl
+                );
+
+        var paymentData = getData(paymentJSON);
+        var paymentSignature = getSignature(paymentData, privateKey);
+
+        ///create draft ticket
+
+        var user = userRepository.findByEmail(principal.getName()).orElseThrow();
+        var hall = hallRepository.findById(req.hallId()).orElseThrow();
+        var movie = movieRepository.findById(req.movieId()).orElseThrow();
+
+        var draftTicket = Ticket.builder()
+                .ticketStatus(TicketStatus.PENDING)
+                .hall(hall)
+                .movie(movie)
+                .user(user)
+                .orderId(orderId)
+                .scheduledOn(timeSlotToLocalDateTime)
+                .build();
+
+        ticketRepository.save(draftTicket);
+
+
+        ///
+
+        return Map.of(PAYMENT_DATA, paymentData, "signature", paymentSignature);
+    }
+
 
     /**
      * придбання квитка і оновлення схеми кінозалу
      */
     @SneakyThrows
     @PostMapping("/buy/{hallId}/{movieId}/{selected_timeslot}/{row}/{seat}")
+    @Deprecated
     public String addTicket(@PathVariable("hallId") Integer hallId,
                             @PathVariable("movieId") Long movieId,
                             @PathVariable("selected_timeslot") String selectedTimeslot,
@@ -136,23 +211,22 @@ public class UserController {
 
         Ticket ticket = new Ticket();
         Hall hall = hallRepository.findById(hallId).orElseThrow();
-        Seat soldSeat = new Seat();
-        soldSeat.setOccupied(true);
-        soldSeat.setSeatNumber(seat);
-        soldSeat.setRowNumber(row);
-        soldSeat.setHall(hall);
-        ticket.setHall(hall);
+        var amount = String.valueOf(hall.getSeatPrice());
+        var soldSeat = Seat.builder()
+                .isOccupied(true)
+                .seatNumber(seat)
+                .rowNumber(row)
+                .hall(hall).build();
         seatRepository.save(soldSeat);
-
 
 
         var email = principal.getName();
         User user = userRepository.findByEmail(email).orElseThrow();
         Movie movie = movieRepository.findById(movieId).orElseThrow();
-        LocalDateTime timeSlotToLocalDateTime =
+        var timeSlotToLocalDateTime =
                 ticketService.convertTimeSlotToLocalDateTime(selectedTimeslot);
         ticket.setUser(user);
-        ticket.setTicketStatus(TicketStatus.RESERVED);
+        ticket.setTicketStatus(TicketStatus.PENDING);
         ticket.setMovie(movie);
 
         ticket.setScheduledOn(timeSlotToLocalDateTime);
@@ -170,16 +244,16 @@ public class UserController {
         List<Ticket> soldTickets = ticketRepository
                 .findByHallIdAndMovieIdAndScheduledOn(
                         Long.valueOf(hallId),
-                                 movieId,
+                        movieId,
                         timeSlotToLocalDateTime);
 
         var soldTicketList = getTicketMap(soldTickets);
         var moviesList = movieRepository.findAll();
         String paymentDescription = "Квиток на сеанс " + selectedTimeslot;
-        var paymentJSON = preparePayment(hall.getSeatPrice().toString(),
-                "UAH",
+        var paymentJSON = preparePayment(amount,
                 publicKey,
                 paymentDescription,
+                null,
                 serverUrl);
         var paymentData = getData(paymentJSON);
         var paymentSignature = getSignature(paymentData, privateKey);
@@ -195,8 +269,8 @@ public class UserController {
                 MOVIES_LIST, moviesList,
                 EMAIL, email,
                 USER_STATUS, user.getAccessLevel().str));
-        model.addAttribute("paymentData", paymentData);
-        model.addAttribute("paymentSignature", paymentSignature);
+        model.addAttribute(PAYMENT_DATA, paymentData);
+        model.addAttribute(PAYMENT_SIGNATURE, paymentSignature);
         return "user";
     }
 
@@ -208,3 +282,5 @@ public class UserController {
                 .toList();
     }
 }
+
+record SeatRequest (int row, int seat, String timeslot, Long movieId, Long hallId){}

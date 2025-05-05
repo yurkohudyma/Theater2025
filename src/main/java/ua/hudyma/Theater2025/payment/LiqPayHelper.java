@@ -12,15 +12,16 @@ import java.util.Base64;
 
 @Log4j2
 public class LiqPayHelper {
+    private static final String currency = "UAH";
 
 
     private LiqPayHelper() {
     }
 
     public static JSONObject preparePayment(String amount,
-                                            String currency,
                                             String publicKey,
                                             String paymentDescription,
+                                            String orderId,
                                             String serverUrl) {
         JSONObject json = new JSONObject();
         json.put("version", "3");
@@ -29,7 +30,7 @@ public class LiqPayHelper {
         json.put("amount", amount);
         json.put("currency", currency);
         json.put("description", paymentDescription);
-        json.put("order_id", "order" + LocalDateTime.now()); //todo implement TX, amend with its data
+        json.put("order_id", orderId);
         json.put("sandbox", 1); // Увімкнено тестовий режим
         json.put("server_url", serverUrl + "/liqpay-callback");
         return json;

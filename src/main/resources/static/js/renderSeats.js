@@ -1,14 +1,10 @@
 document.addEventListener("DOMContentLoaded", function () {
-  /*const liqpayData = document.getElementById("liqpayData");
-  const paymentData = liqpayData.dataset.paymentData;
-  const liqpaySignature = document.getElementById("liqpaySignature");
-  const paymentSignature = liqpaySignature.dataset.paymentSignature;*/
   const paymentData = window.paymentData;
   const paymentSignature = window.paymentSignature;
   const table = document.getElementById("seatsTable");
   const rows = window.rows;
   const seats = window.seats;
-  const hall = window.hall;
+  const hall_id = window.hallId;
   const soldArray = window.soldMapList;
   const movie_id = window.movieId;
   const selected_timeslot = window.selected_timeslot;
@@ -44,10 +40,36 @@ document.addEventListener("DOMContentLoaded", function () {
        button.textContent = "";
      } else {
        // Прив’язка до функції створення LiqPay-форми
-       button.addEventListener("click", function () {
+      /* button.addEventListener("click", function () {
          console.log(`Обране місце: ряд ${this.dataset.row}, місце ${this.dataset.seat}`);
          createLiqpayForm(paymentData, paymentSignature);
+       });*/
+
+       button.addEventListener("click", function () {
+         const row = this.dataset.row;
+         const seat = this.dataset.seat;
+         console.log(`Обране місце: ряд ${row}, місце ${seat}`);
+
+         // Надсилаємо запит до сервера
+         fetch('/user/updateRowSeatData', {
+           method: 'POST',
+           headers: { 'Content-Type': 'application/json' },
+           credentials: "include",
+           body: JSON.stringify({
+             row: row,
+             seat: seat,
+             timeslot: selected_timeslot,
+             movieId: movie_id,
+             hallId: hall_id
+           })
+         })
+         .then(response => response.json())
+         .then(data => {
+           createLiqpayForm(data.paymentData, data.signature);
+         });
        });
+
+
      }
 
      td.appendChild(button);

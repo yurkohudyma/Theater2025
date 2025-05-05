@@ -43,7 +43,7 @@ public class Movie {
     @JsonIgnore
     @OneToMany(mappedBy = "movie",
             cascade = CascadeType.ALL,
-            fetch = FetchType.LAZY) //lazy throws Could not write JSON: failed to lazily initialize a collection of role: ua.hudyma.Theater2025.model.Hall.hallTicketList: could not initialize proxy - no Session
+            fetch = FetchType.EAGER)
     @Setter(AccessLevel.PRIVATE)
     private List<Ticket> movieTicketList = new ArrayList<>();
     //@JsonBackReference(value = "movies_schedules")

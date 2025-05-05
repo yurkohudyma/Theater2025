@@ -10,18 +10,18 @@ import ua.hudyma.Theater2025.model.Ticket;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
-    @Transactional
     List<Ticket>findAll();
 
-    @Transactional
     @Modifying
     @Query("DELETE from Ticket")
     void deleteAllTickets();
 
+    @Transactional
     @Query("delete from Ticket t where t.id = :id")
     @Modifying
     void deleteById (Long id);
@@ -30,4 +30,6 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
             Long hallId,
             Long movieId,
             LocalDateTime scheduledOn);
+
+    Optional<Ticket> findByOrderId(String orderId);
 }

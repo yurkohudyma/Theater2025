@@ -1,15 +1,21 @@
 package ua.hudyma.Theater2025.controller.Rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.*;
-import ua.hudyma.Theater2025.model.Ticket;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import ua.hudyma.Theater2025.constants.TicketStatus;
+import ua.hudyma.Theater2025.model.Seat;
 import ua.hudyma.Theater2025.model.Transaction;
-import ua.hudyma.Theater2025.service.TicketService;
+import ua.hudyma.Theater2025.repository.*;
 import ua.hudyma.Theater2025.service.TransactionService;
+import ua.hudyma.Theater2025.service.TransactionService.OrderId;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -23,14 +29,19 @@ import java.util.Map;
 public class LiqpayCallbackRestController {
 
     private final TransactionService transactionService;
-    private final TicketService ticketService;
+    private final TicketRepository ticketRepository;
+    private final SeatRepository seatRepository;
+    private final UserRepository userRepository;
+    private final HallRepository hallRepository;
+    private final MovieRepository movieRepository;
 
     @Value("${liqpay_private_key}")
     private String privateKey;
 
     @PostMapping
     @SneakyThrows
-    public void handleCallback(@RequestParam Map<String, String> body) {
+    public void handleCallback(@RequestParam Map<String, String> body,
+                               HttpSession session) {
         String data = body.get("data");
         String signature = body.get("signature");
 
@@ -38,31 +49,60 @@ public class LiqpayCallbackRestController {
             String decodedJson = getDecodedJson(data);
             log.info("...........LiqPay payment SUCCESSFULL, callback received");
             log.info(decodedJson);
-            //Ticket ticket = ticketService.createNewTicket(null); //todo input user data
 
             /** TODO
              * 1) create transaction - DONE
-             * 2) retrieve ticket created before payment from draft Ticket
-             * 3) create seat
-             * 4) recalculate seat map
-             * 5) show user his ticket
+             * 2) retrieve ticket created before payment from draft Ticket - DONE
+             * 3) create seat - DONE
+             * 4) recalculate seat map - має бути автоматично при переході на timeslot endpoint
+             * 5) show user his ticket //TODO
              */
 
             Transaction transaction = new ObjectMapper()
                     .readValue(decodedJson, Transaction.class);
             transactionService.addNewTransaction(transaction);
-            log.info("........ tx id = {} has SUCCESSFULLY created", transaction.getId());
+
+            log.info("........ tx id = {} has been SUCCESSFULLY created", transaction.getId());
+
+            OrderId clearedOrderId = transactionService
+                    .getClearedOrderId(transaction.getLocalOrderId());
+            var clearedUUDD = clearedOrderId.getUudd();
+            var orderId = transaction.getLocalOrderId();
+
+            var ticket = ticketRepository.findByOrderId(orderId).orElseThrow();
+            ticket.setTicketStatus(TicketStatus.PAID);
+            ticket.setOrderId(clearedOrderId.getUudd());
+
+            int seat = clearedOrderId.getSeat();
+            ticket.setSeat(seat);
+            int row = clearedOrderId.getRow();
+            ticket.setRoww(row);
+            var newSeat = Seat
+                    .builder()
+                    .price(transaction.getAmount().doubleValue())
+                    .isOccupied(true)
+                    .hall(ticket.getHall())
+                    .seatNumber(seat)
+                    .rowNumber(row)
+                    .build();
+            seatRepository.save(newSeat);
+            log.info("---------new seat {} fixed", newSeat.getId());
+            ticketRepository.save(ticket);
+            log.info("---------new ticket {} fixed", ticket.getId());
+
         } else {
             log.error("........Wrong signature. Potential spoofing attempt.");
             log.info(getDecodedJson(data));
         }
     }
+
     private static String getDecodedJson(String data) {
         return new String(
                 Base64
                         .getDecoder()
                         .decode(data), StandardCharsets.UTF_8);
     }
+
     private boolean verifySignature(String data, String signature) {
         try {
             String toSign = privateKey + data + privateKey;

@@ -1,12 +1,16 @@
 package ua.hudyma.Theater2025.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "seats")
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Seat {
 
     @Id

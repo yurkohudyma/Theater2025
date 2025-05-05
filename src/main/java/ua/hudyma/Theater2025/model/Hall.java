@@ -7,6 +7,7 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +39,6 @@ public class Hall {
     @OneToMany(mappedBy = "hall",
             cascade = CascadeType.ALL,
             fetch = FetchType.EAGER)
-    // lazy blocks fetching getTicketListSize()
     @Setter(AccessLevel.PRIVATE)
     private List<Ticket> hallTicketList = new ArrayList<>();
 
@@ -46,7 +46,7 @@ public class Hall {
     @JsonIgnore
     @OneToMany(mappedBy = "hall",
             cascade = CascadeType.ALL,
-            fetch = FetchType.LAZY) //lazy throws at JSON
+            fetch = FetchType.EAGER)
     @Setter(AccessLevel.PRIVATE)
     private List<Movie> hallMovieList = new ArrayList<>();
 

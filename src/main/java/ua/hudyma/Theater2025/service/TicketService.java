@@ -15,13 +15,6 @@ import java.time.LocalTime;
 @Log4j2
 public class TicketService {
 
-    TicketRepository ticketRepository;
-
-    public Ticket createNewTicket(Ticket ticket) {
-        //todo implement
-        return ticket;
-    }
-
     public LocalDateTime convertTimeSlotToLocalDateTime(String timeSlot) {
         LocalTime time = LocalTime.parse(timeSlot);
         return LocalDate.now().atTime(time);

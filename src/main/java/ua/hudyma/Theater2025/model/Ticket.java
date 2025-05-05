@@ -38,6 +38,9 @@ public class Ticket {
     @Column(name = "seat")
     Integer seat;
 
+    @Column
+    String orderId;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     TicketStatus ticketStatus;
@@ -59,6 +62,8 @@ public class Ticket {
     @JoinColumn(name = "movie_id")
     private Movie movie;
     @JsonIgnore
-    @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "ticket",
+            fetch = FetchType.EAGER,
+            cascade = CascadeType.ALL)
     private List<Transaction> transactions;
 }
