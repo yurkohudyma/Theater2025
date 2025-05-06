@@ -19,6 +19,7 @@ import ua.hudyma.Theater2025.service.TransactionService.OrderId;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Map;
 
@@ -50,14 +51,6 @@ public class LiqpayCallbackRestController {
             log.info("...........LiqPay payment SUCCESSFULL, callback received");
             log.info(decodedJson);
 
-            /** TODO
-             * 1) create transaction - DONE
-             * 2) retrieve ticket created before payment from draft Ticket - DONE
-             * 3) create seat - DONE
-             * 4) recalculate seat map - має бути автоматично при переході на timeslot endpoint
-             * 5) show user his ticket //TODO
-             */
-
             Transaction transaction = new ObjectMapper()
                     .readValue(decodedJson, Transaction.class);
             transactionService.addNewTransaction(transaction);
@@ -66,13 +59,13 @@ public class LiqpayCallbackRestController {
 
             OrderId clearedOrderId = transactionService
                     .getClearedOrderId(transaction.getLocalOrderId());
-            var clearedUUDD = clearedOrderId.getUudd();
             var orderId = transaction.getLocalOrderId();
 
             var ticket = ticketRepository.findByOrderId(orderId).orElseThrow();
             ticket.setTicketStatus(TicketStatus.PAID);
             ticket.setOrderId(clearedOrderId.getUudd());
-
+            ticket.setPurchasedOn(LocalDateTime.now());
+            ticket.setValue(Double.parseDouble(transaction.getAmount().toString()));
             int seat = clearedOrderId.getSeat();
             ticket.setSeat(seat);
             int row = clearedOrderId.getRow();

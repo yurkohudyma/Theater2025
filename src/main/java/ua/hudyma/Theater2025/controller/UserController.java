@@ -19,10 +19,10 @@ import ua.hudyma.Theater2025.service.TicketService;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
+import static java.util.Comparator.comparing;
 import static ua.hudyma.Theater2025.payment.LiqPayHelper.*;
 
 @Controller
@@ -59,12 +59,28 @@ public class UserController {
             var userEmail = principal.getName();
             var user = userRepository.findByEmail(userEmail).orElseThrow();
             var authIsNull = authService.currentAuthIsNullOrAnonymous();
+            /*var showIssuedTicket = ticketRepository
+                    .existsByUserIdAndTicketStatus(user.getId(), TicketStatus.PAID);*/
+            var ticketList = ticketRepository
+                    .findByUserIdAndTicketStatus(user.getId(), TicketStatus.PAID);
+            var ticketExists = !ticketList.isEmpty();
             model.addAllAttributes(Map.of(
                     MOVIES_LIST, moviesList,
                     EMAIL, userEmail,
                     USER_STATUS, user.getAccessLevel().str,
                     "authIsNull", authIsNull));
             log.info("...............user " + principal.getName() + " authNULL is " + authIsNull);
+            Optional<Ticket> ticket;
+            if (ticketExists && ticketList.size() > 1) {
+                ticket = ticketList
+                        .stream()
+                        .max(comparing(Ticket::getScheduledOn));
+            }
+            else {
+                ticket = Optional.ofNullable(ticketList.get(0));
+            }
+            model.addAttribute("ticket", ticket.orElseThrow());
+            model.addAttribute("showIssuedTicket", true);
         } else {
             model.addAllAttributes(Map.of(
                     MOVIES_LIST, moviesList,

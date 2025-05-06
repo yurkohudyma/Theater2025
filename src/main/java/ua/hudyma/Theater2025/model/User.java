@@ -47,7 +47,7 @@ public class User implements UserDetails {
     @JsonIgnore
     @OneToMany(mappedBy = "user",
                cascade = CascadeType.ALL,
-               fetch = FetchType.LAZY)
+               fetch = FetchType.EAGER)
     @Setter(AccessLevel.PRIVATE)
     private List<Ticket> userTicketList = new ArrayList<>();
 

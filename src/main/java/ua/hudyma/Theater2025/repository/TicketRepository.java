@@ -1,11 +1,11 @@
 package ua.hudyma.Theater2025.repository;
 
-import org.springframework.cglib.core.Local;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import ua.hudyma.Theater2025.constants.TicketStatus;
 import ua.hudyma.Theater2025.model.Ticket;
 
 import java.time.LocalDateTime;
@@ -32,4 +32,9 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
             LocalDateTime scheduledOn);
 
     Optional<Ticket> findByOrderId(String orderId);
+
+    boolean existsByUserIdAndTicketStatus(Long userId, TicketStatus status);
+
+    List<Ticket> findByUserIdAndTicketStatus (Long userId, TicketStatus status);
+
 }

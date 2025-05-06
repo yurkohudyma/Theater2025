@@ -129,7 +129,8 @@
                     th:text="${#temporals.format(ticket.scheduledOn, 'dd-MM-yyyy')}"></td>
             </tr>
             <tr>
-                <td class="ticket_field" th:text="'Сеанс: ' + ${selected_timeslot}"></td>
+                <td class="ticket_field"
+                    th:text="'Сеанс: ' + ${#temporals.format(ticket.scheduledOn, 'HH:mm')}"></td>
             </tr>
         </table>
     </div>

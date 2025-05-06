@@ -157,7 +157,7 @@ header {
     /*display: fixed;*/
     justify-content: center; /* центрує горизонтально */
 	position: fixed;
-    top: 20px;
+    top: 30px;
     left: 0;
     margin: 20px;
     z-index: 1000; /* щоб не перекривали інші */
