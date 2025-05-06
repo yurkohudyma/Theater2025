@@ -59,8 +59,6 @@ public class UserController {
             var userEmail = principal.getName();
             var user = userRepository.findByEmail(userEmail).orElseThrow();
             var authIsNull = authService.currentAuthIsNullOrAnonymous();
-            /*var showIssuedTicket = ticketRepository
-                    .existsByUserIdAndTicketStatus(user.getId(), TicketStatus.PAID);*/
             var ticketList = ticketRepository
                     .findByUserIdAndTicketStatus(user.getId(), TicketStatus.PAID);
             var ticketExists = !ticketList.isEmpty();
@@ -75,12 +73,14 @@ public class UserController {
                 ticket = ticketList
                         .stream()
                         .max(comparing(Ticket::getScheduledOn));
+                model.addAttribute("ticket", ticket.orElseThrow());
+                model.addAttribute("showIssuedTicket", true);
             }
-            else {
+            else if (ticketExists) {
                 ticket = Optional.ofNullable(ticketList.get(0));
+                model.addAttribute("ticket", ticket.orElseThrow());
+                model.addAttribute("showIssuedTicket", true);
             }
-            model.addAttribute("ticket", ticket.orElseThrow());
-            model.addAttribute("showIssuedTicket", true);
         } else {
             model.addAllAttributes(Map.of(
                     MOVIES_LIST, moviesList,
@@ -98,15 +98,11 @@ public class UserController {
     public String generateTable(Model model, Principal principal,
                                 @PathVariable("hallId") Integer hallId,
                                 @PathVariable("movieId") Long movieId,
-                                @PathVariable("selected_timeslot") String selectedTimeslot,
-                                HttpSession session) {
+                                @PathVariable("selected_timeslot") String selectedTimeslot) {
 
         var hall = hallRepository.findById(hallId).orElseThrow();
-        var amount = hall.getSeatPrice().toString();
         var timeSlotToLocalDateTime =
                 ticketService.convertTimeSlotToLocalDateTime(selectedTimeslot);
-        session.setAttribute("timeslot", timeSlotToLocalDateTime);
-        session.setAttribute("amount", amount);
         List<Ticket> soldTickets = ticketRepository
                 .findByHallIdAndMovieIdAndScheduledOn(
                         Long.valueOf(hallId),
@@ -118,29 +114,6 @@ public class UserController {
         var moviesList = movieRepository.findAll();
         var userEmail = principal.getName();
         var user = userRepository.findByEmail(userEmail).orElseThrow();
-        var movie = movieRepository.findById(movieId).orElseThrow();
-
-        /*** DRAFT TICKET PREPARE
-         *
-         */
-
-        //String orderId = String.valueOf(UUID.randomUUID());
-
-
-       /* session.setAttribute("orderId", orderId);
-        var dto = TicketDTO.from(draftTicket);
-        session.setAttribute("draftTicket", dto);*/
-
-       /* String paymentDescription = "Квиток на сеанс " + selectedTimeslot + " " + userEmail;
-        var paymentJSON = preparePayment(
-                amount,
-                publicKey,
-                orderId,
-                paymentDescription,
-                serverUrl);
-        var paymentData = getData(paymentJSON);
-        var paymentSignature = getSignature(paymentData, privateKey);*/
-
 
         model.addAllAttributes(Map.of(
                 "rows", hall.getRowz(),
@@ -152,8 +125,6 @@ public class UserController {
                 EMAIL, userEmail,
                 USER_STATUS, user.getAccessLevel().str,
                 "selected_timeslot", selectedTimeslot));
-        /*model.addAttribute(PAYMENT_DATA, paymentData);
-        model.addAttribute(PAYMENT_SIGNATURE, paymentSignature);*/
         return "user";
     }
     /**
@@ -163,8 +134,7 @@ public class UserController {
     @ResponseBody
     public Map<String, String> getUpdatedPaymentData(
             @RequestBody SeatRequest req,
-            Principal principal
-            /*HttpSession session*/) throws NoSuchAlgorithmException {
+            Principal principal) throws NoSuchAlgorithmException {
 
         String orderId = UUID.randomUUID() + "_r" + req.row() + "_s" + req.seat();
         var timeSlotToLocalDateTime =
@@ -188,8 +158,6 @@ public class UserController {
         var paymentData = getData(paymentJSON);
         var paymentSignature = getSignature(paymentData, privateKey);
 
-        ///create draft ticket
-
         var user = userRepository.findByEmail(principal.getName()).orElseThrow();
         var hall = hallRepository.findById(req.hallId()).orElseThrow();
         var movie = movieRepository.findById(req.movieId()).orElseThrow();
@@ -204,10 +172,6 @@ public class UserController {
                 .build();
 
         ticketRepository.save(draftTicket);
-
-
-        ///
-
         return Map.of(PAYMENT_DATA, paymentData, "signature", paymentSignature);
     }
 
@@ -215,7 +179,7 @@ public class UserController {
     /**
      * придбання квитка і оновлення схеми кінозалу
      */
-    @SneakyThrows
+    /*@SneakyThrows
     @PostMapping("/buy/{hallId}/{movieId}/{selected_timeslot}/{row}/{seat}")
     @Deprecated
     public String addTicket(@PathVariable("hallId") Integer hallId,
@@ -289,7 +253,7 @@ public class UserController {
         model.addAttribute(PAYMENT_SIGNATURE, paymentSignature);
         return "user";
     }
-
+*/
     private static List<Map<String, Integer>> getTicketMap(List<Ticket> ticketList) {
         return ticketList.stream()
                 .map(t -> Map.of(

@@ -93,4 +93,15 @@ public class Seat {
     public void setHall(Hall hall) {
         this.hall = hall;
     }
+
+    @Override
+    public String toString() {
+        return "Seat{" +
+                "id=" + id +
+                ", rowNumber=" + rowNumber +
+                ", seatNumber=" + seatNumber +
+                ", isOccupied=" + isOccupied +
+                ", price=" + price +
+                '}';
+    }
 }

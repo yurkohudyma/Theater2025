@@ -6,7 +6,7 @@ public class TicketMapper {
 
     public static Ticket toEntity(TicketDTO dto, User user, Hall hall, Movie movie) {
         return Ticket.builder()
-                .id(dto.id()) // можеш не ставити, якщо новий
+                .id(dto.id())
                 .value(dto.value())
                 .purchasedOn(dto.purchasedOn())
                 .scheduledOn(dto.scheduledOn())

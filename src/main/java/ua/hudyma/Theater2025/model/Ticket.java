@@ -66,4 +66,18 @@ public class Ticket {
             fetch = FetchType.EAGER,
             cascade = CascadeType.ALL)
     private List<Transaction> transactions;
+
+    @Override
+    public String toString() {
+        return "Ticket{" +
+                "id=" + id +
+                ", value=" + value +
+                ", purchasedOn=" + purchasedOn +
+                ", scheduledOn=" + scheduledOn +
+                ", roww=" + roww +
+                ", seat=" + seat +
+                ", orderId='" + orderId + '\'' +
+                ", ticketStatus=" + ticketStatus +
+                '}';
+    }
 }

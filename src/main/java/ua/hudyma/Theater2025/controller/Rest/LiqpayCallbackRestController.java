@@ -32,9 +32,6 @@ public class LiqpayCallbackRestController {
     private final TransactionService transactionService;
     private final TicketRepository ticketRepository;
     private final SeatRepository seatRepository;
-    private final UserRepository userRepository;
-    private final HallRepository hallRepository;
-    private final MovieRepository movieRepository;
 
     @Value("${liqpay_private_key}")
     private String privateKey;
@@ -53,9 +50,8 @@ public class LiqpayCallbackRestController {
 
             Transaction transaction = new ObjectMapper()
                     .readValue(decodedJson, Transaction.class);
-            transactionService.addNewTransaction(transaction);
 
-            log.info("........ tx id = {} has been SUCCESSFULLY created", transaction.getId());
+
 
             OrderId clearedOrderId = transactionService
                     .getClearedOrderId(transaction.getLocalOrderId());
@@ -81,8 +77,10 @@ public class LiqpayCallbackRestController {
             seatRepository.save(newSeat);
             log.info("---------new seat {} fixed", newSeat.getId());
             ticketRepository.save(ticket);
+            transaction.setTicket(ticket);
             log.info("---------new ticket {} fixed", ticket.getId());
-
+            transactionService.addNewTransaction(transaction);
+            log.info("........ tx id = {} has been SUCCESSFULLY created", transaction.getId());
         } else {
             log.error("........Wrong signature. Potential spoofing attempt.");
             log.info(getDecodedJson(data));

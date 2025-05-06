@@ -160,8 +160,8 @@ header {
     top: 30px;
     left: 0;
     margin: 20px;
-    z-index: 1000; /* щоб не перекривали інші */
-    /* margin-top: 30px; */
+    z-index: 1000; /* щоб не перекривали інші */    
+	border-color: rgb(255, 153, 0);
 }
 
 .issuedTicketPanel table {

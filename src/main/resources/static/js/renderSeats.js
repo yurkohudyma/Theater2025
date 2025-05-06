@@ -39,12 +39,6 @@ document.addEventListener("DOMContentLoaded", function () {
        button.classList.add("sold-seat");
        button.textContent = "";
      } else {
-       // Прив’язка до функції створення LiqPay-форми
-      /* button.addEventListener("click", function () {
-         console.log(`Обране місце: ряд ${this.dataset.row}, місце ${this.dataset.seat}`);
-         createLiqpayForm(paymentData, paymentSignature);
-       });*/
-
        button.addEventListener("click", function () {
          const row = this.dataset.row;
          const seat = this.dataset.seat;

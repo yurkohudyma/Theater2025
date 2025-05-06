@@ -58,97 +58,16 @@ public class Movie {
     @JoinColumn(name = "hall_id")
     private Hall hall;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // get & set & construct
-    public Schedule getSchedule() {
-        return schedule;
-    }
-
-    public void setSchedule(Schedule schedule) {
-        this.schedule = schedule;
-    }
-
-
-    public void addTicket (Ticket ticket){
-        movieTicketList.add(ticket);
-        ticket.setMovie(this);
-    }
-
-    public void removeTicket (Ticket ticket){
-        movieTicketList.remove(ticket);
-        ticket.setMovie(null);
-    }
-
-    public Movie() {
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Genre getGenre() {
-        return genre;
-    }
-
-    public void setGenre(Genre genre) {
-        this.genre = genre;
-    }
-
-    public LocalDate getPremiereStart() {
-        return premiereStart;
-    }
-
-    public void setPremiereStart(LocalDate premiereStart) {
-        this.premiereStart = premiereStart;
-    }
-
-    public LocalDate getShowEnd() {
-        return showEnd;
-    }
-
-    public void setShowEnd(LocalDate showEnd) {
-        this.showEnd = showEnd;
-    }
-
-    public String getImdbIndex() {
-        return imdbIndex;
-    }
-
-    public void setImdbIndex(String imdbIndex) {
-        this.imdbIndex = imdbIndex;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getImgUrl() {
-        return imgUrl;
-    }
-
-    public void setImgUrl(String imgUrl) {
-        this.imgUrl = imgUrl;
+    @Override
+    public String toString() {
+        return "Movie{" +
+                "id=" + id +
+                ", genre=" + genre +
+                ", premiereStart=" + premiereStart +
+                ", showEnd=" + showEnd +
+                ", imdbIndex='" + imdbIndex + '\'' +
+                ", name='" + name + '\'' +
+                ", imgUrl='" + imgUrl + '\'' +
+                '}';
     }
 }

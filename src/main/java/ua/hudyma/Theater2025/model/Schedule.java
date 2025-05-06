@@ -29,6 +29,16 @@ public class Schedule {
     @Column(name = "time_slot3")
     String timeSlot3;
 
+    @Override
+    public String toString() {
+        return "Schedule{" +
+                "id=" + id +
+                ", timeSlot='" + timeSlot + '\'' +
+                ", timeSlot2='" + timeSlot2 + '\'' +
+                ", timeSlot3='" + timeSlot3 + '\'' +
+                '}';
+    }
+
     //@JsonManagedReference(value = "movies_schedules")
     @JsonIgnore
     @OneToMany(mappedBy = "schedule",

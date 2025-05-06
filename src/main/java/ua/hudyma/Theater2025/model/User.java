@@ -27,6 +27,19 @@ public class User implements UserDetails {
     @Column (name = "name", nullable = false)
     String name;
 
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", accessLevel=" + accessLevel +
+                ", registerDate=" + registerDate +
+                ", updateDate=" + updateDate +
+                '}';
+    }
+
     @Column (name = "email", unique = true)
     String email;
 
