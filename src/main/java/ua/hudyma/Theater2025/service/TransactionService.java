@@ -20,6 +20,12 @@ public class TransactionService {
     public static final String REGEX = "_r(\\d+)_s(\\d+)";
     private final TransactionRepository transactionRepository;
 
+    public Transaction getByOrderId (String orderId){
+        return transactionRepository
+                .findByOrderId(orderId)
+                .orElseThrow();
+    }
+
     public void addNewTransaction(Transaction transaction) {
         transactionRepository.save(transaction);
         log.info("... tx no.{} has been saved", transaction.getId());

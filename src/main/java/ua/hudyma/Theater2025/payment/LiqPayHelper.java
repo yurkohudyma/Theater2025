@@ -2,17 +2,16 @@ package ua.hudyma.Theater2025.payment;
 
 import lombok.extern.log4j.Log4j2;
 import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.time.LocalDateTime;
 import java.util.Base64;
 
 @Log4j2
 public class LiqPayHelper {
-    private static final String currency = "UAH";
+    private static final String CURRENCY = "UAH";
+    public static final int VERSION = 3;
 
 
     private LiqPayHelper() {
@@ -24,11 +23,11 @@ public class LiqPayHelper {
                                             String orderId,
                                             String serverUrl) {
         JSONObject json = new JSONObject();
-        json.put("version", "3");
+        json.put("version", VERSION);
         json.put("public_key", publicKey);
         json.put("action", "pay");
         json.put("amount", amount);
-        json.put("currency", currency);
+        json.put("currency", CURRENCY);
         json.put("description", paymentDescription);
         json.put("order_id", orderId);
         json.put("sandbox", 1); // Увімкнено тестовий режим
@@ -36,12 +35,26 @@ public class LiqPayHelper {
         return json;
     }
 
-    public static String getData(JSONObject json) {
+    public static JSONObject refundPayment (String amount,
+                                            String publicKey,
+                                            String orderId){
+        JSONObject json = new JSONObject();
+        json.put("version", VERSION);
+        json.put("action", "refund");
+        json.put("public_key", publicKey);
+        json.put("order_id", orderId);
+        json.put("amount", amount);
+        json.put("currency", CURRENCY);
+
+        return json;
+    }
+
+    public static String getPaymentData(JSONObject json) {
         return Base64.getEncoder().encodeToString(
                 json.toString().getBytes(StandardCharsets.UTF_8));
     }
 
-    public static String getSignature(String data, String privateKey) throws NoSuchAlgorithmException {
+    public static String getPaymentSignature(String data, String privateKey) throws NoSuchAlgorithmException {
         log.info("Data: " + data);
         return createSignature(privateKey + data + privateKey);
     }

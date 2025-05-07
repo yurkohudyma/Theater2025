@@ -6,40 +6,39 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 import ua.hudyma.Theater2025.constants.TicketStatus;
 import ua.hudyma.Theater2025.model.Seat;
 import ua.hudyma.Theater2025.model.Transaction;
+import ua.hudyma.Theater2025.payment.LiqPayHelper;
 import ua.hudyma.Theater2025.repository.*;
 import ua.hudyma.Theater2025.service.TransactionService;
 import ua.hudyma.Theater2025.service.TransactionService.OrderId;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
 @Log4j2
-@RequestMapping("/liqpay-callback")
 @RequiredArgsConstructor
-public class LiqpayCallbackRestController {
-
+public class LiqpayRestController {
     private final TransactionService transactionService;
     private final TicketRepository ticketRepository;
     private final SeatRepository seatRepository;
-
+    @Value("${liqpay_public_key}")
+    private String publicKey;
     @Value("${liqpay_private_key}")
     private String privateKey;
 
-    @PostMapping
+    @PostMapping("/liqpay-callback")
     @SneakyThrows
-    public void handleCallback(@RequestParam Map<String, String> body,
-                               HttpSession session) {
+    public String handleCallback(@RequestParam Map<String, String> body) {
         String data = body.get("data");
         String signature = body.get("signature");
 
@@ -50,8 +49,6 @@ public class LiqpayCallbackRestController {
 
             Transaction transaction = new ObjectMapper()
                     .readValue(decodedJson, Transaction.class);
-
-
 
             OrderId clearedOrderId = transactionService
                     .getClearedOrderId(transaction.getLocalOrderId());
@@ -85,6 +82,27 @@ public class LiqpayCallbackRestController {
             log.error("........Wrong signature. Potential spoofing attempt.");
             log.info(getDecodedJson(data));
         }
+        return "redirect:/user";
+    }
+
+    @PostMapping("/refund/{orderId}")
+    public String refundPayment(@PathVariable("orderId") String orderId) throws NoSuchAlgorithmException {
+        var transaction = transactionService.getByOrderId(orderId);
+        var refundJson = LiqPayHelper.refundPayment(
+                transaction.getAmount().toString(),
+                publicKey,
+                transaction.getLiqpayOrderId()
+        );
+        Map<String, String> request = new HashMap<>();
+        String paymentData = LiqPayHelper.getPaymentData(refundJson);
+        String signature = LiqPayHelper.getPaymentSignature(paymentData, privateKey);
+        request.put("data", paymentData);
+        request.put("signature", signature);
+        RestTemplate template = new RestTemplate();
+        return template.postForObject(
+                "https://www.liqpay.ua/api/request",
+                request,
+                String.class);
     }
 
     private static String getDecodedJson(String data) {

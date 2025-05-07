@@ -157,11 +157,15 @@ header {
     /*display: fixed;*/
     justify-content: center; /* центрує горизонтально */
 	position: fixed;
+    padding: 3px;
     top: 30px;
     left: 0;
     margin: 20px;
     z-index: 1000; /* щоб не перекривали інші */    
 	border-color: rgb(255, 153, 0);
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 10px;
 }
 
 .issuedTicketPanel table {
