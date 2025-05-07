@@ -1,6 +1,7 @@
 package ua.hudyma.Theater2025.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import ua.hudyma.Theater2025.constants.liqpay.LiqPayAction;
 import ua.hudyma.Theater2025.model.Transaction;
 
 import java.util.List;
@@ -10,5 +11,5 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     List<Transaction> findAll();
 
-    Optional<Transaction> findByOrderId(String orderId);
+    Optional<Transaction> findByTicketIdAndAction(Long ticketId, LiqPayAction action);
 }

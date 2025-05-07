@@ -17,7 +17,7 @@
 <body>
 <div class="wrapper">
     <div class="user_data_block" th:unless="${authIsNull}">
-        <div class="userStatus" th:text="${userStatus}"></div>
+        <div class="userStatus" th:text="${userStatus} + ' v.' + ${@environment.getProperty('theater2025.version')}"></div>
         <div class="email" th:text="${email}"></div>
         <form action="#" th:method="get" th:if="${userStatus == 'Адмін'} or ${userStatus == 'Менеджер'}"
               th:action="@{'/admin'}">
@@ -36,19 +36,6 @@
             <button type="button" onclick="goToBuy()">Купити</button>
         </form>
     </div>
-
-
-
-    <!--<div class="liqpay_button">
-        <form th:method="post" th:action="@{https://www.liqpay.ua/api/3/checkout}" accept-charset="utf-8">
-            <input type="hidden" name="data" th:value="${paymentData}">
-            <input type="hidden" name="signature" th:value="${paymentSignature}">
-            <button class="liqpay-button">
-                <img src="https://static.liqpay.ua/buttons/logo-white.svg" alt="LiqPay" class="liqpay-logo" />
-                <span class="liqpay-text">Оплатити</span>
-            </button>
-        </form>
-    </div>-->
 
     <header>Вибір кіно</header>
     <br>
@@ -79,11 +66,6 @@
             <div class="movie_unit" th:text="'Кінозал: '+ ${movie.hall.name}"></div>
         </div>
     </div>
-
-    <!-- <div id="liqpayData" data-paymentData="${paymentData}"></div>
-
-     <div id="liqpaySignature" data-paymentSignature="${paymentSignature}"></div>-->
-
 
     <script th:inline="javascript">
         window.rows = [[${rows}]];
@@ -131,6 +113,13 @@
             <tr>
                 <td class="ticket_field"
                     th:text="'Сеанс: ' + ${#temporals.format(ticket.scheduledOn, 'HH:mm')}"></td>
+            </tr>
+            <tr>
+                <td>
+                    <form action="#" th:method="post" th:action="@{'/refund/' + ${id}}" target = "_blank">
+                        <button type="submit" class="logout_button" disabled>Повернути</button>
+                    </form>
+                </td>
             </tr>
         </table>
     </div>

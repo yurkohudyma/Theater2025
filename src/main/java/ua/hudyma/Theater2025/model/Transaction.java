@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ua.hudyma.Theater2025.constants.liqpay.*;
@@ -18,6 +19,7 @@ import java.time.LocalDateTime;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Table(name = "transactions")
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Transaction {

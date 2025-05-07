@@ -67,6 +67,7 @@ public class UserController {
             if (ticket.isPresent()) {
                 model.addAttribute("ticket", ticket.orElseThrow());
                 model.addAttribute("showIssuedTicket", true);
+                model.addAttribute("id", ticket.orElseThrow().getId());
             }
         } else { //auth is NULL
             model.addAllAttributes(Map.of(
@@ -79,10 +80,9 @@ public class UserController {
     private Optional<Ticket> getTicket(User user) {
         var ticketList = ticketRepository
                 .findByUserIdAndTicketStatus(user.getId(), TicketStatus.PAID);
-        return ticketList.size() > 1 ? ticketList
+        return ticketList
                 .stream()
-                .max(comparing(Ticket::getScheduledOn))
-                : Optional.ofNullable(ticketList.get(0));
+                .max(comparing(Ticket::getId));
     }
 
 
@@ -125,6 +125,7 @@ public class UserController {
         if (ticket.isPresent()) {
             model.addAttribute("ticket", ticket.orElseThrow());
             model.addAttribute("showIssuedTicket", true);
+            model.addAttribute("id", ticket.orElseThrow().getId());
         }
         return "user";
     }

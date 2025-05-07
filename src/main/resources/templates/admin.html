@@ -31,7 +31,7 @@
 
 <div class="wrapper_admin">
     <div class="user_data_block_admin">
-        <div class="userStatus" th:text="${userStatus}"></div>
+        <div class="userStatus" th:text="${userStatus} + ' v.' + ${@environment.getProperty('theater2025.version')}"></div>
         <div class="email" th:text="${email}"></div>
         <form action="#" th:method="get" th:action="@{'/user'}">
             <button type="submit" class="logout_button">USER</button>

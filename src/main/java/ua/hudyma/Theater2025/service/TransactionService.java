@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
+import ua.hudyma.Theater2025.constants.liqpay.LiqPayAction;
 import ua.hudyma.Theater2025.model.Transaction;
 import ua.hudyma.Theater2025.repository.TransactionRepository;
 
@@ -20,9 +21,9 @@ public class TransactionService {
     public static final String REGEX = "_r(\\d+)_s(\\d+)";
     private final TransactionRepository transactionRepository;
 
-    public Transaction getByOrderId (String orderId){
+    public Transaction getByTicketIdAndAction(Long ticketId){
         return transactionRepository
-                .findByOrderId(orderId)
+                .findByTicketIdAndAction(ticketId, LiqPayAction.PAY)
                 .orElseThrow();
     }
 

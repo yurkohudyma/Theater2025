@@ -31,7 +31,9 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
             Long movieId,
             LocalDateTime scheduledOn);
 
-    Optional<Ticket> findByOrderId(String orderId);
+    Optional<Ticket> findById(Long id);
+
+    Optional<Ticket> findByOrderId (String orderId);
 
     boolean existsByUserIdAndTicketStatus(Long userId, TicketStatus status);
 

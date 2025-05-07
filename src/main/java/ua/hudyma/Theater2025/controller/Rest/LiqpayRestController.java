@@ -1,18 +1,29 @@
 package ua.hudyma.Theater2025.controller.Rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import ua.hudyma.Theater2025.constants.TicketStatus;
+import ua.hudyma.Theater2025.constants.liqpay.LiqPayAction;
+import ua.hudyma.Theater2025.exception.RefundFailureException;
 import ua.hudyma.Theater2025.model.Seat;
 import ua.hudyma.Theater2025.model.Transaction;
 import ua.hudyma.Theater2025.payment.LiqPayHelper;
-import ua.hudyma.Theater2025.repository.*;
+import ua.hudyma.Theater2025.repository.SeatRepository;
+import ua.hudyma.Theater2025.repository.TicketRepository;
+import ua.hudyma.Theater2025.repository.TransactionRepository;
 import ua.hudyma.Theater2025.service.TransactionService;
 import ua.hudyma.Theater2025.service.TransactionService.OrderId;
 
@@ -21,7 +32,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.util.Base64;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
 
 @RestController
@@ -29,6 +40,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class LiqpayRestController {
     private final TransactionService transactionService;
+    private final TransactionRepository transactionRepository;
     private final TicketRepository ticketRepository;
     private final SeatRepository seatRepository;
     @Value("${liqpay_public_key}")
@@ -85,24 +97,43 @@ public class LiqpayRestController {
         return "redirect:/user";
     }
 
-    @PostMapping("/refund/{orderId}")
-    public String refundPayment(@PathVariable("orderId") String orderId) throws NoSuchAlgorithmException {
-        var transaction = transactionService.getByOrderId(orderId);
-        var refundJson = LiqPayHelper.refundPayment(
-                transaction.getAmount().toString(),
-                publicKey,
-                transaction.getLiqpayOrderId()
-        );
-        Map<String, String> request = new HashMap<>();
-        String paymentData = LiqPayHelper.getPaymentData(refundJson);
-        String signature = LiqPayHelper.getPaymentSignature(paymentData, privateKey);
-        request.put("data", paymentData);
-        request.put("signature", signature);
-        RestTemplate template = new RestTemplate();
-        return template.postForObject(
-                "https://www.liqpay.ua/api/request",
-                request,
-                String.class);
+    @PostMapping("/refund/{id}")
+    public String refundPayment(@PathVariable("id") Long id) throws NoSuchAlgorithmException {
+        try {
+            var ticket = ticketRepository.findById(id).orElseThrow();
+            var transaction = transactionService.getByTicketIdAndAction(ticket.getId());
+            var refundJson = LiqPayHelper.refundPayment(
+                    transaction.getAmount().toString(),
+                    publicKey,
+                    transaction.getLocalOrderId()
+            );
+            MultiValueMap<String, String> request = new LinkedMultiValueMap<>();
+            String paymentData = LiqPayHelper.getPaymentData(refundJson);
+            String signature = LiqPayHelper.getPaymentSignature(paymentData, privateKey);
+            request.put("data", Collections.singletonList(paymentData));
+            request.put("signature", Collections.singletonList(signature));
+            RestTemplate template = new RestTemplate();
+
+            ticket.setTicketStatus(TicketStatus.REFUNDED);
+            ticketRepository.save(ticket);
+            var refundTransaction = new Transaction();
+            refundTransaction.setAction(LiqPayAction.REFUND);
+            refundTransaction.setCreateDate(LocalDateTime.now());
+            refundTransaction.setDescription("Повернення квитка");
+            refundTransaction.setLocalOrderId(transaction.getLocalOrderId());
+            refundTransaction.setTicket(ticket);
+            transactionRepository.save(refundTransaction);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+             HttpEntity<MultiValueMap<String, String>> liqRequest = new HttpEntity<>(request, headers);
+            return template.postForObject(
+                    "https://www.liqpay.ua/api/request",
+                    liqRequest,
+                    String.class);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RefundFailureException("------повернення не відбулось");
+        }
     }
 
     private static String getDecodedJson(String data) {
