@@ -57,7 +57,8 @@ public class LoginController {
                 .authorities("ROLE_USER")
                 .build();
 
-        var auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        var auth = new UsernamePasswordAuthenticationToken(
+                userDetails, null, userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         String token = jwtTokenProvider.generateToken(email);

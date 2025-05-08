@@ -59,6 +59,8 @@ public class SecurityConfig {
                         .requestMatchers("/user").permitAll()
                         .requestMatchers("/liqpay-callback").permitAll()
                         .requestMatchers("/access/buy").permitAll()
+                        //.requestMatchers("/payment_status/**").hasAnyRole(ADMIN, MANAGER)
+                        .requestMatchers("/payment_status/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exception -> exception

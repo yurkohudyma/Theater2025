@@ -2,6 +2,7 @@ package ua.hudyma.Theater2025.controller.Rest;
 
 import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,16 +19,11 @@ import ua.hudyma.Theater2025.security.JwtTokenProvider;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@Log4j2
 public class AuthenticationRestController {
 
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
-    //private final JwtService jwtService;
-
-    /*public AuthenticationRestController(AuthenticationManager authenticationManager, JwtService jwtService) {
-        this.authenticationManager = authenticationManager;
-        this.jwtService = jwtService;
-    }*/
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest authRequest) {
@@ -41,6 +37,7 @@ public class AuthenticationRestController {
             // Якщо аутентифікація успішна, генеруємо токен
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String token = jwtTokenProvider.generateToken(String.valueOf(authentication));
+            log.info("---------- token {}", token);
 
             // Відправляємо токен в HTTP cookie
             var cookie = new Cookie("Authorization", token);

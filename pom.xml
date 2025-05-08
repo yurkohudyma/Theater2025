@@ -10,7 +10,7 @@
     </parent>
     <groupId>ua.hudyma</groupId>
     <artifactId>Theater2025</artifactId>
-    <version>0.0.1</version>
+    <version>0.1.2</version>
     <name>Theater2025</name>
     <description>Online movies reservation system</description>
     <packaging>war</packaging>
@@ -104,6 +104,11 @@
             <version>2.12.7.1</version>
         </dependency>-->
 
+        <dependency>
+            <groupId>com.liqpay</groupId>
+            <artifactId>liqpay-sdk</artifactId>
+            <version>0.8-SNAPSHOT</version>
+        </dependency>
 
     </dependencies>
 
@@ -136,5 +141,17 @@
             </plugin>
         </plugins>
     </build>
+
+    <repositories>
+        <repository>
+            <id>liqpay-repository</id>
+            <url>https://github.com/liqpay/sdk-java/raw/repository</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </repository>
+    </repositories>
+
 
 </project>
