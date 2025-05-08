@@ -9,10 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import ua.hudyma.Theater2025.constants.TicketStatus;
 import ua.hudyma.Theater2025.constants.liqpay.LiqPayAction;
@@ -38,6 +35,9 @@ import static com.liqpay.LiqPayApi.API_VERSION;
 @Log4j2
 @RequiredArgsConstructor
 public class LiqpayRestController {
+    public static final String API_REQUEST = "https://www.liqpay.ua/api/request";
+    public static final String SIGNATURE = "signature";
+    public static final String DATA = "data";
     private final TransactionService transactionService;
     private final TransactionRepository transactionRepository;
     private final TicketRepository ticketRepository;
@@ -51,8 +51,8 @@ public class LiqpayRestController {
     @PostMapping("/liqpay-callback")
     @SneakyThrows
     public void handleCallback(@RequestParam Map<String, String> body) {
-        String data = body.get("data");
-        String signature = body.get("signature");
+        String data = body.get(DATA);
+        String signature = body.get(SIGNATURE);
         String decodedJson = paymentService.getDecodedJson(data);
 
         if (paymentService.verifySignature(data, signature)) {
@@ -112,8 +112,8 @@ public class LiqpayRestController {
             MultiValueMap<String, String> request = new LinkedMultiValueMap<>();
             String paymentData = LiqPayHelper.getPaymentData(refundJson);
             String signature = LiqPayHelper.getPaymentSignature(paymentData, privateKey);
-            request.put("data", Collections.singletonList(paymentData));
-            request.put("signature", Collections.singletonList(signature));
+            request.put(DATA, Collections.singletonList(paymentData));
+            request.put(SIGNATURE, Collections.singletonList(signature));
             RestTemplate template = new RestTemplate();
 
             var refundTransaction = new Transaction();
@@ -131,7 +131,7 @@ public class LiqpayRestController {
             HttpEntity<MultiValueMap<String, String>> liqRequest =
                      new HttpEntity<>(request, headers);
             return template.postForObject(
-                    "https://www.liqpay.ua/api/request",
+                    API_REQUEST,
                     liqRequest,
                     String.class);
         } catch (NoSuchAlgorithmException e) {
@@ -139,13 +139,13 @@ public class LiqpayRestController {
         }
     }
 
-    @PostMapping("/payment_status/{ticketId}") //returns SANDBOX
+    @PostMapping("/payment_status/{ticketId}") //in SANDBOX mode returns 'SANDBOX' status and TX payment data
     public ResponseEntity<String> paymentStatus(@PathVariable("ticketId") Long ticketId) throws Exception {
         var transaction = transactionService.getByTicketIdAndAction(ticketId);
 
         Map<String, String> params = new LinkedHashMap<>();
         params.put("action", "status");
-        params.put("version", "3");
+        params.put("version", API_VERSION);
         params.put("public_key", publicKey);
         params.put("order_id", transaction.getLocalOrderId());
 
@@ -158,13 +158,14 @@ public class LiqpayRestController {
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-        body.add("data", data);
-        body.add("signature", signature);
+        body.add(DATA, data);
+        body.add(SIGNATURE, signature);
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
 
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> response = restTemplate.postForEntity("https://www.liqpay.ua/api/request", request, String.class);
+        ResponseEntity<String> response = restTemplate.postForEntity(API_REQUEST,
+                request, String.class);
 
         Map<String, Object> result = objectMapper.readValue(response.getBody(), Map.class);
         String status = (String) result.get("status");

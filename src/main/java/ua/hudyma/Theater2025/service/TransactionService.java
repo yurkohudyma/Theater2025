@@ -10,6 +10,7 @@ import ua.hudyma.Theater2025.model.Transaction;
 import ua.hudyma.Theater2025.repository.TransactionRepository;
 
 import javax.management.AttributeNotFoundException;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -41,6 +42,10 @@ public class TransactionService {
                     localOrderId.replaceAll(REGEX, ""));
         }
         throw new AttributeNotFoundException("ордер кривий, давай ще");
+    }
+
+    public List<Transaction> getTxByTicketId(Long id) {
+        return transactionRepository.findByTicketId(id);
     }
 
     @Data

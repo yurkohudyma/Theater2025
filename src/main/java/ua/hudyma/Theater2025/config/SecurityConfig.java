@@ -15,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import ua.hudyma.Theater2025.security.CustomAuthenticationEntryPoint;
 import ua.hudyma.Theater2025.security.CustomLogoutSuccessHandler;
 import ua.hudyma.Theater2025.security.JwtAuthenticationFilter;
 
@@ -59,18 +60,20 @@ public class SecurityConfig {
                         .requestMatchers("/user").permitAll()
                         .requestMatchers("/liqpay-callback").permitAll()
                         .requestMatchers("/access/buy").permitAll()
-                        //.requestMatchers("/payment_status/**").hasAnyRole(ADMIN, MANAGER)
+                        .requestMatchers("/admin/**").hasAnyRole(ADMIN, MANAGER)
                         .requestMatchers("/payment_status/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                .exceptionHandling(exception -> exception
+                /*.exceptionHandling(exception -> exception
                         .authenticationEntryPoint(
-                                new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+                                new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))*/
                         /*.accessDeniedHandler((request, response, accessDeniedException) -> {
                             response.setStatus(HttpStatus.UNAUTHORIZED.value()); // замінюємо 403 на 401
                             response.setContentType("application/json");
                             response.getWriter().write("{\"error\": \"Unauthorized access\"}");
                         })*/
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(new CustomAuthenticationEntryPoint())
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 /*.formLogin((form -> form

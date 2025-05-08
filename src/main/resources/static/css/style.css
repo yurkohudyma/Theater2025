@@ -35,7 +35,10 @@ header {
 }
 
 /* Заголовок */
-.tickets_header, .movies_header, .users_header {
+.tickets_header, 
+.movies_header, 
+.users_header,
+.tx_header {
     font-size: 2em;
     font-weight: bold;
     margin-bottom: 20px;
@@ -53,6 +56,21 @@ header {
     overflow: hidden;
 	text-align: center;
 
+}
+
+.tx_table_outer_frame {
+  overflow-x: auto;
+  width: 70%;
+}
+
+.tx_table {
+  min-width: 400px;
+  max-width: 1200px;
+  border-collapse: collapse;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  border-radius: 8px;
+  text-align: center;
 }
 
 /* Заголовки стовпців */
@@ -359,16 +377,29 @@ header {
   background-color: rgba(0,0,0,0.5); /* прозоре затемнення */
 }
 
-/* Внутрішній блок */
+
 .modal-content {
-  background-color: #fff8f0;
+  background-color: #fff8f0;  
   margin: 15% auto;
   padding: 10px;
   border: 1px solid #888;
   width: 220px;
   border-radius: 10px;
   text-align: center;
+} /* 
+ .modal-content {
+  background-color: #fff8f0;
+  margin-top: 75%;
+  margin-right: auto;
+  margin-bottom: 25%;
+  margin-left: auto;
+  padding: 10px;
+  border: 1px solid #888;
+  width: 220px;
+  border-radius: 10px;
+  text-align: center;
 }
+*/
 
 /* Кнопка закриття */
 .close-button {
@@ -386,6 +417,51 @@ header {
 .authErrorMgs{
 	color: red;
 }
+
+.error-container {
+    max-width: 600px;
+    margin: 0px auto;
+    text-align: center;
+    font-family: 'Arsenal', sans-serif;
+    padding: 40px;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    background-color: #fefefe;
+}
+
+.error-container h1 {
+    font-size: 32px;
+    margin-bottom: 20px;
+}
+
+.error-details {
+    margin-top: 20px;
+    color: #777;
+}
+
+.error-actions {
+    margin-top: 30px;
+}
+
+.button, .button-outline {
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 5px;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: bold;
+}
+
+.button {
+    background-color: #2196F3;
+    color: white;
+}
+
+.button-outline {
+    border: 1px solid #2196F3;
+    color: #2196F3;
+}
+
 
 
 

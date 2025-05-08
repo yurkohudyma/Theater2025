@@ -1,37 +1,40 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<html lang="uk" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8" content="application/json">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=yes, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <link rel="icon" href="/img/favicon.ico" type="image/x-icon">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Arsenal:ital,wght@0,400;0,700;1,400;1,700&display=swap"
-          rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theater2025 – Помилка</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
-
-
-    <title>Theater2025 ::: Помилка</title>
+    <link rel="icon" href="/img/favicon.ico" type="image/x-icon">
 </head>
-
 <body>
 
+<div class="error-container">
+    <h1>Помилка доступу</h1>
+
+    <div th:switch="${status}">
+        <p th:case="'401'">⛔ Ви не авторизовані для перегляду цієї сторінки.</p>
+        <p th:case="'403'">🚫 Доступ заборонено. У вас недостатньо прав.</p>
+        <p th:case="'404'">🔍 Сторінку не знайдено.</p>
+        <p th:case="'500'">💥 Внутрішня помилка сервера. Вибачте!</p>
+        <p th:case="*">❓ Невідома помилка з кодом <span th:text="${status}">?</span></p>
+    </div>
+
+    <p class="error-details"><strong>Код помилки:</strong> <span th:text="${status}">...</span></p>
+
+    <div class="error-actions">
+        <a href="/user" class="button">На головну</a>
+        <a href="javascript:history.back()" class="button-outline">Назад</a>
+    </div>
+</div>
+
 <script th:inline="javascript">
-    window.authError = [[${authError}]];
-    if (window.authError) {
-        showGhost(window.authError);
-    }
+        window.authError = [[${authError}]];
 </script>
 
 <div th:insert="~{fragments/login_popup :: popup}"></div>
 
 <script src="/js/auth-popup.js"></script>
 
-<div class="error_status" th:text="${status}"></div>
-<div class="error_status" th:text="${exception}"></div>
-<div class="error_status" th:text="${message}"></div>
-
 </body>
-
 </html>

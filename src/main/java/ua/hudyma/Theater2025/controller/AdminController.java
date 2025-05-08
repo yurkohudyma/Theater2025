@@ -16,6 +16,7 @@ import ua.hudyma.Theater2025.model.Schedule;
 import ua.hudyma.Theater2025.repository.*;
 import ua.hudyma.Theater2025.service.AuthService;
 import ua.hudyma.Theater2025.service.HallService;
+import ua.hudyma.Theater2025.service.TransactionService;
 import util.FileUtils;
 
 import java.io.IOException;
@@ -35,6 +36,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Log4j2
 public class AdminController {
+    public static final String ADMIN = "admin";
     private final TicketRepository ticketRepository;
     private final HallRepository hallRepository;
     private final UserRepository userRepository;
@@ -42,6 +44,7 @@ public class AdminController {
     private final HallService hallService;
     private final ScheduleRepository scheduleRepository;
     private final AuthService authService;
+    private final TransactionService transactionService;
 
     @Value("${uploadConfig}")
     private String uploadConfig;
@@ -54,7 +57,15 @@ public class AdminController {
         var authIsNull = authService.currentAuthIsNullOrAnonymous();
         log.info(".............. current auth: " + SecurityContextHolder.getContext().getAuthentication());
         log.info("...............user " + principal.getName() + " authNULL is " + authIsNull);
-        return "admin";
+        return ADMIN;
+    }
+
+    @GetMapping("/tx/{id}")
+    public String getTxDetails (@PathVariable("id") Long id, Model model, Principal principal){
+        addAllNecessaryAdminAttributes(model, principal);
+        var txList = transactionService.getTxByTicketId(id);
+        model.addAttribute("txList", txList);
+        return ADMIN;
     }
 
     @PostMapping
@@ -95,7 +106,7 @@ public class AdminController {
         movieRepository.save(movie);
 
         addAllNecessaryAdminAttributes(model, principal);
-        return "admin";
+        return ADMIN;
     }
 
     private void addAllNecessaryAdminAttributes(Model model, Principal principal) {
