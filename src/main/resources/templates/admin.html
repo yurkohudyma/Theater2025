@@ -158,7 +158,7 @@
     <!-- tx section -->
 
     <div class="tx_header">Транзакція по квитку</div>
-    <div class="tx_table_outer_frame">
+    <div class="tx_table_outer_frame" th:if = "${showTxFrame}">
         <table class="tx_table">
             <thead>
             <tr class="tickets_table_legend">
@@ -177,7 +177,7 @@
                 <th>Платіжна</th>
                 <th>Тип картки</th>
                 <th>Країна платежу</th>
-                <th>% liq</th>
+                <th>Комісія Liqpay</th>
                 <th>Дата</th>
                 <th>Час</th>
             </tr>

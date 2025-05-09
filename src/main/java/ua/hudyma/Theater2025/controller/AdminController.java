@@ -65,6 +65,7 @@ public class AdminController {
         addAllNecessaryAdminAttributes(model, principal);
         var txList = transactionService.getTxByTicketId(id);
         model.addAttribute("txList", txList);
+        model.addAttribute("showTxFrame", true);
         return ADMIN;
     }
 

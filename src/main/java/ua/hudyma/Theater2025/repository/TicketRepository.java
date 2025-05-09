@@ -26,6 +26,10 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     @Modifying
     void deleteById (Long id);
 
+    @Transactional
+    @Query("SELECT t FROM Ticket t WHERE t.ticketStatus = 'PENDING'")
+    List<Ticket> findAllPendingTickets();
+
     List<Ticket> findByHallIdAndMovieIdAndScheduledOn(
             Long hallId,
             Long movieId,

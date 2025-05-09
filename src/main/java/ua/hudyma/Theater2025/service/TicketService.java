@@ -1,8 +1,12 @@
 package ua.hudyma.Theater2025.service;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ua.hudyma.Theater2025.model.Ticket;
 import ua.hudyma.Theater2025.repository.TicketRepository;
 
@@ -15,8 +19,36 @@ import java.time.LocalTime;
 @Log4j2
 public class TicketService {
 
+    private final TicketRepository ticketRepository;
+
     public LocalDateTime convertTimeSlotToLocalDateTime(String timeSlot) {
         LocalTime time = LocalTime.parse(timeSlot);
         return LocalDate.now().atTime(time);
+    }
+
+    @Scheduled(cron = "0 30 6 * * ?") //щодня о 6:30 ранку
+    @PostConstruct //а також при кожному запуску сервера
+    @Transactional
+    //@Modifying
+    public void detectPendingTicketsAndDump() {
+        var expiredList = ticketRepository.findAllPendingTickets();
+        if (!expiredList.isEmpty()) {
+            for (Ticket ticket : expiredList) {
+                if (ticket.getScheduledOn()
+                        .plusDays(1)
+                        .isBefore(LocalDateTime.now())) {
+                    var ticketId = ticket.getId();
+                    //ticketRepository.delete(ticket);
+                    /** працює через EntityManager.remove(...)
+                     * потребує, щоб об'єкт був у контексті persistence (managed)
+                     * якщо ticket вже не прив'язаний (detached),
+                     * або має зв’язки з об’єктами, які створюють проблеми —
+                     * видалення тихо ігнорується або не тригериться
+                     */
+                    ticketRepository.deleteById(ticketId);
+                    log.info("----expired ticket {} has been deleted", ticketId);
+                }
+            }
+        }
     }
 }
