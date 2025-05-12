@@ -1,6 +1,9 @@
 package ua.hudyma.Theater2025.controller;
 
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -19,6 +22,7 @@ import ua.hudyma.Theater2025.model.User;
 import ua.hudyma.Theater2025.repository.UserRepository;
 import ua.hudyma.Theater2025.security.JwtTokenProvider;
 
+import java.io.IOException;
 import java.time.LocalDate;
 
 @Log4j2
@@ -90,9 +94,13 @@ public class LoginController {
     @PostMapping("/register")
     public String register(@RequestParam("email") String email,
                            @RequestParam("password") String password,
-                           HttpServletResponse response) {
+                           HttpServletRequest request,
+                           HttpServletResponse response) throws ServletException, IOException {
         if (userRepository.findByEmail(email).isPresent()) {
             log.error(".....Email " + email + " exists");
+            request.setAttribute(RequestDispatcher.ERROR_STATUS_CODE, 418);
+            request.setAttribute("customMessage", "Email already exists!");
+            request.getRequestDispatcher("/error").forward(request, response);
             throw new UserEmailExistsException("Імейл вже зареєстровано");
         }
 
@@ -133,11 +141,12 @@ public class LoginController {
     public String handleForm(@RequestParam String email,
                              @RequestParam String password,
                              @RequestParam String action,
-                             HttpServletResponse response, Model model) {
+                             HttpServletRequest request,
+                             HttpServletResponse response, Model model) throws ServletException, IOException {
         if ("login".equals(action)) {
             return login(email, password, response, model);
         }
-        return register(email, password, response);
+        return register(email, password, request, response);
     }
 }
 

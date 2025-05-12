@@ -38,7 +38,7 @@ public class TicketService {
                         .plusDays(1)
                         .isBefore(LocalDateTime.now())) {
                     var ticketId = ticket.getId();
-                    //ticketRepository.delete(ticket);
+                    //ticketRepository.delete(ticket); //не працює
                     /** працює через EntityManager.remove(...)
                      * потребує, щоб об'єкт був у контексті persistence (managed)
                      * якщо ticket вже не прив'язаний (detached),

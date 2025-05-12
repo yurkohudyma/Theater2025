@@ -30,7 +30,7 @@ if (modal && closeBtn) {
   console.error('Modal or Close Button not found');
 }
 
-function goToBuy() {
+/*function goToBuy() {
   fetch('/access/buy', {
     credentials: 'same-origin'
   }).then(response => {
@@ -40,7 +40,7 @@ function goToBuy() {
       showModal();
     }
   });
-}
+}*/
 
 function showGhost(msg) {
     const ghost = document.getElementById('ghost');

@@ -462,6 +462,12 @@ header {
     color: #2196F3;
 }
 
+.selected-seat {
+  background-color: #4CAF50 !important; /* зелений */
+  color: white;
+  border: 1px solid #388E3C;
+}
+
 
 
 

@@ -55,6 +55,7 @@ public class LiqpayRestController {
         String signature = body.get(SIGNATURE);
         String decodedJson = paymentService.getDecodedJson(data);
 
+        //todo refactor all blogic for batch ticket processing
         if (paymentService.verifySignature(data, signature)) {
             log.info("...........LiqPay payment SUCCESSFULL, callback received");
             log.info(decodedJson);
@@ -63,7 +64,7 @@ public class LiqpayRestController {
                     .readValue(decodedJson, Transaction.class);
 
             OrderId clearedOrderId = transactionService
-                    .getClearedOrderId(transaction.getLocalOrderId());
+                    .getClearedOrderId(transaction.getLocalOrderId()); //todo
             var orderId = transaction.getLocalOrderId();
 
             var ticket = ticketRepository.findByOrderId(orderId).orElseThrow();

@@ -120,7 +120,8 @@ public class UserController {
                 MOVIES_LIST, moviesList,
                 EMAIL, userEmail,
                 USER_STATUS, user.getAccessLevel().str,
-                "selected_timeslot", selectedTimeslot));
+                "selected_timeslot", selectedTimeslot,
+                "ticketPrice", hall.getSeatPrice()));
         var ticket = getTicket(user);
         if (ticket.isPresent()) {
             model.addAttribute("ticket", ticket.orElseThrow());
@@ -133,25 +134,32 @@ public class UserController {
     /**
      * ендпойнт для ajax-отримання ряду та місця квитка та формування paymentData
      */
-    @PostMapping("/updateRowSeatData")
+    @PostMapping("/updateRowSeatDataBatch")
     @ResponseBody
     public Map<String, String> getUpdatedPaymentData(
-            @RequestBody SeatRequest req,
-            Principal principal) throws NoSuchAlgorithmException {
+            @RequestBody SeatBatchRequest req,
+            Principal principal,
+                      Model model) throws NoSuchAlgorithmException {
 
-        String orderId = UUID.randomUUID() + "_r" + req.row() + "_s" + req.seat();
+        //тепер записувати у номер ордера перший квиток замовлення
+        var reqUnitList = req.seats();
+        var initTicket = reqUnitList.get(0);
+
+        //todo є проблема з оформленням групового квитка
+        //todo раніше я через orderId отримував дані про місце та ряд, зараз так не вийде
+        String orderId = UUID.randomUUID() + "_r" + initTicket.row() + "_s" + initTicket.seat();
         var timeSlotToLocalDateTime =
                 ticketService.convertTimeSlotToLocalDateTime(req.timeslot());
         var userEmail = principal.getName();
-        String paymentDescription = "Квиток на сеанс " + timeSlotToLocalDateTime + " " + userEmail;
+        String paymentDescription = "Квиток(-ки) на сеанс " + timeSlotToLocalDateTime + " " + userEmail;
         var amount = hallRepository
                 .findById(req.hallId())
                 .orElseThrow()
-                .getSeatPrice()
-                .toString();
+                .getSeatPrice();
+        amount *= reqUnitList.size();
 
         var paymentJSON = preparePayment(
-                amount,
+                amount.toString(),
                 publicKey,
                 paymentDescription,
                 orderId,
@@ -187,4 +195,6 @@ public class UserController {
     }
 }
 
-record SeatRequest(int row, int seat, String timeslot, Long movieId, Long hallId) {}
+record SeatRequest(int row, int seat) {}
+
+record SeatBatchRequest(List<SeatRequest> seats, String timeslot, Long movieId, Long hallId) {}

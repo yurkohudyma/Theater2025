@@ -1,83 +1,137 @@
 document.addEventListener("DOMContentLoaded", function () {
-  const paymentData = window.paymentData;
-  const paymentSignature = window.paymentSignature;
+  const selectedList = document.getElementById("selectedSeatsList");
+  const totalPriceEl = document.getElementById("totalPrice");
+  const payButton = document.getElementById("payButton");
   const table = document.getElementById("seatsTable");
+
   const rows = window.rows;
   const seats = window.seats;
   const hall_id = window.hallId;
   const soldArray = window.soldMapList;
   const movie_id = window.movieId;
   const selected_timeslot = window.selected_timeslot;
+  const paymentData = window.paymentData;
+  const paymentSignature = window.paymentSignature;
+  const pricePerSeat = window.ticketPrice
+
   const soldSet = new Set(soldArray.map(seat => `${seat.row}-${seat.seat}`));
+  const selectedSeats = [];
+
+function updateSelectedSeatsUI() {
+  const price = Number(pricePerSeat);
+  const total = selectedSeats.length * price;
+
+  const infoContainer = document.getElementById("selectionInfo");
+  if (selectedSeats.length > 0) {
+    infoContainer.style.display = "block";
+  } else {
+    infoContainer.style.display = "none";
+  }
+
+  // Оновлюємо список місць
+  selectedList.innerHTML = "";
+  selectedSeats.forEach(seat => {
+    const li = document.createElement("li");
+    li.textContent = `Ряд ${seat.row}, Місце ${seat.seat}`;
+    selectedList.appendChild(li);
+  });
+
+  // Загальна сума — вище списку
+  totalPriceEl.textContent = `Ціна за квиток: ${price} грн | Загальна сума: ${total} грн`;
+}
+
+
 
   console.log("Sold seats:", soldArray);
   console.log("Sold set:", soldSet);
   console.log("Sel timeslot:", selected_timeslot);
   console.log("paymentData: ", paymentData);
   console.log("paymentSign: ", paymentSignature);
+  console.log("selectedSeats: ", selectedSeats);
+  console.log("ticketPrice: ", pricePerSeat);
 
  for (let i = 0; i < rows; i++) {
-   const tr = document.createElement("tr");
-   tr.classList.add("seat-row");
+     const tr = document.createElement("tr");
+     tr.classList.add("seat-row");
 
-   for (let j = 0; j < seats; j++) {
-     const td = document.createElement("td");
-     td.classList.add("seat-cell");
+     for (let j = 0; j < seats; j++) {
+       const td = document.createElement("td");
+       td.classList.add("seat-cell");
 
-     const button = document.createElement("button");
-     button.type = "button"; // зміна тут!
-     button.textContent = j + 1;
-     button.classList.add("seat-button");
+       const button = document.createElement("button");
+       button.type = "button";
+       button.textContent = j + 1;
+       button.classList.add("seat-button");
 
-     // Додаємо координати до атрибутів для зручності (опціонально)
-     button.dataset.row = i + 1;
-     button.dataset.seat = j + 1;
+       button.dataset.row = i + 1;
+       button.dataset.seat = j + 1;
 
-     // Деактивація куплених
-     if (soldSet.has(`${i + 1}-${j + 1}`)) {
-       button.disabled = true;
-       button.classList.add("sold-seat");
-       button.textContent = "";
-     } else {
-       button.addEventListener("click", function () {
-         const row = this.dataset.row;
-         const seat = this.dataset.seat;
-         console.log(`Обране місце: ряд ${row}, місце ${seat}`);
+       const seatKey = `${i + 1}-${j + 1}`;
 
-         // Надсилаємо запит до сервера
-         fetch('/user/updateRowSeatData', {
-           method: 'POST',
-           headers: { 'Content-Type': 'application/json' },
-           credentials: "include",
-           body: JSON.stringify({
-             row: row,
-             seat: seat,
-             timeslot: selected_timeslot,
-             movieId: movie_id,
-             hallId: hall_id
-           })
-         })
-         .then(response => response.json())
-         .then(data => {
-           createLiqpayForm(data.paymentData, data.signature);
+       if (soldSet.has(seatKey)) {
+         button.disabled = true;
+         button.classList.add("sold-seat");
+         button.textContent = "";
+       } else {
+         button.addEventListener("click", function () {
+           const row = parseInt(this.dataset.row);
+           const seat = parseInt(this.dataset.seat);
+           const index = selectedSeats.findIndex(s => s.row === row && s.seat === seat);
+
+           if (index > -1) {
+             // Вилучити, якщо вже вибране
+             selectedSeats.splice(index, 1);
+             this.classList.remove("selected-seat");
+           } else {
+             // Додати нове місце
+             selectedSeats.push({ row, seat });
+             this.classList.add("selected-seat");
+           }
+
+           updateSelectedSeatsUI();
          });
-       });
+       }
 
-
+       td.appendChild(button);
+       tr.appendChild(td);
      }
 
-     td.appendChild(button);
-     tr.appendChild(td);
+     const rowLabel = document.createElement("td");
+     rowLabel.textContent = `Ряд ${i + 1}`;
+     rowLabel.classList.add("row-label");
+     tr.appendChild(rowLabel);
+
+     table.appendChild(tr);
    }
 
-   const rowLabel = document.createElement("td");
-   rowLabel.textContent = `Ряд ${i + 1}`;
-   rowLabel.classList.add("row-label");
-   tr.appendChild(rowLabel);
+   // Кнопка оплати
+   payButton.addEventListener("click", function () {
+     if (selectedSeats.length === 0) {
+       alert("Будь ласка, виберіть хоча б одне місце");
+       return;
+     }
 
-   table.appendChild(tr);
- }
-});
+     fetch('/user/updateRowSeatDataBatch', {
+       method: 'POST',
+       headers: { 'Content-Type': 'application/json' },
+       credentials: "include",
+       body: JSON.stringify({
+         seats: selectedSeats,
+         timeslot: selected_timeslot,
+         movieId: movie_id,
+         hallId: hall_id
+       })
+     })
+       .then(response => response.json())
+       .then(data => {
+         createLiqpayForm(data.paymentData, data.signature);
+       })
+       .catch(err => {
+         console.error("Помилка оплати:", err);
+         alert("Сталася помилка під час оплати");
+       });
+   });
+
 
 function createLiqpayForm(data, signature) {
   const form = document.createElement("form");
@@ -103,3 +157,4 @@ function createLiqpayForm(data, signature) {
   form.submit();
 }
 
+});
