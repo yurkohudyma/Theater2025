@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const selectedList = document.getElementById("selectedSeatsList");
   const totalPriceEl = document.getElementById("totalPrice");
   const payButton = document.getElementById("payButton");
+  const resetButton = document.getElementById("resetButton");
   const table = document.getElementById("seatsTable");
 
   const rows = window.rows;
@@ -27,7 +28,6 @@ function updateSelectedSeatsUI() {
   } else {
     infoContainer.style.display = "none";
   }
-
   // Оновлюємо список місць
   selectedList.innerHTML = "";
   selectedSeats.forEach(seat => {
@@ -37,11 +37,8 @@ function updateSelectedSeatsUI() {
   });
 
   // Загальна сума — вище списку
-  totalPriceEl.textContent = `Ціна за квиток: ${price} грн | Загальна сума: ${total} грн`;
+  totalPriceEl.innerHTML = `Ціна за квиток: ${price} грн<br>Загальна сума: ${total} грн`;
 }
-
-
-
   console.log("Sold seats:", soldArray);
   console.log("Sold set:", soldSet);
   console.log("Sel timeslot:", selected_timeslot);
@@ -106,11 +103,6 @@ function updateSelectedSeatsUI() {
 
    // Кнопка оплати
    payButton.addEventListener("click", function () {
-     if (selectedSeats.length === 0) {
-       alert("Будь ласка, виберіть хоча б одне місце");
-       return;
-     }
-
      fetch('/user/updateRowSeatDataBatch', {
        method: 'POST',
        headers: { 'Content-Type': 'application/json' },
@@ -130,6 +122,19 @@ function updateSelectedSeatsUI() {
          console.error("Помилка оплати:", err);
          alert("Сталася помилка під час оплати");
        });
+   });
+
+   resetButton.addEventListener("click", function () {
+     // Зняти клас з кнопок
+     document.querySelectorAll(".seat-button.selected-seat").forEach(button => {
+       button.classList.remove("selected-seat");
+     });
+
+     // Очистити масив вибраних місць
+     selectedSeats.length = 0;
+
+     // Оновити UI
+     updateSelectedSeatsUI();
    });
 
 

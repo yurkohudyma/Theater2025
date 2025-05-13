@@ -65,6 +65,7 @@ public class LiqpayRestController {
 
             OrderId clearedOrderId = transactionService
                     .getClearedOrderId(transaction.getLocalOrderId()); //todo
+            //todo relocate all ticket logic to services
             var orderId = transaction.getLocalOrderId();
 
             var ticket = ticketRepository.findByOrderId(orderId).orElseThrow();
@@ -86,7 +87,7 @@ public class LiqpayRestController {
                     .build();
             seatRepository.save(newSeat);
             log.info("---------new seat {} fixed", newSeat.getId());
-            ticketRepository.save(ticket);
+            ticketRepository.save(ticket); //todo implement BATCH ticket issuance;
             transaction.setTicket(ticket);
             log.info("---------new ticket {} fixed", ticket.getId());
             transactionService.addNewTransaction(transaction);
@@ -144,11 +145,11 @@ public class LiqpayRestController {
     public ResponseEntity<String> paymentStatus(@PathVariable("ticketId") Long ticketId) throws Exception {
         var transaction = transactionService.getByTicketIdAndAction(ticketId);
 
-        Map<String, String> params = new LinkedHashMap<>();
-        params.put("action", "status");
-        params.put("version", API_VERSION);
-        params.put("public_key", publicKey);
-        params.put("order_id", transaction.getLocalOrderId());
+        var params = new LinkedHashMap<>(
+                Map.of("action", "status",
+                "version", API_VERSION,
+                "public_key", publicKey,
+                "order_id", transaction.getLocalOrderId()));
 
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(params);

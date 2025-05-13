@@ -7,12 +7,19 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ua.hudyma.Theater2025.constants.TicketStatus;
 import ua.hudyma.Theater2025.model.Ticket;
+import ua.hudyma.Theater2025.model.User;
 import ua.hudyma.Theater2025.repository.TicketRepository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import static java.util.Comparator.comparing;
 
 @Service
 @RequiredArgsConstructor
@@ -21,9 +28,27 @@ public class TicketService {
 
     private final TicketRepository ticketRepository;
 
+    public static List<Map<String, Integer>> getTicketMap(List<Ticket> ticketList) {
+        return ticketList.stream()
+                .map(t -> Map.of(
+                        "row", t.getRoww(),
+                        "seat", t.getSeat()))
+                .toList();
+    }
+
     public LocalDateTime convertTimeSlotToLocalDateTime(String timeSlot) {
         LocalTime time = LocalTime.parse(timeSlot);
         return LocalDate.now().atTime(time);
+    }
+
+    public Optional<Ticket> getLastIssuedTicket(User user) {
+        var ticketList = ticketRepository
+                .findByUserIdAndTicketStatus(
+                        user.getId(),
+                        TicketStatus.PAID);
+        return ticketList
+                .stream()
+                .max(comparing(Ticket::getId));
     }
 
     @Scheduled(cron = "0 30 6 * * ?") //щодня о 6:30 ранку
@@ -34,9 +59,7 @@ public class TicketService {
         var expiredList = ticketRepository.findAllPendingTickets();
         if (!expiredList.isEmpty()) {
             for (Ticket ticket : expiredList) {
-                if (ticket.getScheduledOn()
-                        .plusDays(1)
-                        .isBefore(LocalDateTime.now())) {
+                if (ticket.getScheduledOn().isBefore(LocalDateTime.now())) {
                     var ticketId = ticket.getId();
                     //ticketRepository.delete(ticket); //не працює
                     /** працює через EntityManager.remove(...)
@@ -47,6 +70,10 @@ public class TicketService {
                      */
                     ticketRepository.deleteById(ticketId);
                     log.info("----expired ticket {} has been deleted", ticketId);
+                }
+                else {
+                    log.info("----found PENDING and not EXPIRED ticket {}, skipping so far",
+                            ticket.getScheduledOn());
                 }
             }
         }

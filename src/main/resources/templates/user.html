@@ -17,7 +17,8 @@
 <body>
 <div class="wrapper">
     <div class="user_data_block" th:unless="${authIsNull}">
-        <div class="userStatus" th:text="${userStatus} + ' v.' + ${@environment.getProperty('theater2025.version')}"></div>
+        <div class="userStatus"
+             th:text="${userStatus} + ' v.' + ${@environment.getProperty('theater2025.version')}"></div>
         <div class="email" th:text="${email}"></div>
         <form action="#" th:method="get" th:if="${userStatus == 'Адмін'} or ${userStatus == 'Менеджер'}"
               th:action="@{'/admin'}">
@@ -78,24 +79,29 @@
         window.paymentSignature = [[${paymentSignature}]];
         window.authError = [[${authError}]];
         window.ticketPrice = [[${ticketPrice}]];
+
     </script>
 
     <div th:insert="~{fragments/login_popup :: popup}"></div>
 
     <script src="/js/auth-popup.js"></script>
-    <table id="seatsTable" border="0"></table>
-    <script src="/js/renderSeats.js"></script>
+
+    <div class="seatsWrapper">
+        <table id="seatsTable" border="0"></table>
+        <script src="/js/renderSeats.js"></script>
 
 
-    <!-- SELECTED SEATS TOTAL PANEL -->
+        <!-- SELECTED SEATS TOTAL PANEL -->
 
-    <div id="selectionInfo" style="display: none;">
-        <h3>Вибрані місця:</h3>
-        <ul id="selectedSeatsList"></ul>
-        <p id="totalPrice">Загальна сума: 0 грн</p>
-        <button id="payButton">Оплатити</button>
+        <div class="selectionInfo" id="selectionInfo">
+            <h3>Вибрані місця:</h3>
+            <ul id="selectedSeatsList"></ul>
+            <p id="totalPrice">Загальна сума: 0 грн</p>
+            <button id="payButton">Оплатити</button>
+            <button id="resetButton">Скинути</button>
+        </div>
+
     </div>
-
 
 
     <!-- ISSUED TICKET DETAILS            -->
@@ -127,7 +133,7 @@
             </tr>
             <tr>
                 <td>
-                    <form action="#" th:method="post" th:action="@{'/refund/' + ${id}}" target = "_blank">
+                    <form action="#" th:method="post" th:action="@{'/refund/' + ${id}}" target="_blank">
                         <button type="submit" class="logout_button" disabled>Повернути</button>
                     </form>
                 </td>

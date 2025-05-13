@@ -9,20 +9,22 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import ua.hudyma.Theater2025.constants.TicketStatus;
+import ua.hudyma.Theater2025.constants.liqpay.OrderStatus;
+import ua.hudyma.Theater2025.model.Order;
+import ua.hudyma.Theater2025.model.SeatBatchRequest;
+import ua.hudyma.Theater2025.model.SeatRequest;
 import ua.hudyma.Theater2025.model.Ticket;
-import ua.hudyma.Theater2025.model.User;
 import ua.hudyma.Theater2025.repository.*;
 import ua.hudyma.Theater2025.service.AuthService;
 import ua.hudyma.Theater2025.service.TicketService;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
-import static java.util.Comparator.comparing;
 import static ua.hudyma.Theater2025.payment.LiqPayHelper.*;
 
 @Controller
@@ -34,10 +36,12 @@ public class UserController {
     public static final String EMAIL = "email";
     public static final String USER_STATUS = "userStatus";
     public static final String PAYMENT_DATA = "paymentData";
+    public static final String AUTH_IS_NULL = "authIsNull";
     private final TicketRepository ticketRepository;
     private final HallRepository hallRepository;
     private final UserRepository userRepository;
     private final MovieRepository movieRepository;
+    //private final OrderRepository orderRepository;
     private final TicketService ticketService;
     private final AuthService authService;
 
@@ -61,30 +65,22 @@ public class UserController {
                     MOVIES_LIST, moviesList,
                     EMAIL, userEmail,
                     USER_STATUS, user.getAccessLevel().str,
-                    "authIsNull", authIsNull));
+                    AUTH_IS_NULL, authIsNull));
             log.info("...............user " + principal.getName() + " authNULL is " + authIsNull);
-            var ticket = getTicket(user);
+            var ticket = ticketService.getLastIssuedTicket(user);
             if (ticket.isPresent()) {
-                model.addAttribute("ticket", ticket.orElseThrow());
-                model.addAttribute("showIssuedTicket", true);
-                model.addAttribute("id", ticket.orElseThrow().getId());
+                model.addAllAttributes(Map.of(
+                        "ticket", ticket.orElseThrow(),
+                        "showIssuedTicket", true,
+                        "id", ticket.orElseThrow().getId()));
             }
         } else { //auth is NULL
             model.addAllAttributes(Map.of(
                     MOVIES_LIST, moviesList,
-                    "authIsNull", true));
+                    AUTH_IS_NULL, true));
         }
         return "user";
     }
-
-    private Optional<Ticket> getTicket(User user) {
-        var ticketList = ticketRepository
-                .findByUserIdAndTicketStatus(user.getId(), TicketStatus.PAID);
-        return ticketList
-                .stream()
-                .max(comparing(Ticket::getId));
-    }
-
 
     /**
      * ендпойнт для виведення схеми кінозалу
@@ -104,7 +100,7 @@ public class UserController {
                         Long.valueOf(hallId),
                         movieId,
                         timeSlotToLocalDateTime);
-        var soldTicketList = getTicketMap(soldTickets);
+        var soldTicketList = TicketService.getTicketMap(soldTickets);
 
         //передати напряму сет через thymeleaf не вийде, бо останній серіалізується у звичайний масив
         var moviesList = movieRepository.findAll();
@@ -122,7 +118,7 @@ public class UserController {
                 USER_STATUS, user.getAccessLevel().str,
                 "selected_timeslot", selectedTimeslot,
                 "ticketPrice", hall.getSeatPrice()));
-        var ticket = getTicket(user);
+        var ticket = ticketService.getLastIssuedTicket(user);
         if (ticket.isPresent()) {
             model.addAttribute("ticket", ticket.orElseThrow());
             model.addAttribute("showIssuedTicket", true);
@@ -137,23 +133,21 @@ public class UserController {
     @PostMapping("/updateRowSeatDataBatch")
     @ResponseBody
     public Map<String, String> getUpdatedPaymentData(
-            @RequestBody SeatBatchRequest req,
-            Principal principal,
-                      Model model) throws NoSuchAlgorithmException {
+            @RequestBody SeatBatchRequest seatBatchRequest,
+            Principal principal) throws NoSuchAlgorithmException {
 
         //тепер записувати у номер ордера перший квиток замовлення
-        var reqUnitList = req.seats();
+        var reqUnitList = seatBatchRequest.seats();
         var initTicket = reqUnitList.get(0);
 
-        //todo є проблема з оформленням групового квитка
-        //todo раніше я через orderId отримував дані про місце та ряд, зараз так не вийде
         String orderId = UUID.randomUUID() + "_r" + initTicket.row() + "_s" + initTicket.seat();
         var timeSlotToLocalDateTime =
-                ticketService.convertTimeSlotToLocalDateTime(req.timeslot());
+                ticketService.convertTimeSlotToLocalDateTime(seatBatchRequest.timeslot());
         var userEmail = principal.getName();
-        String paymentDescription = "Квиток(-ки) на сеанс " + timeSlotToLocalDateTime + " " + userEmail;
+        String paymentDescription = "Квиток(-ки) на сеанс "
+                + timeSlotToLocalDateTime + " " + userEmail;
         var amount = hallRepository
-                .findById(req.hallId())
+                .findById(seatBatchRequest.hallId())
                 .orElseThrow()
                 .getSeatPrice();
         amount *= reqUnitList.size();
@@ -170,9 +164,10 @@ public class UserController {
         var paymentSignature = getPaymentSignature(paymentData, privateKey);
 
         var user = userRepository.findByEmail(principal.getName()).orElseThrow();
-        var hall = hallRepository.findById(req.hallId()).orElseThrow();
-        var movie = movieRepository.findById(req.movieId()).orElseThrow();
+        var hall = hallRepository.findById(seatBatchRequest.hallId()).orElseThrow();
+        var movie = movieRepository.findById(seatBatchRequest.movieId()).orElseThrow();
 
+        @Deprecated
         var draftTicket = Ticket.builder()
                 .ticketStatus(TicketStatus.PENDING)
                 .hall(hall)
@@ -182,19 +177,22 @@ public class UserController {
                 .scheduledOn(timeSlotToLocalDateTime)
                 .build();
 
-        ticketRepository.save(draftTicket);
+        var order = Order
+                .builder()
+                .status(OrderStatus.PENDING)
+                .createdOn(LocalDateTime.now())
+                .orderId(UUID.randomUUID())
+                .requestedSeats(seatBatchRequest)
+                .build();
+
+        //ticketRepository.save(draftTicket);
+        //orderRepository.save(order);
+        log.info(":::::::: order has been requested {}", order);
+        order
+                .requestedSeats()
+                .seats()
+                .forEach(log::info);
+
         return Map.of(PAYMENT_DATA, paymentData, "signature", paymentSignature);
     }
-
-    private static List<Map<String, Integer>> getTicketMap(List<Ticket> ticketList) {
-        return ticketList.stream()
-                .map(t -> Map.of(
-                        "row", t.getRoww(),
-                        "seat", t.getSeat()))
-                .toList();
-    }
 }
-
-record SeatRequest(int row, int seat) {}
-
-record SeatBatchRequest(List<SeatRequest> seats, String timeslot, Long movieId, Long hallId) {}
