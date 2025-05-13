@@ -51,8 +51,8 @@ public class TicketService {
                 .max(comparing(Ticket::getId));
     }
 
-    @Scheduled(cron = "0 30 6 * * ?") //щодня о 6:30 ранку
-    @PostConstruct //а також при кожному запуску сервера
+    //@Scheduled(cron = "0 30 6 * * ?") //щодня о 6:30 ранку
+    //@PostConstruct //а також при кожному запуску сервера
     @Transactional
     //@Modifying
     public void detectPendingTicketsAndDump() {

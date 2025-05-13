@@ -470,8 +470,7 @@ header {
 
 .selectionInfo {
 	display: none;	
-    margin: 20px auto 0;    
-    font-weight: bold;
+    margin: 20px auto 0;        
     color: #333;    
 }
 

@@ -1,5 +1,6 @@
 package ua.hudyma.Theater2025.controller;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
@@ -134,7 +135,7 @@ public class UserController {
     @ResponseBody
     public Map<String, String> getUpdatedPaymentData(
             @RequestBody SeatBatchRequest seatBatchRequest,
-            Principal principal) throws NoSuchAlgorithmException {
+            Principal principal, HttpSession session) throws NoSuchAlgorithmException {
 
         //тепер записувати у номер ордера перший квиток замовлення
         var reqUnitList = seatBatchRequest.seats();
@@ -167,7 +168,7 @@ public class UserController {
         var hall = hallRepository.findById(seatBatchRequest.hallId()).orElseThrow();
         var movie = movieRepository.findById(seatBatchRequest.movieId()).orElseThrow();
 
-        @Deprecated
+       /* @Deprecated
         var draftTicket = Ticket.builder()
                 .ticketStatus(TicketStatus.PENDING)
                 .hall(hall)
@@ -175,7 +176,7 @@ public class UserController {
                 .user(user)
                 .orderId(orderId)
                 .scheduledOn(timeSlotToLocalDateTime)
-                .build();
+                .build()*/;
 
         var order = Order
                 .builder()
@@ -184,6 +185,8 @@ public class UserController {
                 .orderId(UUID.randomUUID())
                 .requestedSeats(seatBatchRequest)
                 .build();
+
+        session.setAttribute("currentOrder", order);
 
         //ticketRepository.save(draftTicket);
         //orderRepository.save(order);

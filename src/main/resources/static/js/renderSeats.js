@@ -37,7 +37,7 @@ function updateSelectedSeatsUI() {
   });
 
   // Загальна сума — вище списку
-  totalPriceEl.innerHTML = `Ціна за квиток: ${price} грн<br>Загальна сума: ${total} грн`;
+  totalPriceEl.innerHTML = `Ціна за квиток: ${price} ₴<br><span style ="font-weight: bold;"</span>Загальна сума: ${total} ₴`;
 }
   console.log("Sold seats:", soldArray);
   console.log("Sold set:", soldSet);

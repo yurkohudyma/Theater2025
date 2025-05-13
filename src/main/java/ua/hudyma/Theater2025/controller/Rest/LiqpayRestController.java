@@ -1,7 +1,10 @@
 package ua.hudyma.Theater2025.controller.Rest;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.liqpay.LiqPay;
+import jakarta.servlet.http.HttpSession;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
@@ -14,18 +17,20 @@ import org.springframework.web.client.RestTemplate;
 import ua.hudyma.Theater2025.constants.TicketStatus;
 import ua.hudyma.Theater2025.constants.liqpay.LiqPayAction;
 import ua.hudyma.Theater2025.exception.RefundFailureException;
+import ua.hudyma.Theater2025.model.Order;
 import ua.hudyma.Theater2025.model.Seat;
+import ua.hudyma.Theater2025.model.Ticket;
 import ua.hudyma.Theater2025.model.Transaction;
 import ua.hudyma.Theater2025.payment.LiqPayHelper;
-import ua.hudyma.Theater2025.repository.SeatRepository;
-import ua.hudyma.Theater2025.repository.TicketRepository;
-import ua.hudyma.Theater2025.repository.TransactionRepository;
+import ua.hudyma.Theater2025.repository.*;
 import ua.hudyma.Theater2025.service.PaymentService;
+import ua.hudyma.Theater2025.service.TicketService;
 import ua.hudyma.Theater2025.service.TransactionService;
 import ua.hudyma.Theater2025.service.TransactionService.OrderId;
 
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -43,6 +48,10 @@ public class LiqpayRestController {
     private final TicketRepository ticketRepository;
     private final SeatRepository seatRepository;
     private final PaymentService paymentService;
+    private final HallRepository hallRepository;
+    private final MovieRepository movieRepository;
+    private final UserRepository userRepository;
+    private final TicketService ticketService;
     @Value("${liqpay_public_key}")
     private String publicKey;
     @Value("${liqpay_private_key}")
@@ -50,52 +59,62 @@ public class LiqpayRestController {
 
     @PostMapping("/liqpay-callback")
     @SneakyThrows
-    public void handleCallback(@RequestParam Map<String, String> body) {
+    public void handleCallback(@RequestParam Map<String, String> body,
+                               HttpSession session,
+                               Principal principal) {
         String data = body.get(DATA);
         String signature = body.get(SIGNATURE);
         String decodedJson = paymentService.getDecodedJson(data);
 
-        //todo refactor all blogic for batch ticket processing
         if (paymentService.verifySignature(data, signature)) {
             log.info("...........LiqPay payment SUCCESSFULL, callback received");
             log.info(decodedJson);
-
-            Transaction transaction = new ObjectMapper()
-                    .readValue(decodedJson, Transaction.class);
-
-            OrderId clearedOrderId = transactionService
-                    .getClearedOrderId(transaction.getLocalOrderId()); //todo
-            //todo relocate all ticket logic to services
-            var orderId = transaction.getLocalOrderId();
-
-            var ticket = ticketRepository.findByOrderId(orderId).orElseThrow();
-            ticket.setTicketStatus(TicketStatus.PAID);
-            ticket.setOrderId(clearedOrderId.getUudd());
-            ticket.setPurchasedOn(LocalDateTime.now());
-            ticket.setValue(Double.parseDouble(transaction.getAmount().toString()));
-            int seat = clearedOrderId.getSeat();
-            ticket.setSeat(seat);
-            int row = clearedOrderId.getRow();
-            ticket.setRoww(row);
-            var newSeat = Seat
-                    .builder()
-                    .price(transaction.getAmount().doubleValue())
-                    .isOccupied(true)
-                    .hall(ticket.getHall())
-                    .seatNumber(seat)
-                    .rowNumber(row)
-                    .build();
-            seatRepository.save(newSeat);
-            log.info("---------new seat {} fixed", newSeat.getId());
-            ticketRepository.save(ticket); //todo implement BATCH ticket issuance;
-            transaction.setTicket(ticket);
-            log.info("---------new ticket {} fixed", ticket.getId());
-            transactionService.addNewTransaction(transaction);
-            log.info("........ tx id = {} has been SUCCESSFULLY created", transaction.getId());
+            issueTicketsAndReserveSeats(session, principal, decodedJson);
         } else {
             log.error("........Wrong signature. Potential spoofing attempt.");
             log.info(decodedJson);
         }
+    }
+
+    private void issueTicketsAndReserveSeats(HttpSession session, Principal principal, String decodedJson) throws JsonProcessingException {
+        Transaction transaction = new ObjectMapper()
+                .readValue(decodedJson, Transaction.class);
+        var order = (Order) session.getAttribute("currentOrder");
+        var reqDTO = order.requestedSeats();
+        var seatRequest = reqDTO.seats();
+        var hall = hallRepository.findById(reqDTO.hallId()).orElseThrow();
+        var movie = movieRepository.findById(reqDTO.movieId()).orElseThrow();
+        var user = userRepository.findByEmail(principal.getName()).orElseThrow();
+        var timeSlotToLocalDateTime =
+                ticketService.convertTimeSlotToLocalDateTime(reqDTO.timeslot());
+
+        seatRequest.forEach(sr -> {
+            var seat = Seat.builder()
+                    .hall(hall)
+                    .price(hall.getSeatPrice())
+                    .isOccupied(true)
+                    .seatNumber(sr.seat())
+                    .rowNumber(sr.row())
+                    .build();
+            seatRepository.save(seat);
+            log.info("---------new seat {} fixed", seat.getId());
+
+            var ticket = Ticket.builder()
+                    .value(hall.getSeatPrice())
+                    .ticketStatus(TicketStatus.PAID)
+                    .roww(sr.row())
+                    .seat(sr.seat())
+                    .orderId(order.orderId().toString())
+                    .user(user)
+                    .movie(movie)
+                    .scheduledOn(timeSlotToLocalDateTime)
+                    .build();
+            ticket.getTransactions().add(transaction);
+            ticketRepository.save(ticket);
+            log.info("---------new ticket {} fixed", ticket.getId());
+        });
+        transactionService.addNewTransaction(transaction);
+        log.info("........ tx id = {} has been SUCCESSFULLY created", transaction.getId());
     }
 
     /**
@@ -131,7 +150,7 @@ public class LiqpayRestController {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
             HttpEntity<MultiValueMap<String, String>> liqRequest =
-                     new HttpEntity<>(request, headers);
+                    new HttpEntity<>(request, headers);
             return template.postForObject(
                     API_REQUEST,
                     liqRequest,
@@ -147,9 +166,9 @@ public class LiqpayRestController {
 
         var params = new LinkedHashMap<>(
                 Map.of("action", "status",
-                "version", API_VERSION,
-                "public_key", publicKey,
-                "order_id", transaction.getLocalOrderId()));
+                        "version", API_VERSION,
+                        "public_key", publicKey,
+                        "order_id", transaction.getLocalOrderId()));
 
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(params);
@@ -177,3 +196,28 @@ public class LiqpayRestController {
     }
 }
 
+ /*OrderId clearedOrderId = transactionService
+                    .getClearedOrderId(transaction.getLocalOrderId()); //todo
+            transaction.setTicket(ticket);
+            var orderId = transaction.getLocalOrderId();
+            var ticket = ticketRepository.findByOrderId(orderId).orElseThrow();
+            ticket.setTicketStatus(TicketStatus.PAID);
+            ticket.setOrderId(clearedOrderId.getUudd());
+            ticket.setPurchasedOn(LocalDateTime.now());
+            ticket.setValue(Double.parseDouble(transaction.getAmount().toString()));
+            int seat = clearedOrderId.getSeat();
+            ticket.setSeat(seat);
+            int row = clearedOrderId.getRow();
+            ticket.setRoww(row);
+            var newSeat = Seat
+                    .builder()
+                    .price(transaction.getAmount().doubleValue())
+                    .isOccupied(true)
+                    .hall(ticket.getHall())
+                    .seatNumber(seat)
+                    .rowNumber(row)
+                    .build();
+            seatRepository.save(newSeat);
+            log.info("---------new seat {} fixed", newSeat.getId());
+            ticketRepository.save(ticket);
+             */
