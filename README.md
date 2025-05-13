@@ -1,4 +1,8 @@
-![image](https://github.com/user-attachments/assets/cbcbe74e-8f4d-4506-b1e8-32b228c04231)
+USER PAGE:
+![image](https://github.com/user-attachments/assets/767c4bb2-061c-41fb-b7e8-ad410b897951)
 
-![image](https://github.com/user-attachments/assets/390f7653-35e7-4659-a0e6-4053a743d0dc)
+ADMIN PAGE:
+![image](https://github.com/user-attachments/assets/2a382450-3320-442a-8d5e-50b0f6852f67)
+
+
 
