@@ -11,7 +11,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     List<Transaction> findAll();
 
-    Optional<Transaction> findByTicketIdAndAction(Long ticketId, LiqPayAction action);
+    Optional<Transaction> findByTickets_IdAndAction(Long ticketId, LiqPayAction action);
 
-    List<Transaction> findByTicketId (Long ticketId);
+    List<Transaction> findByTickets_Id(Long ticketId);
 }

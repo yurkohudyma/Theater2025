@@ -40,3 +40,4 @@ build/
 /src/main/resources/application.properties
 /src/main/java/util/liqpay.json
 /src/main/java/util/payment_check.json
+/res/test.ser

@@ -24,7 +24,7 @@ public class TransactionService {
 
     public Transaction getByTicketIdAndAction(Long ticketId){
         return transactionRepository
-                .findByTicketIdAndAction(ticketId, LiqPayAction.PAY)
+                .findByTickets_IdAndAction(ticketId, LiqPayAction.PAY)
                 .orElseThrow();
     }
 
@@ -45,7 +45,7 @@ public class TransactionService {
     }
 
     public List<Transaction> getTxByTicketId(Long id) {
-        return transactionRepository.findByTicketId(id);
+        return transactionRepository.findByTickets_Id(id);
     }
 
     @Data

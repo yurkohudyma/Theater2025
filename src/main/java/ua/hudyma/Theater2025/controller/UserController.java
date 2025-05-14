@@ -37,11 +37,8 @@ import static ua.hudyma.Theater2025.payment.LiqPayHelper.*;
 @RequiredArgsConstructor
 @Log4j2
 public class UserController {
-    public static final String MOVIES_LIST = "moviesList";
-    public static final String EMAIL = "email";
-    public static final String USER_STATUS = "userStatus";
-    public static final String PAYMENT_DATA = "paymentData";
-    public static final String AUTH_IS_NULL = "authIsNull";
+    public static final String MOVIES_LIST = "moviesList", EMAIL = "email", USER_STATUS = "userStatus",
+            PAYMENT_DATA = "paymentData", AUTH_IS_NULL = "authIsNull";
     private final TicketRepository ticketRepository;
     private final HallRepository hallRepository;
     private final UserRepository userRepository;
@@ -58,8 +55,7 @@ public class UserController {
     private String serverUrl;
 
     @GetMapping
-    public String getAllMovies(Model model,
-                               Principal principal,
+    public String getAllMovies(Model model, Principal principal,
                                Authentication authentication) {
         var moviesList = movieRepository.findAll();
         if (authentication != null) {

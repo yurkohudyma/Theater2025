@@ -1,5 +1,6 @@
 package ua.hudyma.Theater2025.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -61,10 +62,16 @@ public class Ticket {
     @ManyToOne(optional = false)
     @JoinColumn(name = "movie_id")
     private Movie movie;
-    @JsonIgnore
+
+   /* @JsonIgnore
     @OneToMany(mappedBy = "ticket",
             fetch = FetchType.EAGER,
             cascade = CascadeType.ALL)
+    private List<Transaction> transactions;*/
+
+    @JsonIgnore
+    @ManyToMany(mappedBy = "tickets")
+    //@JsonBackReference("ticket-transaction")
     private List<Transaction> transactions;
 
     @Override

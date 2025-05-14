@@ -56,9 +56,7 @@ public class LiqpayRestController {
 
     @PostMapping("/liqpay-callback")
     @SneakyThrows
-    public void handleCallback(@RequestParam Map<String, String> body
-                               /*,
-                               @CookieValue(name = "order", required = false) String cookie*/) {
+    public void handleCallback(@RequestParam Map<String, String> body) {
         String data = body.get(DATA);
         String signature = body.get(SIGNATURE);
         String decodedJson = paymentService.getDecodedJson(data);
@@ -87,7 +85,7 @@ public class LiqpayRestController {
                 ticketService.convertTimeSlotToLocalDateTime(reqDTO.timeslot());
 
         seatRequest.forEach(sr -> {
-            var cloneTransaction = transaction.clone();
+            //var cloneTransaction = transaction.clone();
             var seat = Seat.builder()
                     .hall(hall)
                     .price(hall.getSeatPrice())
@@ -111,11 +109,23 @@ public class LiqpayRestController {
                     .scheduledOn(timeSlotToLocalDateTime)
                     .purchasedOn(LocalDateTime.now())
                     .build();
-            cloneTransaction.setTicket(ticket);
+            //cloneTransaction.setTicket(ticket);
+            var ticketList = transaction.getTickets();
+            if (ticketList == null) {
+                ticketList = new ArrayList<>();
+            }
+            ticketList.add(ticket);
+            transaction.setTickets(ticketList);
+
+            var txList = ticket.getTransactions();
+            if (txList == null){
+                txList = new ArrayList<>();
+            }
+            txList.add(transaction);
+            ticket.setTransactions(txList);
             ticketRepository.save(ticket);
             log.info("---------new ticket {} fixed", ticket.getId());
-            transactionService.addNewTransaction(cloneTransaction);
-            log.info("........ tx id = {} has been SUCCESSFULLY created", transaction.getId());
+            transactionService.addNewTransaction(transaction);
         });
     }
 
@@ -139,11 +149,15 @@ public class LiqpayRestController {
             request.put(SIGNATURE, Collections.singletonList(signature));
             RestTemplate template = new RestTemplate();
 
-            var refundTransaction = new Transaction();
-            refundTransaction.setCreateDate(LocalDateTime.now());
-            refundTransaction.setDescription("Повернення квитка");
-            refundTransaction.setLocalOrderId(transaction.getLocalOrderId());
-            refundTransaction.setTicket(ticket);
+            var refundTransaction = Transaction
+                    .builder()
+                    .createDate(LocalDateTime.now())
+                    .description("Повернення квитка")
+                    .localOrderId(transaction.getLocalOrderId())
+                    .build();
+
+            refundTransaction.getTickets().add(ticket);
+            ticket.getTransactions().add(refundTransaction);
             ticket.setTicketStatus(TicketStatus.REFUNDED);
             ticketRepository.save(ticket);
             refundTransaction.setAction(LiqPayAction.REFUND);

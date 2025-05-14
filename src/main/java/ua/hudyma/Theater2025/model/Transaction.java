@@ -2,6 +2,7 @@ package ua.hudyma.Theater2025.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import jakarta.persistence.*;
@@ -14,6 +15,7 @@ import util.UnixToLocalDateTimeDeserializer;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -28,10 +30,20 @@ public class Transaction implements Cloneable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    @ManyToOne
+    /*@ManyToOne
     @JsonIgnore
     @JoinColumn(name = "ticket_id")
-    private Ticket ticket;
+    private Ticket ticket;*/
+
+    @ManyToMany
+    @JoinTable(
+            name = "ticket_transaction",
+            joinColumns = @JoinColumn(name = "transaction_id"),
+            inverseJoinColumns = @JoinColumn(name = "ticket_id")
+    )
+    //@JsonManagedReference("ticket-transaction")
+    @JsonIgnore
+    private List<Ticket> tickets;
 
     @JsonProperty("payment_id")
     Long paymentId;
@@ -77,9 +89,7 @@ public class Transaction implements Cloneable {
     @Override
     public Transaction clone() {
         try {
-            Transaction clone = (Transaction) super.clone();
-            // TODO: copy mutable state here, so the clone can't change the internals of the original
-            return clone;
+            return (Transaction) super.clone();
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();
         }
