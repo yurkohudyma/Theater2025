@@ -22,7 +22,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Transaction {
+public class Transaction implements Cloneable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -74,4 +74,14 @@ public class Transaction {
     @JsonDeserialize(using = UnixToLocalDateTimeDeserializer.class)
     LocalDateTime endDate;
 
+    @Override
+    public Transaction clone() {
+        try {
+            Transaction clone = (Transaction) super.clone();
+            // TODO: copy mutable state here, so the clone can't change the internals of the original
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
+    }
 }

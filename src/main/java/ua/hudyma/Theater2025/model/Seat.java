@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "seats")
 @Builder
@@ -26,6 +28,9 @@ public class Seat {
 
     @Column(name = "price")
     private Double price;
+
+    @Column
+    private LocalDateTime createdOn;
 
     @ManyToOne
     @JsonIgnore

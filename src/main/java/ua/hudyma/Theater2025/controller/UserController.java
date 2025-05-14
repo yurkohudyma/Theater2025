@@ -1,5 +1,6 @@
 package ua.hudyma.Theater2025.controller;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -9,16 +10,19 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import ua.hudyma.Theater2025.constants.TicketStatus;
 import ua.hudyma.Theater2025.constants.liqpay.OrderStatus;
 import ua.hudyma.Theater2025.model.Order;
 import ua.hudyma.Theater2025.model.SeatBatchRequest;
-import ua.hudyma.Theater2025.model.SeatRequest;
 import ua.hudyma.Theater2025.model.Ticket;
-import ua.hudyma.Theater2025.repository.*;
+import ua.hudyma.Theater2025.repository.HallRepository;
+import ua.hudyma.Theater2025.repository.MovieRepository;
+import ua.hudyma.Theater2025.repository.TicketRepository;
+import ua.hudyma.Theater2025.repository.UserRepository;
 import ua.hudyma.Theater2025.service.AuthService;
+import ua.hudyma.Theater2025.service.OrderService;
 import ua.hudyma.Theater2025.service.TicketService;
 
+import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.time.LocalDateTime;
@@ -42,7 +46,7 @@ public class UserController {
     private final HallRepository hallRepository;
     private final UserRepository userRepository;
     private final MovieRepository movieRepository;
-    //private final OrderRepository orderRepository;
+    private final OrderService orderService;
     private final TicketService ticketService;
     private final AuthService authService;
 
@@ -119,6 +123,7 @@ public class UserController {
                 USER_STATUS, user.getAccessLevel().str,
                 "selected_timeslot", selectedTimeslot,
                 "ticketPrice", hall.getSeatPrice()));
+        model.addAttribute("userId", user.getId());
         var ticket = ticketService.getLastIssuedTicket(user);
         if (ticket.isPresent()) {
             model.addAttribute("ticket", ticket.orElseThrow());
@@ -135,13 +140,13 @@ public class UserController {
     @ResponseBody
     public Map<String, String> getUpdatedPaymentData(
             @RequestBody SeatBatchRequest seatBatchRequest,
-            Principal principal, HttpSession session) throws NoSuchAlgorithmException {
+            Principal principal) throws NoSuchAlgorithmException {
 
         //тепер записувати у номер ордера перший квиток замовлення
         var reqUnitList = seatBatchRequest.seats();
-        var initTicket = reqUnitList.get(0);
+        //var initTicket = reqUnitList.get(0);
 
-        String orderId = UUID.randomUUID() + "_r" + initTicket.row() + "_s" + initTicket.seat();
+        String orderId = UUID.randomUUID().toString()/* + "_r" + initTicket.row() + "_s" + initTicket.seat()*/;
         var timeSlotToLocalDateTime =
                 ticketService.convertTimeSlotToLocalDateTime(seatBatchRequest.timeslot());
         var userEmail = principal.getName();
@@ -164,9 +169,9 @@ public class UserController {
         var paymentData = getPaymentData(paymentJSON);
         var paymentSignature = getPaymentSignature(paymentData, privateKey);
 
-        var user = userRepository.findByEmail(principal.getName()).orElseThrow();
+        /*var user = userRepository.findByEmail(principal.getName()).orElseThrow();
         var hall = hallRepository.findById(seatBatchRequest.hallId()).orElseThrow();
-        var movie = movieRepository.findById(seatBatchRequest.movieId()).orElseThrow();
+        var movie = movieRepository.findById(seatBatchRequest.movieId()).orElseThrow();*/
 
        /* @Deprecated
         var draftTicket = Ticket.builder()
@@ -182,11 +187,15 @@ public class UserController {
                 .builder()
                 .status(OrderStatus.PENDING)
                 .createdOn(LocalDateTime.now())
-                .orderId(UUID.randomUUID())
+                .orderId(orderId)
                 .requestedSeats(seatBatchRequest)
                 .build();
 
-        session.setAttribute("currentOrder", order);
+        orderService.storeOrderInMemoryMap(order);
+
+        //orderService.serializeOrder(order);
+
+        //orderService.saveOrderToCookie(response, order);
 
         //ticketRepository.save(draftTicket);
         //orderRepository.save(order);

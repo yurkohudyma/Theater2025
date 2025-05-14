@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const rows = window.rows;
   const seats = window.seats;
   const hall_id = window.hallId;
+  const user_id = window.userId;
   const soldArray = window.soldMapList;
   const movie_id = window.movieId;
   const selected_timeslot = window.selected_timeslot;
@@ -111,7 +112,8 @@ function updateSelectedSeatsUI() {
          seats: selectedSeats,
          timeslot: selected_timeslot,
          movieId: movie_id,
-         hallId: hall_id
+         hallId: hall_id,
+         userId: user_id
        })
      })
        .then(response => response.json())

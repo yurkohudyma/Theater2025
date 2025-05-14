@@ -2,9 +2,6 @@ package ua.hudyma.Theater2025.controller.Rest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.liqpay.LiqPay;
-import jakarta.servlet.http.HttpSession;
-import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
@@ -17,16 +14,15 @@ import org.springframework.web.client.RestTemplate;
 import ua.hudyma.Theater2025.constants.TicketStatus;
 import ua.hudyma.Theater2025.constants.liqpay.LiqPayAction;
 import ua.hudyma.Theater2025.exception.RefundFailureException;
-import ua.hudyma.Theater2025.model.Order;
 import ua.hudyma.Theater2025.model.Seat;
 import ua.hudyma.Theater2025.model.Ticket;
 import ua.hudyma.Theater2025.model.Transaction;
 import ua.hudyma.Theater2025.payment.LiqPayHelper;
 import ua.hudyma.Theater2025.repository.*;
+import ua.hudyma.Theater2025.service.OrderService;
 import ua.hudyma.Theater2025.service.PaymentService;
 import ua.hudyma.Theater2025.service.TicketService;
 import ua.hudyma.Theater2025.service.TransactionService;
-import ua.hudyma.Theater2025.service.TransactionService.OrderId;
 
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
@@ -52,6 +48,7 @@ public class LiqpayRestController {
     private final MovieRepository movieRepository;
     private final UserRepository userRepository;
     private final TicketService ticketService;
+    private final OrderService orderService;
     @Value("${liqpay_public_key}")
     private String publicKey;
     @Value("${liqpay_private_key}")
@@ -59,9 +56,9 @@ public class LiqpayRestController {
 
     @PostMapping("/liqpay-callback")
     @SneakyThrows
-    public void handleCallback(@RequestParam Map<String, String> body,
-                               HttpSession session,
-                               Principal principal) {
+    public void handleCallback(@RequestParam Map<String, String> body
+                               /*,
+                               @CookieValue(name = "order", required = false) String cookie*/) {
         String data = body.get(DATA);
         String signature = body.get(SIGNATURE);
         String decodedJson = paymentService.getDecodedJson(data);
@@ -69,32 +66,35 @@ public class LiqpayRestController {
         if (paymentService.verifySignature(data, signature)) {
             log.info("...........LiqPay payment SUCCESSFULL, callback received");
             log.info(decodedJson);
-            issueTicketsAndReserveSeats(session, principal, decodedJson);
+            issueTicketsAndReserveSeats(decodedJson);
         } else {
             log.error("........Wrong signature. Potential spoofing attempt.");
             log.info(decodedJson);
         }
     }
 
-    private void issueTicketsAndReserveSeats(HttpSession session, Principal principal, String decodedJson) throws JsonProcessingException {
+    private void issueTicketsAndReserveSeats(String decodedJson) throws JsonProcessingException {
         Transaction transaction = new ObjectMapper()
                 .readValue(decodedJson, Transaction.class);
-        var order = (Order) session.getAttribute("currentOrder");
+        var order = orderService.retrieveOrderFromInMemoryMap(
+                transaction.getLocalOrderId()).orElseThrow();
         var reqDTO = order.requestedSeats();
         var seatRequest = reqDTO.seats();
         var hall = hallRepository.findById(reqDTO.hallId()).orElseThrow();
         var movie = movieRepository.findById(reqDTO.movieId()).orElseThrow();
-        var user = userRepository.findByEmail(principal.getName()).orElseThrow();
+        var user = userRepository.findById(reqDTO.userId()).orElseThrow();
         var timeSlotToLocalDateTime =
                 ticketService.convertTimeSlotToLocalDateTime(reqDTO.timeslot());
 
         seatRequest.forEach(sr -> {
+            var cloneTransaction = transaction.clone();
             var seat = Seat.builder()
                     .hall(hall)
                     .price(hall.getSeatPrice())
                     .isOccupied(true)
                     .seatNumber(sr.seat())
                     .rowNumber(sr.row())
+                    .createdOn(LocalDateTime.now())
                     .build();
             seatRepository.save(seat);
             log.info("---------new seat {} fixed", seat.getId());
@@ -104,17 +104,19 @@ public class LiqpayRestController {
                     .ticketStatus(TicketStatus.PAID)
                     .roww(sr.row())
                     .seat(sr.seat())
-                    .orderId(order.orderId().toString())
+                    .orderId(order.orderId())
                     .user(user)
+                    .hall(hall)
                     .movie(movie)
                     .scheduledOn(timeSlotToLocalDateTime)
+                    .purchasedOn(LocalDateTime.now())
                     .build();
-            ticket.getTransactions().add(transaction);
+            cloneTransaction.setTicket(ticket);
             ticketRepository.save(ticket);
             log.info("---------new ticket {} fixed", ticket.getId());
+            transactionService.addNewTransaction(cloneTransaction);
+            log.info("........ tx id = {} has been SUCCESSFULLY created", transaction.getId());
         });
-        transactionService.addNewTransaction(transaction);
-        log.info("........ tx id = {} has been SUCCESSFULLY created", transaction.getId());
     }
 
     /**
