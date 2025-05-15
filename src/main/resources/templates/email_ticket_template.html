@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Успішна покупка квитка</title>
+    <style>
+        body {
+            font-family: "Segoe UI", sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            padding: 20px;
+        }
+        .email-container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+            max-width: 600px;
+            margin: auto;
+        }
+        .header {
+            text-align: center;
+            color: #2c3e50;
+        }
+        .ticket-info {
+            margin-top: 20px;
+        }
+        .ticket-info td {
+            padding: 5px 10px;
+        }
+        .footer {
+            margin-top: 30px;
+            font-size: 0.9em;
+            color: #777;
+            text-align: center;
+        }
+        .btn {
+            display: inline-block;
+            background-color: #27ae60;
+            color: white;
+            padding: 12px 20px;
+            margin-top: 20px;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+<div class="email-container">
+    <h2 class="header">Дякуємо за оплату!</h2>
+    <p>Ваш квиток до кінотеатру успішно підтверджено. Ось деталі замовлення:</p>
+
+    <table class="ticket-info">
+        <tr>
+            <td><strong>Назва фільму:</strong></td>
+            <td>[[${movieTitle}]]</td>
+        </tr>
+        <tr>
+            <td><strong>Дата та час:</strong></td>
+            <td>[[${dateTime}]]</td>
+        </tr>
+        <tr>
+            <td><strong>Ряд:</strong></td>
+            <td>[[${rowNumber}]]</td>
+        </tr>
+        <tr>
+            <td><strong>Місце:</strong></td>
+            <td>[[${seatNumber}]]</td>
+        </tr>
+        <tr>
+            <td><strong>Ціна:</strong></td>
+            <td>[[${price}]] грн.</td>
+        </tr>
+    </table>
+
+    <p>Покажіть цей лист при вході до зали або пред’явіть QR-код з мобільного додатка.</p>
+
+    <p>QR-код</p>
+
+    <div class="footer">
+        2025 &copy; Кінотеатр "Світло". До зустрічі на сеансі!
+    </div>
+</div>
+</body>
+</html>

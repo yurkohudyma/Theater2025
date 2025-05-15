@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import ua.hudyma.Theater2025.constants.liqpay.OrderStatus;
+import ua.hudyma.Theater2025.dto.EmailMovieDTO;
 import ua.hudyma.Theater2025.model.Order;
 import ua.hudyma.Theater2025.model.SeatBatchRequest;
 import ua.hudyma.Theater2025.model.Ticket;
@@ -176,7 +177,8 @@ public class UserController {
                 .user(user)
                 .orderId(orderId)
                 .scheduledOn(timeSlotToLocalDateTime)
-                .build()*/;
+                .build()*/
+        ;
 
         var order = Order
                 .builder()
@@ -204,7 +206,16 @@ public class UserController {
     }
 
     @GetMapping("/sendEmail")
-    public void sendEmail (){
-        emailService.sendEmail("hudyma@gmail.com");
+    public String sendEmail() {
+        var dto = new EmailMovieDTO(
+                "Фата Моргана",
+                LocalDateTime.now(),
+                3,
+                4,
+                120.00);
+        emailService.sendEmail("hudyma@gmail.com", dto);
+        return "redirect:/user";
     }
 }
+
+
