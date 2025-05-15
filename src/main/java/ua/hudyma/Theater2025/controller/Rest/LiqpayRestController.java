@@ -36,9 +36,7 @@ import static com.liqpay.LiqPayApi.API_VERSION;
 @Log4j2
 @RequiredArgsConstructor
 public class LiqpayRestController {
-    public static final String API_REQUEST = "https://www.liqpay.ua/api/request";
-    public static final String SIGNATURE = "signature";
-    public static final String DATA = "data";
+    public static final String API_REQUEST = "https://www.liqpay.ua/api/request", SIGNATURE = "signature", DATA = "data";
     private final TransactionService transactionService;
     private final TransactionRepository transactionRepository;
     private final TicketRepository ticketRepository;
@@ -85,7 +83,6 @@ public class LiqpayRestController {
                 ticketService.convertTimeSlotToLocalDateTime(reqDTO.timeslot());
 
         seatRequest.forEach(sr -> {
-            //var cloneTransaction = transaction.clone();
             var seat = Seat.builder()
                     .hall(hall)
                     .price(hall.getSeatPrice())
@@ -109,20 +106,8 @@ public class LiqpayRestController {
                     .scheduledOn(timeSlotToLocalDateTime)
                     .purchasedOn(LocalDateTime.now())
                     .build();
-            //cloneTransaction.setTicket(ticket);
-            var ticketList = transaction.getTickets();
-            if (ticketList == null) {
-                ticketList = new ArrayList<>();
-            }
-            ticketList.add(ticket);
-            transaction.setTickets(ticketList);
 
-            var txList = ticket.getTransactions();
-            if (txList == null){
-                txList = new ArrayList<>();
-            }
-            txList.add(transaction);
-            ticket.setTransactions(txList);
+            transactionService.bindTransactionWithTickets(transaction, ticket);
             ticketRepository.save(ticket);
             log.info("---------new ticket {} fixed", ticket.getId());
             transactionService.addNewTransaction(transaction);
@@ -211,29 +196,3 @@ public class LiqpayRestController {
         return ResponseEntity.ok(result.toString());
     }
 }
-
- /*OrderId clearedOrderId = transactionService
-                    .getClearedOrderId(transaction.getLocalOrderId()); //todo
-            transaction.setTicket(ticket);
-            var orderId = transaction.getLocalOrderId();
-            var ticket = ticketRepository.findByOrderId(orderId).orElseThrow();
-            ticket.setTicketStatus(TicketStatus.PAID);
-            ticket.setOrderId(clearedOrderId.getUudd());
-            ticket.setPurchasedOn(LocalDateTime.now());
-            ticket.setValue(Double.parseDouble(transaction.getAmount().toString()));
-            int seat = clearedOrderId.getSeat();
-            ticket.setSeat(seat);
-            int row = clearedOrderId.getRow();
-            ticket.setRoww(row);
-            var newSeat = Seat
-                    .builder()
-                    .price(transaction.getAmount().doubleValue())
-                    .isOccupied(true)
-                    .hall(ticket.getHall())
-                    .seatNumber(seat)
-                    .rowNumber(row)
-                    .build();
-            seatRepository.save(newSeat);
-            log.info("---------new seat {} fixed", newSeat.getId());
-            ticketRepository.save(ticket);
-             */

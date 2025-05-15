@@ -6,10 +6,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import ua.hudyma.Theater2025.constants.liqpay.LiqPayAction;
+import ua.hudyma.Theater2025.model.Ticket;
 import ua.hudyma.Theater2025.model.Transaction;
 import ua.hudyma.Theater2025.repository.TransactionRepository;
 
 import javax.management.AttributeNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -46,6 +48,20 @@ public class TransactionService {
 
     public List<Transaction> getTxByTicketId(Long id) {
         return transactionRepository.findByTickets_Id(id);
+    }
+
+    public void bindTransactionWithTickets(
+            Transaction transaction,
+            Ticket ticket) {
+        var ticketList = transaction.getTickets();
+        ticketList = ticketList == null ? new ArrayList<>() : ticketList;
+        ticketList.add(ticket);
+        transaction.setTickets(ticketList);
+
+        var txList = ticket.getTransactions();
+        txList = txList == null ? new ArrayList<>() : txList;
+        txList.add(transaction);
+        ticket.setTransactions(txList);
     }
 
     @Data
