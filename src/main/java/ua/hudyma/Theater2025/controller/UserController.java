@@ -1,7 +1,5 @@
 package ua.hudyma.Theater2025.controller;
 
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
@@ -19,10 +17,10 @@ import ua.hudyma.Theater2025.repository.MovieRepository;
 import ua.hudyma.Theater2025.repository.TicketRepository;
 import ua.hudyma.Theater2025.repository.UserRepository;
 import ua.hudyma.Theater2025.service.AuthService;
+import ua.hudyma.Theater2025.service.EmailService;
 import ua.hudyma.Theater2025.service.OrderService;
 import ua.hudyma.Theater2025.service.TicketService;
 
-import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.time.LocalDateTime;
@@ -46,6 +44,7 @@ public class UserController {
     private final OrderService orderService;
     private final TicketService ticketService;
     private final AuthService authService;
+    private final EmailService emailService;
 
     @Value("${liqpay_public_key}")
     private String publicKey;
@@ -202,5 +201,10 @@ public class UserController {
                 .forEach(log::info);
 
         return Map.of(PAYMENT_DATA, paymentData, "signature", paymentSignature);
+    }
+
+    @GetMapping("/sendEmail")
+    public void sendEmail (){
+        emailService.sendEmail("hudyma@gmail.com");
     }
 }
