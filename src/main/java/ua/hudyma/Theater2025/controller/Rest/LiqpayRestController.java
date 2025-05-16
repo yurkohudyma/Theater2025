@@ -1,6 +1,7 @@
 package ua.hudyma.Theater2025.controller.Rest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -19,14 +20,10 @@ import ua.hudyma.Theater2025.model.Ticket;
 import ua.hudyma.Theater2025.model.Transaction;
 import ua.hudyma.Theater2025.payment.LiqPayHelper;
 import ua.hudyma.Theater2025.repository.*;
-import ua.hudyma.Theater2025.service.OrderService;
-import ua.hudyma.Theater2025.service.PaymentService;
-import ua.hudyma.Theater2025.service.TicketService;
-import ua.hudyma.Theater2025.service.TransactionService;
+import ua.hudyma.Theater2025.service.*;
 
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
-import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -47,6 +44,7 @@ public class LiqpayRestController {
     private final UserRepository userRepository;
     private final TicketService ticketService;
     private final OrderService orderService;
+    private final EmailService emailService;
     @Value("${liqpay_public_key}")
     private String publicKey;
     @Value("${liqpay_private_key}")
@@ -74,13 +72,13 @@ public class LiqpayRestController {
                 .readValue(decodedJson, Transaction.class);
         var order = orderService.retrieveOrderFromInMemoryMap(
                 transaction.getLocalOrderId()).orElseThrow();
-        var reqDTO = order.requestedSeats();
-        var seatRequest = reqDTO.seats();
-        var hall = hallRepository.findById(reqDTO.hallId()).orElseThrow();
-        var movie = movieRepository.findById(reqDTO.movieId()).orElseThrow();
-        var user = userRepository.findById(reqDTO.userId()).orElseThrow();
+        var seatBatchRequest = order.requestedSeats();
+        var seatRequest = seatBatchRequest.seats();
+        var hall = hallRepository.findById(seatBatchRequest.hallId()).orElseThrow();
+        var movie = movieRepository.findById(seatBatchRequest.movieId()).orElseThrow();
+        var user = userRepository.findById(seatBatchRequest.userId()).orElseThrow();
         var timeSlotToLocalDateTime =
-                ticketService.convertTimeSlotToLocalDateTime(reqDTO.timeslot());
+                ticketService.convertTimeSlotToLocalDateTime(seatBatchRequest.timeslot());
 
         seatRequest.forEach(sr -> {
             var seat = Seat.builder()
@@ -110,8 +108,9 @@ public class LiqpayRestController {
             transactionService.bindTransactionWithTickets(transaction, ticket);
             ticketRepository.save(ticket);
             log.info("---------new ticket {} fixed", ticket.getId());
-            transactionService.addNewTransaction(transaction);
         });
+        transactionService.addNewTransaction(transaction);
+        emailService.sendEmail(user.getEmail(), seatBatchRequest);
     }
 
     /**
@@ -189,7 +188,8 @@ public class LiqpayRestController {
         ResponseEntity<String> response = restTemplate.postForEntity(API_REQUEST,
                 request, String.class);
 
-        Map<String, Object> result = objectMapper.readValue(response.getBody(), Map.class);
+        Map<String, Object> result = objectMapper.readValue(
+                response.getBody(),  new TypeReference<>(){});
         String status = (String) result.get("status");
         log.info("======LiqPay status for order {}: {}", transaction.getLocalOrderId(), status);
 

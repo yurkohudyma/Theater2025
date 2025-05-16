@@ -140,7 +140,6 @@ public class UserController {
 
         //тепер записувати у номер ордера перший квиток замовлення
         var reqUnitList = seatBatchRequest.seats();
-        //var initTicket = reqUnitList.get(0);
 
         String orderId = UUID.randomUUID().toString()/* + "_r" + initTicket.row() + "_s" + initTicket.seat()*/;
         var timeSlotToLocalDateTime =
@@ -164,22 +163,6 @@ public class UserController {
 
         var paymentData = getPaymentData(paymentJSON);
         var paymentSignature = getPaymentSignature(paymentData, privateKey);
-
-        /*var user = userRepository.findByEmail(principal.getName()).orElseThrow();
-        var hall = hallRepository.findById(seatBatchRequest.hallId()).orElseThrow();
-        var movie = movieRepository.findById(seatBatchRequest.movieId()).orElseThrow();*/
-
-       /* @Deprecated
-        var draftTicket = Ticket.builder()
-                .ticketStatus(TicketStatus.PENDING)
-                .hall(hall)
-                .movie(movie)
-                .user(user)
-                .orderId(orderId)
-                .scheduledOn(timeSlotToLocalDateTime)
-                .build()*/
-        ;
-
         var order = Order
                 .builder()
                 .status(OrderStatus.PENDING)
@@ -190,12 +173,6 @@ public class UserController {
 
         orderService.storeOrderInMemoryMap(order);
 
-        //orderService.serializeOrder(order);
-
-        //orderService.saveOrderToCookie(response, order);
-
-        //ticketRepository.save(draftTicket);
-        //orderRepository.save(order);
         log.info(":::::::: order has been requested {}", order);
         order
                 .requestedSeats()
@@ -205,7 +182,7 @@ public class UserController {
         return Map.of(PAYMENT_DATA, paymentData, "signature", paymentSignature);
     }
 
-    @GetMapping("/sendEmail")
+    /*@GetMapping("/sendEmail")
     public String sendEmail() {
         var qrBase64 = ticketService.generateQrBase64("tickedId");
         var dto = new EmailMovieDTO(
@@ -217,7 +194,7 @@ public class UserController {
                 qrBase64);
         emailService.sendEmail("hudyma@gmail.com", dto);
         return "redirect:/user";
-    }
+    }*/
 }
 
 

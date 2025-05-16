@@ -227,7 +227,7 @@ header {
     gap: 20px;
     justify-content: left;
 	max-width: 60%;
-	margin-left: 100px;
+	margin-left: 130px;
 }
 
 /* Блок одного фільму */
@@ -479,32 +479,6 @@ header {
   flex-direction: column;
   align-items: center; /* Центрує обидва по горизонталі */
 }
-
-/* html ticket letter*/
- .email-container {
-            background-color: #ffffff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 0 5px rgba(0,0,0,0.1);
-            max-width: 600px;
-            margin: auto;
-        }
-        .email-header {
-            text-align: center;
-            color: #2c3e50;
-        }
-        .email-ticket-info-info {
-            margin-top: 20px;
-        }
-        .email-ticket-info-info td {
-            padding: 5px 10px;
-        }
-        .email-footer {
-            margin-top: 30px;
-            font-size: 0.9em;
-            color: #777;
-            text-align: center;
-        }
   
 
 

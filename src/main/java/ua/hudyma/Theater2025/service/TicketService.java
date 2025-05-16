@@ -78,8 +78,7 @@ public class TicketService {
                      */
                     ticketRepository.deleteById(ticketId);
                     log.info("----expired ticket {} has been deleted", ticketId);
-                }
-                else {
+                } else {
                     log.info("----found PENDING and not EXPIRED ticket {}, skipping so far",
                             ticket.getScheduledOn());
                 }
@@ -91,7 +90,7 @@ public class TicketService {
         try {
             int width = 200;
             int height = 200;
-            Map<EncodeHintType, Object> hints = new HashMap<>();
+            Map<EncodeHintType, Object> hints = new EnumMap<>(EncodeHintType.class);
             hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
             hints.put(EncodeHintType.MARGIN, 0); // Видаляє білу рамку
             BitMatrix matrix = new MultiFormatWriter()
@@ -110,7 +109,6 @@ public class TicketService {
             File outputfile = new File("res//ticket-qr.png");
             ImageIO.write(bufferedImage, "png", outputfile);
 
-            //return Base64.getEncoder().encodeToString(baos.toByteArray());
             return baos.toByteArray();
         } catch (Exception e) {
             throw new QRCodeGenerationFailureException("Не вдалося згенерувати QR");
