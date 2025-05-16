@@ -1,85 +1,46 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html>
 <head>
     <meta charset="UTF-8">
     <title>Успішна покупка квитка</title>
-    <style>
-        body {
-            font-family: "Segoe UI", sans-serif;
-            background-color: #f9f9f9;
-            color: #333;
-            padding: 20px;
-        }
-        .email-container {
-            background-color: #ffffff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 0 5px rgba(0,0,0,0.1);
-            max-width: 600px;
-            margin: auto;
-        }
-        .header {
-            text-align: center;
-            color: #2c3e50;
-        }
-        .ticket-info {
-            margin-top: 20px;
-        }
-        .ticket-info td {
-            padding: 5px 10px;
-        }
-        .footer {
-            margin-top: 30px;
-            font-size: 0.9em;
-            color: #777;
-            text-align: center;
-        }
-        .btn {
-            display: inline-block;
-            background-color: #27ae60;
-            color: white;
-            padding: 12px 20px;
-            margin-top: 20px;
-            text-decoration: none;
-            border-radius: 5px;
-        }
-    </style>
 </head>
-<body>
-<div class="email-container">
-    <h2 class="header">Дякуємо за оплату!</h2>
-    <p>Ваш квиток до кінотеатру успішно підтверджено. Ось деталі замовлення:</p>
+<body style="font-family: Arial, sans-serif; background-color: #fdf6f0; color: #4b2e2e; padding: 20px;">
 
-    <table class="ticket-info">
+<div style="max-width: 600px; margin: auto; background-color: #fffaf3; border: 1px solid #e0c8a6; border-radius: 8px; padding: 20px; box-shadow: 0 0 10px #e0c8a6;">
+    <h2 style="color: #5d3a00; text-align: center;">Дякуємо за оплату!</h2>
+    <p style="font-size: 16px;">Ваш квиток до кінотеатру успішно підтверджено. Ось деталі замовлення:</p>
+
+    <table style="width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 15px;">
         <tr>
-            <td><strong>Назва фільму:</strong></td>
-            <td>[[${movieTitle}]]</td>
+            <td style="padding: 8px; font-weight: bold; color: #5d3a00;">Назва фільму:</td>
+            <td style="padding: 8px;">[[${movieTitle}]]</td>
+        </tr>
+        <tr style="background-color: #f3e7d8;">
+            <td style="padding: 8px; font-weight: bold; color: #5d3a00;">Дата та час:</td>
+            <td style="padding: 8px;">[[${dateTime}]]</td>
         </tr>
         <tr>
-            <td><strong>Дата та час:</strong></td>
-            <td>[[${dateTime}]]</td>
+            <td style="padding: 8px; font-weight: bold; color: #5d3a00;">Ряд:</td>
+            <td style="padding: 8px;">[[${rowNumber}]]</td>
+        </tr>
+        <tr style="background-color: #f3e7d8;">
+            <td style="padding: 8px; font-weight: bold; color: #5d3a00;">Місце:</td>
+            <td style="padding: 8px;">[[${seatNumber}]]</td>
         </tr>
         <tr>
-            <td><strong>Ряд:</strong></td>
-            <td>[[${rowNumber}]]</td>
-        </tr>
-        <tr>
-            <td><strong>Місце:</strong></td>
-            <td>[[${seatNumber}]]</td>
-        </tr>
-        <tr>
-            <td><strong>Ціна:</strong></td>
-            <td>[[${price}]] грн.</td>
+            <td style="padding: 8px; font-weight: bold; color: #5d3a00;">Ціна:</td>
+            <td style="padding: 8px;">[[${price}]] грн.</td>
         </tr>
     </table>
 
-    <p>Покажіть цей лист при вході до зали або пред’явіть QR-код з мобільного додатка.</p>
-
-    <p>QR-код</p>
-
-    <div class="footer">
+    <p style="margin-top: 20px;">Покажіть цей лист при вході до зали або пред’явіть QR-код з мобільного додатка.</p>
+    <div style="text-align: center; margin: 20px 0;">
+        <img src="cid:qrImage" alt="QR-код" style="width: 200px; height: 200px;" />
+    </div>
+    <div style="text-align: center; font-size: 13px; color: #937c5d; border-top: 1px solid #e0c8a6; padding-top: 15px;">
         2025 &copy; Кінотеатр "Світло". До зустрічі на сеансі!
     </div>
 </div>
+
 </body>
 </html>

@@ -7,4 +7,5 @@ public record EmailMovieDTO (
         LocalDateTime dateTime,
         int seatNumber,
         int rowNumber,
-        double price) {}
+        double price,
+        byte[] qrBase64) {}

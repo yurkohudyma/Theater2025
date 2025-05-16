@@ -41,3 +41,4 @@ build/
 /src/main/java/util/liqpay.json
 /src/main/java/util/payment_check.json
 /res/test.ser
+/res/ticket-qr.png

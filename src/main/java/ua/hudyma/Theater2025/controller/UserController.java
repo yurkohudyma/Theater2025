@@ -207,12 +207,14 @@ public class UserController {
 
     @GetMapping("/sendEmail")
     public String sendEmail() {
+        var qrBase64 = ticketService.generateQrBase64("tickedId");
         var dto = new EmailMovieDTO(
                 "Фата Моргана",
                 LocalDateTime.now(),
                 3,
                 4,
-                120.00);
+                120.00,
+                qrBase64);
         emailService.sendEmail("hudyma@gmail.com", dto);
         return "redirect:/user";
     }

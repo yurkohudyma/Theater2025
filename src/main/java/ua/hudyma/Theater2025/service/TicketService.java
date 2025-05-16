@@ -1,5 +1,10 @@
 package ua.hudyma.Theater2025.service;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.EncodeHintType;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -8,16 +13,19 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ua.hudyma.Theater2025.constants.TicketStatus;
+import ua.hudyma.Theater2025.exception.QRCodeGenerationFailureException;
 import ua.hudyma.Theater2025.model.Ticket;
 import ua.hudyma.Theater2025.model.User;
 import ua.hudyma.Theater2025.repository.TicketRepository;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static java.util.Comparator.comparing;
 
@@ -78,4 +86,35 @@ public class TicketService {
             }
         }
     }
+
+    public byte[] generateQrBase64(String qrText) {
+        try {
+            int width = 200;
+            int height = 200;
+            Map<EncodeHintType, Object> hints = new HashMap<>();
+            hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
+            hints.put(EncodeHintType.MARGIN, 0); // Видаляє білу рамку
+            BitMatrix matrix = new MultiFormatWriter()
+                    .encode(
+                            qrText,
+                            BarcodeFormat.QR_CODE,
+                            width,
+                            height,
+                            hints);
+
+            BufferedImage bufferedImage = MatrixToImageWriter.toBufferedImage(matrix);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(bufferedImage, "png", baos);
+
+            //generate img for control
+            File outputfile = new File("res//ticket-qr.png");
+            ImageIO.write(bufferedImage, "png", outputfile);
+
+            //return Base64.getEncoder().encodeToString(baos.toByteArray());
+            return baos.toByteArray();
+        } catch (Exception e) {
+            throw new QRCodeGenerationFailureException("Не вдалося згенерувати QR");
+        }
+    }
+
 }

@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -35,18 +36,23 @@ public class EmailService {
                 "rowNumber", dto.rowNumber(),
                 "seatNumber", dto.seatNumber(),
                 "price", dto.price()));
-        String htmlContent = templateEngine.process("email_ticket_template", context);
+        String htmlContent = templateEngine
+                .process("email_ticket_template", context);
         MimeMessage message = mailSender.createMimeMessage();
 
         try {
             MimeMessageHelper helper = new MimeMessageHelper(
                     message,
-                    MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
+                    true,
                     "UTF-8");
             helper.setTo(sendTo);
             helper.setSubject(SUBJECT);
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
+            helper.addInline("qrImage",
+                    new ByteArrayResource(
+                            dto.qrBase64()),
+                    "image/png");
             mailSender.send(message);
             log.info("-------- mail has been successfully sent to {}", sendTo);
         } catch (MessagingException e) {
