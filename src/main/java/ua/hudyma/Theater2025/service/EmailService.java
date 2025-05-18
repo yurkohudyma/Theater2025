@@ -36,7 +36,7 @@ public class EmailService {
     private String fromEmail;
     static final String SUBJECT = "Ваш квиток до кінотеатру";
 
-    public void sendEmail(String sendTo, SeatBatchRequest sbr) {
+    public void sendEmail(String sendTo, SeatBatchRequest sbr, String txId) {
         var context = new Context();
         var movie = movieRepository.findById(sbr.movieId()).orElseThrow();
         var hall = hallRepository.findById(sbr.hallId()).orElseThrow();
@@ -53,7 +53,7 @@ public class EmailService {
                 "rowAndSeatNumber", rowAndSeatNumber,
                 "price", hall.getSeatPrice(),
                 "amount", hall.getSeatPrice() * seatsList.size()));
-        processContextAndSend(sendTo, context, UUID.randomUUID());
+        processContextAndSend(sendTo, context, txId);
     }
 
     private String collectMultipleRowsAndSeats(List<SeatRequest> seatsList) {
@@ -81,11 +81,12 @@ public class EmailService {
         processContextAndSend(sendTo, dto, context);
     }*/
 
-    private void processContextAndSend(String sendTo, Context context, UUID uuid) {
+    private void processContextAndSend(String sendTo, Context context, String txId) {
         String htmlContent = templateEngine
                 .process("email_ticket_template", context);
         MimeMessage message = mailSender.createMimeMessage();
-        var qrBase64 = ticketService.generateQrBase64(String.valueOf(uuid));
+        var qrBase64 = ticketService
+                .generateQrBase64(txId);
         try {
             MimeMessageHelper helper = new MimeMessageHelper(
                     message,

@@ -61,6 +61,7 @@ public class TicketService {
 
     //@Scheduled(cron = "0 30 6 * * ?") //щодня о 6:30 ранку
     //@PostConstruct //а також при кожному запуску сервера
+
     @Transactional
     //@Modifying
     public void detectPendingTicketsAndDump() {
@@ -85,7 +86,6 @@ public class TicketService {
             }
         }
     }
-
     public byte[] generateQrBase64(String qrText) {
         try {
             int width = 200;
@@ -115,4 +115,8 @@ public class TicketService {
         }
     }
 
+    public String generateQrImage64(String orderId) {
+        var byteArray = generateQrBase64(orderId);
+        return Base64.getEncoder().encodeToString(byteArray);
+    }
 }

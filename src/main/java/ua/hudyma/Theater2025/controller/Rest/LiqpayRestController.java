@@ -110,7 +110,7 @@ public class LiqpayRestController {
             log.info("---------new ticket {} fixed", ticket.getId());
         });
         transactionService.addNewTransaction(transaction);
-        emailService.sendEmail(user.getEmail(), seatBatchRequest);
+        emailService.sendEmail(user.getEmail(), seatBatchRequest, transaction.getLocalOrderId());
     }
 
     /**

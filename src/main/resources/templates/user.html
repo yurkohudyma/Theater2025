@@ -133,6 +133,11 @@
                     th:text="'Сеанс: ' + ${#temporals.format(ticket.scheduledOn, 'HH:mm')}"></td>
             </tr>
             <tr>
+                <td class="ticket_field">
+                    <img th:src="'data:image/png;base64,' + ${qrImage}" alt="QR Code"/>
+                </td>
+            </tr>
+            <tr>
                 <td>
                     <form action="#" th:method="post" th:action="@{'/refund/' + ${id}}" target="_blank">
                         <button type="submit" class="logout_button" disabled>Повернути</button>

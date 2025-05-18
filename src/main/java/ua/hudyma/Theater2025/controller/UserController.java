@@ -25,9 +25,7 @@ import ua.hudyma.Theater2025.service.TicketService;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static ua.hudyma.Theater2025.payment.LiqPayHelper.*;
 
@@ -69,18 +67,27 @@ public class UserController {
                     AUTH_IS_NULL, authIsNull));
             log.info("...............user " + principal.getName() + " authNULL is " + authIsNull);
             var ticket = ticketService.getLastIssuedTicket(user);
-            if (ticket.isPresent()) {
-                model.addAllAttributes(Map.of(
-                        "ticket", ticket.orElseThrow(),
-                        "showIssuedTicket", true,
-                        "id", ticket.orElseThrow().getId()));
-            }
+            generateQrCodeAndPrepareModelForTicketDisplay(model, ticket);
         } else { //auth is NULL
             model.addAllAttributes(Map.of(
                     MOVIES_LIST, moviesList,
                     AUTH_IS_NULL, true));
         }
         return "user";
+    }
+
+    private void generateQrCodeAndPrepareModelForTicketDisplay(Model model, Optional<Ticket> ticket) {
+        if (ticket.isPresent()) {
+            var ticketExisting = ticket.get();
+            var imageBase64 = ticketService
+                    .generateQrImage64(ticketExisting.getOrderId());
+            model.addAllAttributes(Map.of(
+                    "ticket", ticketExisting,
+                    "showIssuedTicket", true,
+                    "id", ticket.orElseThrow().getId(),
+                    "qrImage", imageBase64));
+        }
+        else throw new NoSuchElementException();
     }
 
     /**
@@ -121,11 +128,12 @@ public class UserController {
                 "ticketPrice", hall.getSeatPrice()));
         model.addAttribute("userId", user.getId());
         var ticket = ticketService.getLastIssuedTicket(user);
-        if (ticket.isPresent()) {
+        generateQrCodeAndPrepareModelForTicketDisplay(model, ticket);
+        /*if (ticket.isPresent()) {
             model.addAttribute("ticket", ticket.orElseThrow());
             model.addAttribute("showIssuedTicket", true);
             model.addAttribute("id", ticket.orElseThrow().getId());
-        }
+        }*/
         return "user";
     }
 
