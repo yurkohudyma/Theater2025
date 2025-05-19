@@ -121,7 +121,9 @@ public class LiqpayRestController {
     }
 
     /**
-     * ендпойнт для повернення платежів, в режимі sandbox не працює
+     * ендпойнт для повернення платежів, в режимі sandbox не працює.
+     * Відповідь прийде на зареєстрований в liqpay endpoint
+     * і її треба також розшифровувати і парсити. Статус платежу має бути <b>REFUND</b>
      */
     @PostMapping("/refund/{id}")
     public String refundPayment(@PathVariable("id") Long id) {
@@ -167,7 +169,13 @@ public class LiqpayRestController {
         }
     }
 
-    @PostMapping("/payment_status/{ticketId}") //in SANDBOX mode returns 'SANDBOX' status and TX payment data
+    /**
+     *
+     * @param ticketId
+     * in SANDBOX mode returns 'SANDBOX' status and TX payment data
+     * Для отримання реального статусу потрібно переводити систему в бойовий режим
+     */
+    @PostMapping("/payment_status/{ticketId}") //
     public ResponseEntity<String> paymentStatus(@PathVariable("ticketId") Long ticketId) throws Exception {
         var transaction = transactionService.getByTicketIdAndAction(ticketId);
 

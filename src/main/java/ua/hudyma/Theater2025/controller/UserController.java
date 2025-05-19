@@ -80,11 +80,13 @@ public class UserController {
                         user.getId(),
                         TicketStatus.PAID);
         var qrCodesList = ticketService.getQRCodesList(ticketList);
-        model.addAllAttributes(Map.of(
-           "ticketList", ticketList,
-           "qrCodesList", qrCodesList,
-                "showTickets", true
-        ));
+        if (!ticketList.isEmpty()) {
+            model.addAllAttributes(Map.of(
+                    "ticketList", ticketList,
+                    "qrCodesList", qrCodesList,
+                    "showTickets", true
+            ));
+        }
     }
 
     /**
