@@ -2,8 +2,7 @@
 /* Загальні стилі */
 body {
     font-family: "Arsenal", sans-serif;	
-    background-color: #fff7f0;
-    /* color: #4b2e2e; */
+    background-color: #fff7f0;    
 	color: black;
     margin: 0;
     padding: 20px;
@@ -166,33 +165,64 @@ header {
     font-weight: bold;
     padding-left: 10px;
     padding-right: 10px;
-    background-color: #f8e4d1; /* ніжний бежево-коричневий */
-    color: #4b2e2e;
-    /* border-left: 2px solid #d35400; */
+    background-color: #f8e4d1;
+    color: #4b2e2e;   
 }
 
-.issuedTicketPanel {
-    /*display: fixed;*/
-    justify-content: center; /* центрує горизонтально */
+/* .issuedTicketPanel {    
+    justify-content: center;
 	position: fixed;
-    padding: 3px;
+    padding: 10px;
     top: 30px;
     left: 0;
     margin: 20px;
-    z-index: 1000; /* щоб не перекривали інші */    
-	border-color: rgb(255, 153, 0);
-    border-style: solid;
-    border-width: 1px;
+    z-index: 1000; 	
     border-radius: 10px;
 }
 
 .issuedTicketPanel table {
-    text-align: center;       /* центрує текст у клітинках */
+    text-align: center;     
     border-collapse: collapse;
     background-color: #fff8f0;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     padding: 20px;
     border-radius: 10px;
+	margin: 10px;
+} */
+
+/* Стиль для кожного квитка */
+.issuedTicketPanel {
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+/* Стіл для квитка */
+.issuedTicketPanel table {
+    text-align: center;     
+    border-collapse: collapse;
+    background-color: #fff8f0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+    margin: 10px;
+}
+
+.ticketFrame {
+    position: fixed;
+    top: 70px;
+    left: 20px;    
+    max-height: 700px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+    z-index: 1000;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .seat-button {
@@ -283,25 +313,43 @@ header {
 	margin-bottom: 5px;
 }
 
-.logout_button {
-	float: right;
+.logout_button {	
 }
 
-.user_data_block{
-	/* display:flex; */
+.refund_button {
+}
+
+.user_page_button{
+	width: auto;
+	
+}
+
+.user_data_block{	
 	position: fixed;
     bottom: 0;
     left: 0;
     margin: 20px;
-    z-index: 1000; /* щоб не перекривали інші */
+    z-index: 1000;
+
+    display: flex;
+    flex-direction: column;
+    height: 135px;
+    justify-content: center;
+    align-items: center;
+}
+
+.button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .user_data_block_admin {
 	position: fixed;
     top: 0;
     right: 0;
-    margin: 20px; /* відступ від краю */
-    z-index: 1000; /* поверх усього */
+    margin: 20px;
+    z-index: 1000;
 }
 
 .error_status {

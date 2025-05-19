@@ -8,11 +8,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import ua.hudyma.Theater2025.constants.TicketStatus;
 import ua.hudyma.Theater2025.constants.liqpay.OrderStatus;
-import ua.hudyma.Theater2025.dto.EmailMovieDTO;
 import ua.hudyma.Theater2025.model.Order;
 import ua.hudyma.Theater2025.model.SeatBatchRequest;
 import ua.hudyma.Theater2025.model.Ticket;
+import ua.hudyma.Theater2025.model.User;
 import ua.hudyma.Theater2025.repository.HallRepository;
 import ua.hudyma.Theater2025.repository.MovieRepository;
 import ua.hudyma.Theater2025.repository.TicketRepository;
@@ -43,7 +44,6 @@ public class UserController {
     private final OrderService orderService;
     private final TicketService ticketService;
     private final AuthService authService;
-    private final EmailService emailService;
 
     @Value("${liqpay_public_key}")
     private String publicKey;
@@ -66,8 +66,7 @@ public class UserController {
                     USER_STATUS, user.getAccessLevel().str,
                     AUTH_IS_NULL, authIsNull));
             log.info("...............user " + principal.getName() + " authNULL is " + authIsNull);
-            var ticket = ticketService.getLastIssuedTicket(user);
-            generateQrCodeAndPrepareModelForTicketDisplay(model, ticket);
+            getTicketsAndSupplyWithQRCodes(model, user);
         } else { //auth is NULL
             model.addAllAttributes(Map.of(
                     MOVIES_LIST, moviesList,
@@ -76,7 +75,20 @@ public class UserController {
         return "user";
     }
 
-    private void generateQrCodeAndPrepareModelForTicketDisplay(Model model, Optional<Ticket> ticket) {
+    private void getTicketsAndSupplyWithQRCodes(Model model, User user) {
+        var ticketList = ticketRepository
+                .findByUserIdAndTicketStatus(
+                        user.getId(),
+                        TicketStatus.PAID);
+        var qrCodesList = ticketService.getQRCodesList(ticketList);
+        model.addAllAttributes(Map.of(
+           "ticketList", ticketList,
+           "qrCodesList", qrCodesList,
+                "showTickets", true
+        ));
+    }
+
+   /* private void generateQrCodeAndPrepareModelForTicketDisplay(Model model, Optional<Ticket> ticket) {
         if (ticket.isPresent()) {
             var ticketExisting = ticket.get();
             var imageBase64 = ticketService
@@ -88,7 +100,7 @@ public class UserController {
                     "qrImage", imageBase64));
         }
         else throw new NoSuchElementException();
-    }
+    }*/
 
     /**
      * ендпойнт для виведення схеми кінозалу
@@ -127,13 +139,7 @@ public class UserController {
                 "selected_timeslot", selectedTimeslot,
                 "ticketPrice", hall.getSeatPrice()));
         model.addAttribute("userId", user.getId());
-        var ticket = ticketService.getLastIssuedTicket(user);
-        generateQrCodeAndPrepareModelForTicketDisplay(model, ticket);
-        /*if (ticket.isPresent()) {
-            model.addAttribute("ticket", ticket.orElseThrow());
-            model.addAttribute("showIssuedTicket", true);
-            model.addAttribute("id", ticket.orElseThrow().getId());
-        }*/
+        getTicketsAndSupplyWithQRCodes(model, user);
         return "user";
     }
 
@@ -145,11 +151,8 @@ public class UserController {
     public Map<String, String> getUpdatedPaymentData(
             @RequestBody SeatBatchRequest seatBatchRequest,
             Principal principal) throws NoSuchAlgorithmException {
-
-        //тепер записувати у номер ордера перший квиток замовлення
         var reqUnitList = seatBatchRequest.seats();
-
-        String orderId = UUID.randomUUID().toString()/* + "_r" + initTicket.row() + "_s" + initTicket.seat()*/;
+        String orderId = UUID.randomUUID().toString();
         var timeSlotToLocalDateTime =
                 ticketService.convertTimeSlotToLocalDateTime(seatBatchRequest.timeslot());
         var userEmail = principal.getName();
@@ -189,20 +192,6 @@ public class UserController {
 
         return Map.of(PAYMENT_DATA, paymentData, "signature", paymentSignature);
     }
-
-    /*@GetMapping("/sendEmail")
-    public String sendEmail() {
-        var qrBase64 = ticketService.generateQrBase64("tickedId");
-        var dto = new EmailMovieDTO(
-                "Фата Моргана",
-                LocalDateTime.now(),
-                3,
-                4,
-                120.00,
-                qrBase64);
-        emailService.sendEmail("hudyma@gmail.com", dto);
-        return "redirect:/user";
-    }*/
 }
 
 

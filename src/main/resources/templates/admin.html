@@ -19,6 +19,7 @@
 <script th:inline="javascript">
         window.authError = [[${authError}]];
 
+
 </script>
 
 <div th:insert="~{fragments/login_popup :: popup}"></div>
@@ -30,12 +31,14 @@
         <div class="userStatus"
              th:text="${userStatus} + ' v.' + ${@environment.getProperty('theater2025.version')}"></div>
         <div class="email" th:text="${email}"></div>
-        <form action="#" th:method="get" th:action="@{'/user'}">
-            <button type="submit" class="logout_button">USER</button>
-        </form>
-        <form action="#" th:method="post" th:action="@{'/login/logout'}">
-            <button type="submit" class="logout_button">Вийти</button>
-        </form>
+        <div class="button_group">
+            <form action="#" th:method="get" th:action="@{'/user'}">
+                <button type="submit" class="user_page_button">USER</button>
+            </form>
+            <form action="#" th:method="post" th:action="@{'/login/logout'}">
+                <button type="submit" class="logout_button">Вийти</button>
+            </form>
+        </div>
     </div>
     <header>
     </header>
@@ -158,7 +161,7 @@
     <!-- tx section -->
 
     <div class="tx_header">Транзакція по квитку</div>
-    <div class="tx_table_outer_frame" th:if = "${showTxFrame}">
+    <div class="tx_table_outer_frame" th:if="${showTxFrame}">
         <table class="tx_table">
             <thead>
             <tr class="tickets_table_legend">

@@ -20,13 +20,15 @@
         <div class="userStatus"
              th:text="${userStatus} + ' v.' + ${@environment.getProperty('theater2025.version')}"></div>
         <div class="email" th:text="${email}"></div>
-        <form action="#" th:method="get" th:if="${userStatus == 'Адмін'} or ${userStatus == 'Менеджер'}"
-              th:action="@{'/admin'}">
-            <button type="submit" class="logout_button">Адмін</button>
-        </form>
-        <form action="#" th:method="post" th:action="@{'/login/logout'}">
-            <button type="submit" class="logout_button">Вийти</button>
-        </form>
+        <div class="button_group">
+            <form action="#" th:method="get" th:if="${userStatus == 'Адмін'} or ${userStatus == 'Менеджер'}"
+                  th:action="@{'/admin'}">
+                <button type="submit" class="user_page_button">Адмін</button>
+            </form>
+            <form action="#" th:method="post" th:action="@{'/login/logout'}">
+                <button type="submit" class="logout_button">Вийти</button>
+            </form>
+        </div>
     </div>
 
     <div class="user_data_block" th:if="${authIsNull}">
@@ -81,6 +83,8 @@
         window.authError = [[${authError}]];
         window.ticketPrice = [[${ticketPrice}]];
 
+
+
     </script>
 
     <div th:insert="~{fragments/login_popup :: popup}"></div>
@@ -105,47 +109,50 @@
     </div>
 
 
-    <!-- ISSUED TICKET DETAILS            -->
-
-    <div class="issuedTicketPanel" th:if="${showIssuedTicket}">
-        <table>
-            <tr>
-                <td class="ticket_field" th:text="${ticket.movie.name}"></td>
-            </tr>
-            <tr>
-                <td class="ticket_field" th:text="'Зал: ' + ${ticket.hall.name}"></td>
-            </tr>
-            <tr>
-                <td class="ticket_field" th:text="'Ціна: ' + ${ticket.value} + ' ₴'"></td>
-            </tr>
-            <tr>
-                <td class="ticket_field" th:text="'Ряд: ' + ${ticket.roww}"></td>
-            </tr>
-            <tr>
-                <td class="ticket_field" th:text="'Місце: ' + ${ticket.seat}"></td>
-            </tr>
-            <tr>
-                <td class="ticket_field"
-                    th:text="${#temporals.format(ticket.scheduledOn, 'dd-MM-yyyy')}"></td>
-            </tr>
-            <tr>
-                <td class="ticket_field"
-                    th:text="'Сеанс: ' + ${#temporals.format(ticket.scheduledOn, 'HH:mm')}"></td>
-            </tr>
-            <tr>
-                <td class="ticket_field">
-                    <img th:src="'data:image/png;base64,' + ${qrImage}" alt="QR Code"/>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <form action="#" th:method="post" th:action="@{'/refund/' + ${id}}" target="_blank">
-                        <button type="submit" class="logout_button" disabled>Повернути</button>
-                    </form>
-                </td>
-            </tr>
-        </table>
+    <!-- ISSUED TICKETS PANEL -->
+    <div class="ticketFrame" th:if="${showTickets}">
+        <div class="issuedTicketPanel" th:each="ticket, iterStat : ${ticketList}">
+            <table>
+                <tr>
+                    <td class="ticket_field" th:text="${ticket.movie.name}"></td>
+                </tr>
+                <tr>
+                    <td class="ticket_field" th:text="'Зал: ' + ${ticket.hall.name}"></td>
+                </tr>
+                <tr>
+                    <td class="ticket_field" th:text="'Ціна: ' + ${ticket.value} + ' ₴'"></td>
+                </tr>
+                <tr>
+                    <td class="ticket_field" th:text="'Ряд: ' + ${ticket.roww}"></td>
+                </tr>
+                <tr>
+                    <td class="ticket_field" th:text="'Місце: ' + ${ticket.seat}"></td>
+                </tr>
+                <tr>
+                    <td class="ticket_field"
+                        th:text="${#temporals.format(ticket.scheduledOn, 'dd-MM-yyyy')}"></td>
+                </tr>
+                <tr>
+                    <td class="ticket_field"
+                        th:text="'Сеанс: ' + ${#temporals.format(ticket.scheduledOn, 'HH:mm')}"></td>
+                </tr>
+                <tr>
+                    <td class="ticket_field">
+                        <img th:src="'data:image/png;base64,' + ${qrCodesList[iterStat.index]}" alt="QR Code"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <form action="#" th:method="post" th:action="@{'/refund/' + ${ticket.id}}" target="_blank">
+                            <button type="submit" class="refund_button" disabled>Повернути</button>
+                        </form>
+                    </td>
+                </tr>
+            </table>
+        </div>
     </div>
+
+
 </div>
 </body>
 </html>

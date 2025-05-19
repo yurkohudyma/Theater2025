@@ -5,11 +5,8 @@ import com.google.zxing.EncodeHintType;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ua.hudyma.Theater2025.constants.TicketStatus;
@@ -33,6 +30,8 @@ import static java.util.Comparator.comparing;
 @RequiredArgsConstructor
 @Log4j2
 public class TicketService {
+
+    private static final int QR_size = 110;
 
     private final TicketRepository ticketRepository;
 
@@ -86,10 +85,10 @@ public class TicketService {
             }
         }
     }
-    public byte[] generateQrBase64(String qrText) {
+    public static byte[] generateQrBase64(String qrText) {
         try {
-            int width = 200;
-            int height = 200;
+            int width = QR_size;
+            int height = QR_size;
             Map<EncodeHintType, Object> hints = new EnumMap<>(EncodeHintType.class);
             hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
             hints.put(EncodeHintType.MARGIN, 0); // Видаляє білу рамку
@@ -115,8 +114,17 @@ public class TicketService {
         }
     }
 
-    public String generateQrImage64(String orderId) {
+    public static String generateQrImage64(String orderId) {
         var byteArray = generateQrBase64(orderId);
         return Base64.getEncoder().encodeToString(byteArray);
+    }
+
+    public List<String> getQRCodesList(List<Ticket> ticketList) {
+        return ticketList
+                .stream()
+                .map(Ticket::getOrderId)
+                .map(TicketService::generateQrImage64)
+                .toList();
+
     }
 }
