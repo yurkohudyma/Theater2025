@@ -163,5 +163,23 @@ function createLiqpayForm(data, signature) {
   document.body.appendChild(form);
   form.submit();
 }
-
 });
+
+function engageTimeSlot(url, data) {
+        const form = document.createElement("form");
+        form.method = "POST";
+        form.action = url;
+
+        for (const key in data) {
+            if (data.hasOwnProperty(key)) {
+                const input = document.createElement("input");
+                input.type = "hidden";
+                input.name = key;
+                input.value = data[key];
+                form.appendChild(input);
+            }
+        }
+
+        document.body.appendChild(form);
+        form.submit();
+    }

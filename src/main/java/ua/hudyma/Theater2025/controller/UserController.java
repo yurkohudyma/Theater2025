@@ -90,9 +90,46 @@ public class UserController {
     /**
      * ендпойнт для виведення схеми кінозалу
      */
-    @SneakyThrows
+
     @GetMapping("/buy/{hallId}/{movieId}/{selected_timeslot}")
     public String generateTable(Model model, Principal principal,
+                                @PathVariable("hallId") Integer hallId,
+                                @PathVariable("movieId") Long movieId,
+                                @PathVariable("selected_timeslot") String selectedTimeslot) {
+
+        var hall = hallRepository.findById(hallId).orElseThrow();
+        var timeSlotToLocalDateTime =
+                ticketService.convertTimeSlotToLocalDateTime(selectedTimeslot);
+        List<Ticket> soldTickets = ticketRepository
+                .findByHallIdAndMovieIdAndScheduledOn(
+                        Long.valueOf(hallId),
+                        movieId,
+                        timeSlotToLocalDateTime);
+        var soldTicketList = TicketService.getTicketMap(soldTickets);
+
+        //передати напряму сет через thymeleaf не вийде, бо останній серіалізується у звичайний масив
+        var moviesList = movieRepository.findAll();
+        var userEmail = principal.getName();
+        var user = userRepository.findByEmail(userEmail).orElseThrow();
+
+        model.addAllAttributes(Map.of(
+                "rows", hall.getRowz(),
+                "seats", hall.getSeats(),
+                "hallId", hallId,
+                "soldSeatMapList", soldTicketList,
+                "movieId", movieId,
+                MOVIES_LIST, moviesList,
+                EMAIL, userEmail,
+                USER_STATUS, user.getAccessLevel().str,
+                "selected_timeslot", selectedTimeslot,
+                "ticketPrice", hall.getSeatPrice()));
+        model.addAttribute("userId", user.getId());
+        getTicketsAndSupplyWithQRCodes(model, user);
+        return "user";
+    }
+
+    @PostMapping("/buy/{hallId}/{movieId}/{selected_timeslot}")
+    public String generateTableNew(Model model, Principal principal,
                                 @PathVariable("hallId") Integer hallId,
                                 @PathVariable("movieId") Long movieId,
                                 @PathVariable("selected_timeslot") String selectedTimeslot) {
