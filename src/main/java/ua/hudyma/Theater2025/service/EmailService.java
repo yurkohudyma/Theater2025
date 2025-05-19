@@ -18,9 +18,9 @@ import ua.hudyma.Theater2025.repository.HallRepository;
 import ua.hudyma.Theater2025.repository.MovieRepository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 @Service
 @Log4j2
@@ -36,7 +36,10 @@ public class EmailService {
     private String fromEmail;
     static final String SUBJECT = "Ваш квиток до кінотеатру";
 
-    public void sendEmail(String sendTo, SeatBatchRequest sbr, String txId) {
+    public void sendEmail(String sendTo,
+                          SeatBatchRequest sbr,
+                          String txId,
+                          LocalDate movieDate) {
         var context = new Context();
         var movie = movieRepository.findById(sbr.movieId()).orElseThrow();
         var hall = hallRepository.findById(sbr.hallId()).orElseThrow();
@@ -48,7 +51,7 @@ public class EmailService {
         context.setVariables(Map.of(
                 "movieTitle", movie.getName(),
                 "hallName", hall.getName(),
-                "date", LocalDate.now(), //todo insert real Date
+                "date", movieDate,
                 "time", sbr.timeslot(),
                 "rowAndSeatNumber", rowAndSeatNumber,
                 "price", hall.getSeatPrice(),

@@ -24,8 +24,10 @@ import ua.hudyma.Theater2025.service.*;
 
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.liqpay.LiqPayApi.API_VERSION;
 
@@ -79,7 +81,7 @@ public class LiqpayRestController {
         var user = userRepository.findById(seatBatchRequest.userId()).orElseThrow();
         var timeSlotToLocalDateTime =
                 ticketService.convertTimeSlotToLocalDateTime(seatBatchRequest.timeslot());
-
+        var movieDate = new AtomicReference<>(LocalDate.now());
         seatRequest.forEach(sr -> {
             var seat = Seat.builder()
                     .hall(hall)
@@ -104,13 +106,18 @@ public class LiqpayRestController {
                     .scheduledOn(timeSlotToLocalDateTime)
                     .purchasedOn(LocalDateTime.now())
                     .build();
+            movieDate.set(ticket.getScheduledOn().toLocalDate());
 
             transactionService.bindTransactionWithTickets(transaction, ticket);
             ticketRepository.save(ticket);
             log.info("---------new ticket {} fixed", ticket.getId());
         });
         transactionService.addNewTransaction(transaction);
-        emailService.sendEmail(user.getEmail(), seatBatchRequest, transaction.getLocalOrderId());
+        emailService.sendEmail(
+                user.getEmail(),
+                seatBatchRequest,
+                transaction.getLocalOrderId(),
+                movieDate.get());
     }
 
     /**

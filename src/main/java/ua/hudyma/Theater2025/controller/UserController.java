@@ -19,7 +19,6 @@ import ua.hudyma.Theater2025.repository.MovieRepository;
 import ua.hudyma.Theater2025.repository.TicketRepository;
 import ua.hudyma.Theater2025.repository.UserRepository;
 import ua.hudyma.Theater2025.service.AuthService;
-import ua.hudyma.Theater2025.service.EmailService;
 import ua.hudyma.Theater2025.service.OrderService;
 import ua.hudyma.Theater2025.service.TicketService;
 
@@ -87,20 +86,6 @@ public class UserController {
                 "showTickets", true
         ));
     }
-
-   /* private void generateQrCodeAndPrepareModelForTicketDisplay(Model model, Optional<Ticket> ticket) {
-        if (ticket.isPresent()) {
-            var ticketExisting = ticket.get();
-            var imageBase64 = ticketService
-                    .generateQrImage64(ticketExisting.getOrderId());
-            model.addAllAttributes(Map.of(
-                    "ticket", ticketExisting,
-                    "showIssuedTicket", true,
-                    "id", ticket.orElseThrow().getId(),
-                    "qrImage", imageBase64));
-        }
-        else throw new NoSuchElementException();
-    }*/
 
     /**
      * ендпойнт для виведення схеми кінозалу
