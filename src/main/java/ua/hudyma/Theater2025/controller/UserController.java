@@ -32,16 +32,10 @@ import static ua.hudyma.Theater2025.payment.LiqPayHelper.*;
 @RequiredArgsConstructor
 @Log4j2
 public class UserController {
-    public static final String MOVIES_LIST = "moviesList", EMAIL = "email", USER_STATUS = "userStatus",
-            PAYMENT_DATA = "paymentData", AUTH_IS_NULL = "authIsNull";
-    public static final String MOVIES_SCHEDULE_MAP = "moviesScheduleMap";
-    public static final String TICKET_PRICE = "ticketPrice";
-    public static final String SELECTED_TIMESLOT = "selected_timeslot";
-    public static final String MOVIE_ID = "movieId";
-    public static final String SOLD_SEAT_MAP_LIST = "soldSeatMapList";
-    public static final String HALL_ID = "hallId";
-    public static final String SEATS = "seats";
-    public static final String ROWS = "rows";
+    public static final String EMAIL = "email", USER_STATUS = "userStatus",
+            PAYMENT_DATA = "paymentData", AUTH_IS_NULL = "authIsNull", MOVIES_SCHEDULE_MAP = "moviesScheduleMap",
+            TICKET_PRICE = "ticketPrice", SELECTED_TIMESLOT = "selected_timeslot", MOVIE_ID = "movieId",
+            SOLD_SEAT_MAP_LIST = "soldSeatMapList", HALL_ID = "hallId", SEATS = "seats", ROWS = "rows";
     private final TicketRepository ticketRepository;
     private final HallRepository hallRepository;
     private final UserRepository userRepository;
@@ -74,7 +68,7 @@ public class UserController {
                     AUTH_IS_NULL, authIsNull));
             log.info("...............user " + principal.getName() + " authNULL is " + authIsNull);
             getTicketsAndSupplyWithQRCodes(model, user);
-        } else { //auth is NULL
+        } else {
             model.addAttribute(AUTH_IS_NULL, true);
         }
         model.addAttribute(MOVIES_SCHEDULE_MAP, movieSchedulesMap);
@@ -99,7 +93,6 @@ public class UserController {
     /**
      * ендпойнт для виведення схеми кінозалу
      */
-
     @GetMapping("/buy/{hallId}/{movieId}/{selected_timeslot}")
     public String generateTable(Model model, Principal principal,
                                 Authentication authentication,
@@ -116,12 +109,9 @@ public class UserController {
                         movieId,
                         timeSlotToLocalDateTime);
         var soldTicketList = TicketService.getTicketMap(soldTickets);
-
-        //передати напряму сет через thymeleaf не вийде, бо останній серіалізується у звичайний масив
         var moviesList = movieRepository.findAll();
         var movieSchedulesMap = scheduleService
                 .getMovieScheduleMap(moviesList);
-
         provideWithModelAttribOnAuthIsTrue(model, principal, authentication, hallId, movieId, selectedTimeslot, hall, soldTicketList, movieSchedulesMap);
         return "user";
     }
@@ -187,22 +177,6 @@ public class UserController {
         var moviesList = movieRepository.findAll();
         var movieSchedulesMap = scheduleService
                 .getMovieScheduleMap(moviesList);
-       /* var userEmail = principal.getName();
-        var user = userRepository.findByEmail(userEmail).orElseThrow();
-
-        model.addAllAttributes(Map.of(
-                ROWS, hall.getRowz(),
-                SEATS, hall.getSeats(),
-                HALL_ID, hallId,
-                SOLD_SEAT_MAP_LIST, soldTicketList,
-                MOVIE_ID, movieId,
-                MOVIES_SCHEDULE_MAP, movieSchedulesMap,
-                EMAIL, userEmail,
-                USER_STATUS, user.getAccessLevel().str,
-                SELECTED_TIMESLOT, selectedTimeslot,
-                TICKET_PRICE, hall.getSeatPrice()));
-        model.addAttribute("userId", user.getId());
-        getTicketsAndSupplyWithQRCodes(model, user);*/
         provideWithModelAttribOnAuthIsTrue(model,
                 principal, authentication, hallId, movieId,
                 selectedTimeslot, hall, soldTicketList, movieSchedulesMap);
@@ -229,7 +203,6 @@ public class UserController {
                 .orElseThrow()
                 .getSeatPrice();
         amount *= reqUnitList.size();
-
         var paymentJSON = preparePayment(
                 amount.toString(),
                 publicKey,
@@ -237,7 +210,6 @@ public class UserController {
                 orderId,
                 serverUrl
         );
-
         var paymentData = getPaymentData(paymentJSON);
         var paymentSignature = getPaymentSignature(paymentData, privateKey);
         var order = Order
@@ -247,17 +219,11 @@ public class UserController {
                 .orderId(orderId)
                 .requestedSeats(seatBatchRequest)
                 .build();
-
         orderService.storeOrderInMemoryMap(order);
-
         log.info(":::::::: order has been requested {}", order);
-        order
-                .requestedSeats()
+        order.requestedSeats()
                 .seats()
                 .forEach(log::info);
-
         return Map.of(PAYMENT_DATA, paymentData, "signature", paymentSignature);
     }
 }
-
-
