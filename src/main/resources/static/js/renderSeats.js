@@ -126,18 +126,26 @@ function updateSelectedSeatsUI() {
        });
    });
 
-   resetButton.addEventListener("click", function () {
-     // Зняти клас з кнопок
-     document.querySelectorAll(".seat-button.selected-seat").forEach(button => {
-       button.classList.remove("selected-seat");
-     });
-
-     // Очистити масив вибраних місць
-     selectedSeats.length = 0;
-
-     // Оновити UI
-     updateSelectedSeatsUI();
+   payButton.addEventListener("click", function () {
+     resetSeatSelection();
    });
+
+  function resetSeatSelection() {
+    // Зняти клас з кнопок
+    document.querySelectorAll(".seat-button.selected-seat").forEach(button => {
+      button.classList.remove("selected-seat");
+    });
+
+    // Очистити масив вибраних місць
+    selectedSeats.length = 0;
+
+    // Оновити UI
+    updateSelectedSeatsUI();
+  }
+
+  resetButton.addEventListener("click", function () {
+    resetSeatSelection();
+  });
 
 
 function createLiqpayForm(data, signature) {

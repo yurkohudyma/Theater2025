@@ -96,7 +96,8 @@
             <h3>Вибрані місця:</h3>
             <ul id="selectedSeatsList"></ul>
             <p id="totalPrice">Загальна сума: 0 грн</p>
-            <button id="payButton">Оплатити</button>
+            <button id="payButton" th:disabled = "${authIsNull}"
+                    th:title="${authIsNull} ? 'Потрібно зареєструватись або увійти в систему' : null">Оплатити</button>
             <button id="resetButton">Скинути</button>
         </div>
 

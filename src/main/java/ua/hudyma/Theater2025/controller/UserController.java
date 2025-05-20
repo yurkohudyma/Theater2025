@@ -35,6 +35,13 @@ public class UserController {
     public static final String MOVIES_LIST = "moviesList", EMAIL = "email", USER_STATUS = "userStatus",
             PAYMENT_DATA = "paymentData", AUTH_IS_NULL = "authIsNull";
     public static final String MOVIES_SCHEDULE_MAP = "moviesScheduleMap";
+    public static final String TICKET_PRICE = "ticketPrice";
+    public static final String SELECTED_TIMESLOT = "selected_timeslot";
+    public static final String MOVIE_ID = "movieId";
+    public static final String SOLD_SEAT_MAP_LIST = "soldSeatMapList";
+    public static final String HALL_ID = "hallId";
+    public static final String SEATS = "seats";
+    public static final String ROWS = "rows";
     private final TicketRepository ticketRepository;
     private final HallRepository hallRepository;
     private final UserRepository userRepository;
@@ -68,8 +75,7 @@ public class UserController {
             log.info("...............user " + principal.getName() + " authNULL is " + authIsNull);
             getTicketsAndSupplyWithQRCodes(model, user);
         } else { //auth is NULL
-            model.addAllAttributes(Map.of(
-                    AUTH_IS_NULL, true));
+            model.addAttribute(AUTH_IS_NULL, true);
         }
         model.addAttribute(MOVIES_SCHEDULE_MAP, movieSchedulesMap);
         return "user";
@@ -96,9 +102,10 @@ public class UserController {
 
     @GetMapping("/buy/{hallId}/{movieId}/{selected_timeslot}")
     public String generateTable(Model model, Principal principal,
-                                @PathVariable("hallId") Integer hallId,
-                                @PathVariable("movieId") Long movieId,
-                                @PathVariable("selected_timeslot") String selectedTimeslot) {
+                                Authentication authentication,
+                                @PathVariable(HALL_ID) Integer hallId,
+                                @PathVariable(MOVIE_ID) Long movieId,
+                                @PathVariable(SELECTED_TIMESLOT) String selectedTimeslot) {
 
         var hall = hallRepository.findById(hallId).orElseThrow();
         var timeSlotToLocalDateTime =
@@ -114,31 +121,57 @@ public class UserController {
         var moviesList = movieRepository.findAll();
         var movieSchedulesMap = scheduleService
                 .getMovieScheduleMap(moviesList);
-        var userEmail = principal.getName();
-        var user = userRepository.findByEmail(userEmail).orElseThrow();
 
-        model.addAllAttributes(Map.of(
-                "rows", hall.getRowz(),
-                "seats", hall.getSeats(),
-                "hallId", hallId,
-                "soldSeatMapList", soldTicketList,
-                "movieId", movieId,
-                MOVIES_SCHEDULE_MAP, movieSchedulesMap,
-                EMAIL, userEmail,
-                USER_STATUS, user.getAccessLevel().str,
-                "selected_timeslot", selectedTimeslot,
-                "ticketPrice", hall.getSeatPrice()));
-        model.addAttribute("userId", user.getId());
-
-        getTicketsAndSupplyWithQRCodes(model, user);
+        provideWithModelAttribOnAuthIsTrue(model, principal, authentication, hallId, movieId, selectedTimeslot, hall, soldTicketList, movieSchedulesMap);
         return "user";
+    }
+
+    private void provideWithModelAttribOnAuthIsTrue(Model model,
+                                                    Principal principal,
+                                                    Authentication authentication,
+                                                    Integer hallId,
+                                                    Long movieId,
+                                                    String selectedTimeslot,
+                                                    Hall hall,
+                                                    List<Map<String, Integer>> soldTicketList,
+                                                    Map<Movie, List<String>> movieSchedulesMap) {
+        if (authentication != null) {
+            var userEmail = principal.getName();
+            var user = userRepository.findByEmail(userEmail).orElseThrow();
+
+            model.addAllAttributes(Map.of(
+                    ROWS, hall.getRowz(),
+                    SEATS, hall.getSeats(),
+                    HALL_ID, hallId,
+                    SOLD_SEAT_MAP_LIST, soldTicketList,
+                    MOVIE_ID, movieId,
+                    MOVIES_SCHEDULE_MAP, movieSchedulesMap,
+                    EMAIL, userEmail,
+                    USER_STATUS, user.getAccessLevel().str,
+                    SELECTED_TIMESLOT, selectedTimeslot,
+                    TICKET_PRICE, hall.getSeatPrice()));
+            model.addAttribute("userId", user.getId());
+            getTicketsAndSupplyWithQRCodes(model, user);
+        } else {
+            model.addAllAttributes(Map.of(
+                    ROWS, hall.getRowz(),
+                    SEATS, hall.getSeats(),
+                    HALL_ID, hallId,
+                    SOLD_SEAT_MAP_LIST, soldTicketList,
+                    MOVIE_ID, movieId,
+                    MOVIES_SCHEDULE_MAP, movieSchedulesMap,
+                    SELECTED_TIMESLOT, selectedTimeslot,
+                    TICKET_PRICE, hall.getSeatPrice(),
+                    AUTH_IS_NULL, true));
+        }
     }
 
     @PostMapping("/buy/{hallId}/{movieId}/{selected_timeslot}")
     public String generateTableNew(Model model, Principal principal,
-                                @PathVariable("hallId") Integer hallId,
-                                @PathVariable("movieId") Long movieId,
-                                @PathVariable("selected_timeslot") String selectedTimeslot) {
+                                   Authentication authentication,
+                                   @PathVariable(HALL_ID) Integer hallId,
+                                   @PathVariable(MOVIE_ID) Long movieId,
+                                   @PathVariable(SELECTED_TIMESLOT) String selectedTimeslot) {
 
         var hall = hallRepository.findById(hallId).orElseThrow();
         var timeSlotToLocalDateTime =
@@ -154,22 +187,25 @@ public class UserController {
         var moviesList = movieRepository.findAll();
         var movieSchedulesMap = scheduleService
                 .getMovieScheduleMap(moviesList);
-        var userEmail = principal.getName();
+       /* var userEmail = principal.getName();
         var user = userRepository.findByEmail(userEmail).orElseThrow();
 
         model.addAllAttributes(Map.of(
-                "rows", hall.getRowz(),
-                "seats", hall.getSeats(),
-                "hallId", hallId,
-                "soldSeatMapList", soldTicketList,
-                "movieId", movieId,
+                ROWS, hall.getRowz(),
+                SEATS, hall.getSeats(),
+                HALL_ID, hallId,
+                SOLD_SEAT_MAP_LIST, soldTicketList,
+                MOVIE_ID, movieId,
                 MOVIES_SCHEDULE_MAP, movieSchedulesMap,
                 EMAIL, userEmail,
                 USER_STATUS, user.getAccessLevel().str,
-                "selected_timeslot", selectedTimeslot,
-                "ticketPrice", hall.getSeatPrice()));
+                SELECTED_TIMESLOT, selectedTimeslot,
+                TICKET_PRICE, hall.getSeatPrice()));
         model.addAttribute("userId", user.getId());
-        getTicketsAndSupplyWithQRCodes(model, user);
+        getTicketsAndSupplyWithQRCodes(model, user);*/
+        provideWithModelAttribOnAuthIsTrue(model,
+                principal, authentication, hallId, movieId,
+                selectedTimeslot, hall, soldTicketList, movieSchedulesMap);
         return "user";
     }
 
