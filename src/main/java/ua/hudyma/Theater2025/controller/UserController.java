@@ -10,16 +10,14 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import ua.hudyma.Theater2025.constants.TicketStatus;
 import ua.hudyma.Theater2025.constants.liqpay.OrderStatus;
-import ua.hudyma.Theater2025.model.Order;
-import ua.hudyma.Theater2025.model.SeatBatchRequest;
-import ua.hudyma.Theater2025.model.Ticket;
-import ua.hudyma.Theater2025.model.User;
+import ua.hudyma.Theater2025.model.*;
 import ua.hudyma.Theater2025.repository.HallRepository;
 import ua.hudyma.Theater2025.repository.MovieRepository;
 import ua.hudyma.Theater2025.repository.TicketRepository;
 import ua.hudyma.Theater2025.repository.UserRepository;
 import ua.hudyma.Theater2025.service.AuthService;
 import ua.hudyma.Theater2025.service.OrderService;
+import ua.hudyma.Theater2025.service.ScheduleService;
 import ua.hudyma.Theater2025.service.TicketService;
 
 import java.security.NoSuchAlgorithmException;
@@ -36,6 +34,7 @@ import static ua.hudyma.Theater2025.payment.LiqPayHelper.*;
 public class UserController {
     public static final String MOVIES_LIST = "moviesList", EMAIL = "email", USER_STATUS = "userStatus",
             PAYMENT_DATA = "paymentData", AUTH_IS_NULL = "authIsNull";
+    public static final String MOVIES_SCHEDULE_MAP = "moviesScheduleMap";
     private final TicketRepository ticketRepository;
     private final HallRepository hallRepository;
     private final UserRepository userRepository;
@@ -43,6 +42,7 @@ public class UserController {
     private final OrderService orderService;
     private final TicketService ticketService;
     private final AuthService authService;
+    private final ScheduleService scheduleService;
 
     @Value("${liqpay_public_key}")
     private String publicKey;
@@ -55,12 +55,13 @@ public class UserController {
     public String getAllMovies(Model model, Principal principal,
                                Authentication authentication) {
         var moviesList = movieRepository.findAll();
+        var movieSchedulesMap = scheduleService
+                .getMovieScheduleMap(moviesList);
         if (authentication != null) {
             var userEmail = principal.getName();
             var user = userRepository.findByEmail(userEmail).orElseThrow();
             var authIsNull = authService.currentAuthIsNullOrAnonymous();
             model.addAllAttributes(Map.of(
-                    MOVIES_LIST, moviesList,
                     EMAIL, userEmail,
                     USER_STATUS, user.getAccessLevel().str,
                     AUTH_IS_NULL, authIsNull));
@@ -68,9 +69,9 @@ public class UserController {
             getTicketsAndSupplyWithQRCodes(model, user);
         } else { //auth is NULL
             model.addAllAttributes(Map.of(
-                    MOVIES_LIST, moviesList,
                     AUTH_IS_NULL, true));
         }
+        model.addAttribute(MOVIES_SCHEDULE_MAP, movieSchedulesMap);
         return "user";
     }
 
@@ -111,6 +112,8 @@ public class UserController {
 
         //передати напряму сет через thymeleaf не вийде, бо останній серіалізується у звичайний масив
         var moviesList = movieRepository.findAll();
+        var movieSchedulesMap = scheduleService
+                .getMovieScheduleMap(moviesList);
         var userEmail = principal.getName();
         var user = userRepository.findByEmail(userEmail).orElseThrow();
 
@@ -120,12 +123,13 @@ public class UserController {
                 "hallId", hallId,
                 "soldSeatMapList", soldTicketList,
                 "movieId", movieId,
-                MOVIES_LIST, moviesList,
+                MOVIES_SCHEDULE_MAP, movieSchedulesMap,
                 EMAIL, userEmail,
                 USER_STATUS, user.getAccessLevel().str,
                 "selected_timeslot", selectedTimeslot,
                 "ticketPrice", hall.getSeatPrice()));
         model.addAttribute("userId", user.getId());
+
         getTicketsAndSupplyWithQRCodes(model, user);
         return "user";
     }
@@ -148,6 +152,8 @@ public class UserController {
 
         //передати напряму сет через thymeleaf не вийде, бо останній серіалізується у звичайний масив
         var moviesList = movieRepository.findAll();
+        var movieSchedulesMap = scheduleService
+                .getMovieScheduleMap(moviesList);
         var userEmail = principal.getName();
         var user = userRepository.findByEmail(userEmail).orElseThrow();
 
@@ -157,7 +163,7 @@ public class UserController {
                 "hallId", hallId,
                 "soldSeatMapList", soldTicketList,
                 "movieId", movieId,
-                MOVIES_LIST, moviesList,
+                MOVIES_SCHEDULE_MAP, movieSchedulesMap,
                 EMAIL, userEmail,
                 USER_STATUS, user.getAccessLevel().str,
                 "selected_timeslot", selectedTimeslot,

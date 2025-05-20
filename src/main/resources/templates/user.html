@@ -44,38 +44,26 @@
     <br>
 
     <div class="movies_container">
-        <div class="movie_slot" th:each="movie : ${moviesList}">
+        <div class="movie_slot" th:each="entry : ${moviesScheduleMap}">
             <div class="movie_img">
-                <img th:src="${movie.imgUrl}" alt="Постер фільму"/>
+                <img th:src="${entry.key.imgUrl}" alt="Постер фільму"/>
             </div>
-            <div class="movie_name" th:text="${movie.name}"></div>
-            <div class="movie_genre" th:text="${movie.genre.str}"></div>
+            <div class="movie_name" th:text="${entry.key.name}"></div>
+            <div class="movie_genre" th:text="${entry.key.genre.str}"></div>
             <div class="movie_unit"
-                 th:text="'Кінець прокату: '+ ${#temporals.format(movie.showEnd, 'dd-MM-yyyy')}"></div>
+                 th:text="'Кінець прокату: '+ ${#temporals.format(entry.key.showEnd, 'dd-MM-yyyy')}"></div>
             <div class="movie_unit">Сеанси:
-                <div class="movie_timeslot">
-                    <a th:href="@{'/user/buy/' + ${movie.hall.id} + '/' + ${movie.id} + '/' + ${movie.schedule.timeSlot}}"
-                       th:text="${movie.schedule.timeSlot}"></a>
-                </div>
-                <div class="movie_timeslot" th:if="${movie.schedule.timeSlot2 != null}">
-                    <a th:href="@{'/user/buy/' + ${movie.hall.id} + '/' + ${movie.id}  + '/' + ${movie.schedule.timeSlot2}}"
-                       th:text="${movie.schedule.timeSlot2}"></a>
-                </div>
-                <div class="movie_timeslot" th:if="${movie.schedule.timeSlot3 != null}">
-                    <a th:href="@{'/user/buy/' + ${movie.hall.id} + '/' + ${movie.id}  + '/' + ${movie.schedule.timeSlot3}}"
-                       th:text="${movie.schedule.timeSlot3}"></a>
-                </div>
-                <div class="movie_timeslot">
+                <div class="movie_timeslot" th:each = "timeSlot: ${entry.value}">
                     <a href="#"
                        th:onclick="engageTimeSlot('/buy', {
-                        hallId: [[${movie.hall.id}]],
-                        movieId: [[${movie.id}]],
-                        timeSlot: [[${movie.schedule.timeSlot}]] })"
-                       th:text="${movie.schedule.timeSlot}">
+                        hallId: [[${entry.key.hall.id}]],
+                        movieId: [[${entry.key.id}]],
+                        timeSlot: [[${timeSlot}]] })"
+                       th:text="${timeSlot}">
                     </a>
                 </div>
             </div>
-            <div class="movie_unit" th:text="'Кінозал: '+ ${movie.hall.name}"></div>
+            <div class="movie_unit" th:text="'Кінозал: '+ ${entry.key.hall.name}"></div>
         </div>
     </div>
 
@@ -91,10 +79,6 @@
         window.paymentSignature = [[${paymentSignature}]];
         window.authError = [[${authError}]];
         window.ticketPrice = [[${ticketPrice}]];
-
-
-
-
     </script>
 
     <div th:insert="~{fragments/login_popup :: popup}"></div>

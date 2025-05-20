@@ -46,6 +46,7 @@ public class Movie {
             fetch = FetchType.EAGER)
     @Setter(AccessLevel.PRIVATE)
     private List<Ticket> movieTicketList = new ArrayList<>();
+
     //@JsonBackReference(value = "movies_schedules")
     @JsonIgnore
     @ManyToOne
@@ -68,6 +69,11 @@ public class Movie {
                 ", imdbIndex='" + imdbIndex + '\'' +
                 ", name='" + name + '\'' +
                 ", imgUrl='" + imgUrl + '\'' +
+                ", schedule=" + (schedule != null ?
+                schedule.getTimeSlot() + "/" +
+                        schedule.getTimeSlot2() + "/" +
+                        schedule.getTimeSlot3(): "") +
                 '}';
     }
+
 }

@@ -10,6 +10,9 @@ import java.util.List;
 @Repository
 public interface ScheduleRepository extends JpaRepository<Schedule, Integer> {
 
-    @Transactional
     List<Schedule> findAll();
+
+    //List<Schedule> findByMovies_Id (Long movieId);
+
+
 }

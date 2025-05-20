@@ -15,7 +15,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ua.hudyma.Theater2025.constants.UserAccessLevel;
 import ua.hudyma.Theater2025.exception.UserEmailExistsException;
 import ua.hudyma.Theater2025.model.User;
