@@ -6,9 +6,9 @@
   <li>JavaScript for interactive cinema hall scheme generator</li>
   <li>Thymeleaf template @front</li>
   <li>MySQL RMDBS</li>
-  <li>Spring Security</li> -> checkout branch 'security'
+  <li>Spring Security -> checkout branch 'jwt'</li>
   <li>Custom JWT provider config</li>
-  <li>LiqPay API for payment acquirement</li>  -> checkout branch 'payment'
+  <li>LiqPay API for payment acquirement -> checkout branch 'payment' </li>
   <li>Gmail API notification emailing</li>
   <li>QR code generator for tickets</li>
 </ol>
